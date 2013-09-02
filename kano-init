@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function typewriter_echo
+{
+    string="$1"
+    while test -n "$string"; do
+        c=${string:0:1}
+        echo -ne "$c"
+        if [ "$c" == " " ]; then
+            sleep 0.3
+        else
+            sleep 0.1
+        fi
+        string=${string:1}
+    done
+    echo -ne "\n"
+}
+
+typewriter_echo "Hello! I'm Kano."
+sleep 1
+typewriter_echo "What's your Team name? Please, enter it bellow:"
+read -e hostname
+typewriter_echo "Hi \"$hostname\", you're now in the system!"
+sleep 2
