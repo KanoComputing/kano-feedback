@@ -1,1 +1,2 @@
 ./kano-init /usr/bin
+./autostart-kano-init.sh /etc/profile.d

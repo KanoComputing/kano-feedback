@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function rand
+{
+    local low=$1  # miliseconds
+    local high=$2 # miliseconds
+    local rv=`bc <<< "scale=4; $[($RANDOM % ($high - $low)) + $low] / 1000"`
+    echo "0$rv"
+}
+
 function typewriter_echo
 {
     string="$1"
@@ -7,18 +15,82 @@ function typewriter_echo
         c=${string:0:1}
         echo -ne "$c"
         if [ "$c" == " " ]; then
-            sleep 0.3
+            sleep `rand 100 300`
         else
-            sleep 0.1
+            sleep `rand 50 100`
         fi
         string=${string:1}
     done
     echo -ne "\n"
 }
 
+function set_autologin_user
+{
+    sed -i "s/\(1:2345:respawn:\).\+\$/\1\/sbin\/getty -a $1 38400 tty1/" \
+        /etc/inittab
+}
+
+function enable_autostart
+{
+    sed -i "s/^\(ENABLED\=\)[01]$/\11/" /etc/profile.d/autostart-kano-init.sh
+}
+
+function disable_autostart
+{
+    sed -i "s/^\(ENABLED\=\)[01]$/\10/" /etc/profile.d/autostart-kano-init.sh
+}
+
+# Check for root priviledges.
+if [ `id -u` -ne 0 ]; then
+    echo "kano-init must be executed with root privileges"
+    exit 1
+fi
+
+# Special case: With the 'autostart' argument, kano-init will set up
+# to be executed during the next reboot
+if [ "$1" == "autostart" ]; then
+    set_autologin_user "root"
+    enable_autostart
+    echo "kano-init scheduled for the next system reboot"
+    exit 0
+fi
+
+clear
+echo "Press any key to start"
+read -n 1 -s
+
+clear
+sleep 1
+
 typewriter_echo "Hello! I'm Kano."
 sleep 1
-typewriter_echo "What's your Team name? Please, enter it bellow:"
-read -e hostname
-typewriter_echo "Hi \"$hostname\", you're now in the system!"
-sleep 2
+typewriter_echo "What's your team name?"
+read -e username
+
+while true; do
+    if [ -z "$username" ]; then
+        typewriter_echo "I need to know your Team name:"
+    elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
+        typewriter_echo "Only letters and numbers are allowed in your team name. Pick another one:"
+    else
+        break
+    fi
+    read -e username
+done
+
+# Rename the pi user
+usermod -l "$username" "pi" 2>/dev/null
+
+# TODO: We should check whether the user "pi" exists and create a new one
+# instead of renaming in case it doesn't
+
+# Setup automatic login for this user on any subsequent reboot
+set_autologin_user "$username"
+disable_autostart
+
+typewriter_echo "Hi '$username', you're now in the system."
+sleep 1
+
+# Start the terminal as the new user
+echo -ne "\n"
+exec login -f "$username"
