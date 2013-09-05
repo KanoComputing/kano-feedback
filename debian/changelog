@@ -1,4 +1,10 @@
-kano-init (0.1-1) UNRELEASED; urgency=low
+kano-init (0.1-2) unstable; urgency=low
+
+  * Updating to a new version of the project
+
+ -- Team Kano <hello@kane.me>  Wed, 04 Sep 2013 22:28:01 +0100
+
+kano-init (0.1-1) unstable; urgency=low
 
   * Initial release.
 
