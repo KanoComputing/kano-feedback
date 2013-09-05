@@ -55,6 +55,9 @@ if [ "$1" == "autostart" ]; then
     exit 0
 fi
 
+stty intr undef
+stty eof '?'
+
 clear
 echo "Press any key to start"
 read -n 1 -s
@@ -91,6 +94,9 @@ disable_autostart
 
 typewriter_echo "Hi '$username', you're now in the system."
 sleep 1
+
+stty intr ^C
+stty eof ^D
 
 # Start the terminal as the new user
 echo -ne "\n"
