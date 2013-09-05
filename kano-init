@@ -69,7 +69,7 @@ read -e username
 
 while true; do
     if [ -z "$username" ]; then
-        typewriter_echo "I need to know your Team name:"
+        typewriter_echo "I need to know your team name:"
     elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
         typewriter_echo "Only letters and numbers are allowed in your team name. Pick another one:"
     else
@@ -78,8 +78,9 @@ while true; do
     read -e username
 done
 
-# Rename the pi user
+# Change both the user and group names
 usermod -l "$username" "pi" 2>/dev/null
+groupmod -n "$username" "pi" 2>/dev/null
 
 # TODO: We should check whether the user "pi" exists and create a new one
 # instead of renaming in case it doesn't
