@@ -58,9 +58,9 @@ fi
 stty intr undef
 stty eof '?'
 
-clear
-echo "Press any key to start"
-read -n 1 -s
+#clear
+#echo "Press any key to start"
+#read -n 1 -s
 
 clear
 sleep 1
