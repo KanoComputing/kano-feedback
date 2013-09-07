@@ -49,6 +49,21 @@ function disable_autostart
     sed -i "s/^\(ENABLED\=\)[01]$/\10/" /etc/profile.d/autostart-kano-init.sh
 }
 
+function get_option
+{
+    while true; do
+        read -e option
+        eval "$1=$option"
+        if [ -z "$option" ]; then
+            typewriter_echo "You need to choose one option. Which one do you pick:"
+        elif [ -z "`grep "^[123]$" <<<"$option"`" ]; then
+            typewriter_echo "The options are 1, 2, or 3. Which one do you pick:"
+        else
+            break
+        fi
+    done
+}
+
 # Check for root priviledges.
 if [ `id -u` -ne 0 ]; then
     echo "kano-init must be executed with root privileges"
@@ -64,6 +79,14 @@ if [ "$1" == "autostart" ]; then
     exit 0
 fi
 
+# Get the resources directory
+if [ -d "ascii_art" ]; then
+    res_dir="."
+else
+    res_dir="/usr/share/kano-init/"
+fi
+
+# Disable Ctrl+C and Ctrl+D in the console
 stty intr undef
 stty eof '?'
 
@@ -74,12 +97,13 @@ stty eof '?'
 clear
 sleep 1
 
-typewriter_echo "Hello! I'm Kano."
-sleep 1
-typewriter_echo "What's your team name?"
-read -e username
+typewriter_echo "Hello!" 1
+typewriter_echo "I'm Kano. Thanks for bringing me to life." 0.5
+typewriter_echo "What's your name?"
 
+# Read the username
 while true; do
+    read -e username
     if [ -z "$username" ]; then
         typewriter_echo "I need to know your team name:"
     elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
@@ -87,26 +111,79 @@ while true; do
     else
         break
     fi
-    read -e username
 done
 
-# Change both the user and group names
-usermod -l "$username" "pi" 2>/dev/null
-groupmod -n "$username" "pi" 2>/dev/null
-
-# TODO: We should check whether the user "pi" exists and create a new one
-# instead of renaming in case it doesn't
+# Get the username of the user with UID=1000
+old_user=`grep "^[^:]*:[^:]*:1000:1000" /etc/passwd | awk -F ':' '{ print $1 }'`
+if [ -n "$old_user" ]; then
+    # Change both the user and group names
+    usermod -l "$username" "$old_user" 2>/dev/null
+    groupmod -n "$username" "$old_user" 2>/dev/null
+else
+    # TODO: We might create the user in this case
+    echo "Error: No user with UID=1000 found."
+    exit 1
+fi
 
 # Setup automatic login for this user on any subsequent reboot
 set_autologin_user "$username"
 disable_autostart
 
-typewriter_echo "Hi '$username', you're now in the system."
-sleep 1
+typewriter_echo "I'll remember it." 0.5
+typewriter_echo "Feel my brain? It's getting warmer." 0.5
+typewriter_echo "I bet I can out-think you!" 0.5
+typewriter_echo "$username, follow the white rabbit." 0.5
+
+while true; do
+    typewriter_echo "Pick a type:" 0.1
+    typewriter_echo "  1) Animal" 0.1
+    typewriter_echo "  2) Plant" 0.1
+    typewriter_echo "  3) Machine" 0.1
+    typewriter_echo "Your choice:"
+    get_option "picked_type"
+
+    typewriter_echo "Pick a size:" 0.1
+    typewriter_echo "  1) Big" 0.1
+    typewriter_echo "  2) Medium" 0.1
+    typewriter_echo "  3) Small" 0.1
+    typewriter_echo "Your choice:"
+    get_option "picked_size"
+
+    ascii_art_dir="$res_dir/ascii_art"
+
+    case "$picked_type$picked_size" in
+        11) cat "$ascii_art_dir/elephant.txt" ;;
+        12) cat "$ascii_art_dir/human.txt" ;;
+        13) cat "$ascii_art_dir/rabbit.txt" ;;
+        21) cat "$ascii_art_dir/tree.txt" ;;
+        22) cat "$ascii_art_dir/potato-head.txt" ;;
+        23) cat "$ascii_art_dir/flower.txt" ;;
+        33) cat "$ascii_art_dir/car.txt" ;;
+        32) cat "$ascii_art_dir/robot.txt" ;;
+        23) cat "$ascii_art_dir/chip.txt" ;;
+    esac
+
+    if [ "$picked_type$picked_size" -eq 13 ]; then
+        typewriter_echo "You win!"
+        break
+    else
+        typewriter_echo "Computers rule! Try again."
+    fi
+    sleep 0.5
+done
+
+typewriter_echo "I can do things fast."
+typewriter_echo "Help me get a video from the Internet."
+sudo -u "$username" -H bash --init-file $res_dir/subshellrc
+clear
+
+typewriter_echo "Uhoh!" 0.25
+typewriter_echo "More awesome ASCII art! Booom!" 0.25
+typewriter_echo "3 ... 2 ... 1 ..." 0.25
+typewriter_echo "Quick, $username, type startx to go to a new world!"
 
 stty intr ^C
 stty eof ^D
 
 # Start the terminal as the new user
-echo -ne "\n"
-exec login -f "$username"
+exec sudo -u "$username" -H bash --init-file $res_dir/subshellrc
