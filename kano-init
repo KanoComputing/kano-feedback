@@ -72,7 +72,7 @@ fi
 
 # Special case: With the 'autostart' argument, kano-init will set up
 # to be executed during the next reboot
-if [ "$1" == "autostart" ]; then
+if [ "$1" == "reset" ]; then
     set_autologin_user "root"
     enable_autostart
     echo "kano-init scheduled for the next system reboot"
