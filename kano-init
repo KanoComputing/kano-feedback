@@ -15,21 +15,23 @@ function typewriter_echo
         c=${string:0:1}
         echo -ne "$c"
         if [ "$c" == " " ]; then
-            sleep 0.07  #`rand_wait 50 100`
+            sleep 0.07
+        elif [ "$c" == "." ] || [ "$c" == "?" ]; then
+            sleep 0.05
         else
-            sleep 0.035  #`rand_wait 30 60`
+            sleep 0.05
         fi
         string=${string:1}
     done
 
     if [ -n "$2" ]; then
-        sleep `bc <<<"scale=4; $2 / 2"`
+        sleep `bc <<<"scale=4; ($2 / 4) * 3"`
     fi
 
     echo -ne "\n"
 
     if [ -n "$2" ]; then
-        sleep `bc <<<"scale=4; $2 / 2"`
+        sleep `bc <<<"scale=4; ($2 / 4)"`
     fi
 }
 
@@ -90,14 +92,10 @@ fi
 stty intr undef
 stty eof '?'
 
-#clear
-#echo "Press any key to start"
-#read -n 1 -s
-
 clear
 sleep 1
 
-typewriter_echo "Hello!" 1
+typewriter_echo "Hello!" 0.5
 typewriter_echo "I'm Kano. Thanks for bringing me to life." 0.5
 typewriter_echo "What's your name?"
 
@@ -105,9 +103,9 @@ typewriter_echo "What's your name?"
 while true; do
     read -e username
     if [ -z "$username" ]; then
-        typewriter_echo "I need to know your team name:"
+        typewriter_echo "I need to know your name:"
     elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
-        typewriter_echo "Only letters and numbers are allowed in your team name. Pick another one:"
+        typewriter_echo "Only letters and numbers are allowed. Pick another one:"
     else
         break
     fi
@@ -133,10 +131,9 @@ fi
 set_autologin_user "$username"
 disable_autostart
 
-typewriter_echo "I'll remember it." 0.5
-typewriter_echo "Feel my brain? It's getting warmer." 0.5
-typewriter_echo "I bet I can out-think you!" 0.5
-typewriter_echo "$username, follow the white rabbit." 0.5
+typewriter_echo "$username, follow the white rabbit..." 0.5
+typewriter_echo "If you dare." 0.5
+typewriter_echo "But first, I bet I can out-think you..." 0.5
 
 while true; do
     typewriter_echo "Pick a type:" 0.1
@@ -162,13 +159,13 @@ while true; do
         21) cat "$ascii_art_dir/tree.txt" ;;
         22) cat "$ascii_art_dir/potato-head.txt" ;;
         23) cat "$ascii_art_dir/flower.txt" ;;
-        33) cat "$ascii_art_dir/car.txt" ;;
+        31) cat "$ascii_art_dir/car.txt" ;;
         32) cat "$ascii_art_dir/robot.txt" ;;
-        23) cat "$ascii_art_dir/chip.txt" ;;
+        33) cat "$ascii_art_dir/chip.txt" ;;
     esac
 
     if [ "$picked_type$picked_size" -eq 13 ]; then
-        typewriter_echo "You win!"
+        typewriter_echo "You win..."
         break
     else
         typewriter_echo "Computers rule! Try again."
@@ -176,18 +173,24 @@ while true; do
     sleep 0.5
 done
 
-typewriter_echo "I can do things fast."
+typewriter_echo "I'm good at remembering and combining things." 0.5
+typewriter_echo "But, I need humans to help me make new things." 0.5
+typewriter_echo "I'm even smarter when I can talk to other computers on the Internet." 0.5
+typewriter_echo "Lets hunt for the signal." 0.5
+
+# TODO: wifi config
+
 typewriter_echo "Help me get a video from the Internet."
 sudo -u "$username" -H bash --init-file $res_dir/subshellrc
 clear
 
-typewriter_echo "Uhoh!" 0.25
-typewriter_echo "More awesome ASCII art! Booom!" 0.25
-typewriter_echo "3 ... 2 ... 1 ..." 0.25
-typewriter_echo "Quick, $username, type startx to go to a new world!"
+typewriter_echo "Uhoh!" 0.5
+typewriter_echo "More awesome ASCII art! Booom!" 0.5
+typewriter_echo "3 ... 2 ... 1 ..." 0.5
+typewriter_echo "Quick, $username, type startx to escape!"
 
 stty intr ^C
 stty eof ^D
 
 # Start the terminal as the new user
-exec sudo -u "$username" -H bash --init-file $res_dir/subshellrc
+exec sudo -u "$username" -i -H bash
