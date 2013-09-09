@@ -43,14 +43,4 @@ IMM:::::::::IMM::::::M::::::::IIM:::::::MM,
              "IMI, /,mIM"                 __IMMM
                "IMMMM"                   """IMM
                  ""                         IMM
-                                            IMM__
-                                            IMM"""
-                                            IMM
-                                            IMM
-                                          __IMM
-                                         """IMM
-                                            IMM
-                                            IMM
-                                            IMM__
-                                            IMM"""
                                             IMM
