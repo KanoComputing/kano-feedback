@@ -8,6 +8,15 @@ function rand_wait
     echo "0$rv"
 }
 
+function linebreak
+{
+    echo -ne "\n"
+}
+
+# params:
+#   $1: Sring to be printed
+#   $2: Wait time at the end of the line (optional)
+#   $3: Number of line breaks at the end (optional)
 function typewriter_echo
 {
     string="$1"
@@ -28,7 +37,14 @@ function typewriter_echo
         sleep `bc <<<"scale=4; ($2 / 4) * 3"`
     fi
 
-    echo -ne "\n"
+    line_size="1"
+    if [ -n "$3" ]; then
+        line_size="$3"
+    fi
+
+    for n in `seq 1 $line_size`; do
+        linebreak
+    done
 
     if [ -n "$2" ]; then
         sleep `bc <<<"scale=4; ($2 / 4)"`
@@ -96,7 +112,7 @@ clear
 sleep 1
 
 typewriter_echo "Hello!" 0.5
-typewriter_echo "I'm Kano. Thanks for bringing me to life." 0.5
+typewriter_echo "I'm Kano. Thanks for bringing me to life." 0.5 2
 typewriter_echo "What's your name?"
 
 # Read the username
@@ -131,27 +147,29 @@ fi
 set_autologin_user "$username"
 disable_autostart
 
-typewriter_echo "$username, follow the white rabbit..." 0.5
-typewriter_echo "If you dare." 0.5
-typewriter_echo "But first, I bet I can out-think you..." 0.5
+echo -ne "\n"
+typewriter_echo "$username, follow the white rabbit... " 1 0
+typewriter_echo "If you dare." 0.5 2
+typewriter_echo "But first, I bet I can out-think you..." 0.5 2
 
 while true; do
     typewriter_echo "Pick a type:" 0.1
     typewriter_echo "  1) Animal" 0.1
     typewriter_echo "  2) Plant" 0.1
-    typewriter_echo "  3) Machine" 0.1
+    typewriter_echo "  3) Machine" 0.1 2
     typewriter_echo "Your choice:"
     get_option "picked_type"
+    linebreak
 
     typewriter_echo "Pick a size:" 0.1
     typewriter_echo "  1) Big" 0.1
     typewriter_echo "  2) Medium" 0.1
-    typewriter_echo "  3) Small" 0.1
+    typewriter_echo "  3) Small" 0.1 2
     typewriter_echo "Your choice:"
     get_option "picked_size"
+    linebreak
 
     ascii_art_dir="$res_dir/ascii_art"
-
     case "$picked_type$picked_size" in
         11) cat "$ascii_art_dir/elephant.txt" ;;
         12) cat "$ascii_art_dir/human.txt" ;;
@@ -163,22 +181,23 @@ while true; do
         32) cat "$ascii_art_dir/robot.txt" ;;
         33) cat "$ascii_art_dir/chip.txt" ;;
     esac
+    linebreak
 
     if [ "$picked_type$picked_size" -eq 13 ]; then
-        typewriter_echo "You win..."
+        typewriter_echo "You win..." 0.5 2
         break
     else
-        typewriter_echo "Computers rule! Try again."
+        typewriter_echo "Computers rule! Try again." 0.5 2
     fi
-    sleep 0.5
 done
 
 typewriter_echo "I'm good at remembering and combining things." 0.5
-typewriter_echo "But, I need humans to help me make new things." 0.5
+typewriter_echo "But, I need humans to help me make new things." 0.5 2
 typewriter_echo "I'm even smarter when I can talk to other computers on the Internet." 0.5
 typewriter_echo "Lets hunt for the signal." 0.5
 
 # TODO: wifi config
+linebreak
 
 typewriter_echo "Help me get a video from the Internet."
 sudo -u "$username" -H bash --init-file $res_dir/subshellrc
