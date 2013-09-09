@@ -116,9 +116,13 @@ done
 # Get the username of the user with UID=1000
 old_user=`grep "^[^:]*:[^:]*:1000:1000" /etc/passwd | awk -F ':' '{ print $1 }'`
 if [ -n "$old_user" ]; then
-    # Change both the user and group names
-    usermod -l "$username" "$old_user" 2>/dev/null
+    # Change both the user group names and move home dir
+    usermod -l "$username" -d "/home/$username" -m "$old_user" 2>/dev/null
     groupmod -n "$username" "$old_user" 2>/dev/null
+
+    # Rename the 'Home' desktop icon
+    sed -i "s/^\(Name\(\[.\+\]\)\?\)\=.*$/\1=$username/" \
+           "/home/$username/Desktop/Home"
 else
     # TODO: We might create the user in this case
     echo "Error: No user with UID=1000 found."
