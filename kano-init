@@ -196,7 +196,7 @@ typewriter_echo "But, I need humans to help me make new things." 0.5 2
 typewriter_echo "I'm even smarter when I can talk to other computers on the Internet." 0.5
 typewriter_echo "Lets hunt for the signal." 0.5
 
-# TODO: wifi config
+kwifiprompt.py
 linebreak
 
 typewriter_echo "Help me get a video from the Internet."
