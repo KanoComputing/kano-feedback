@@ -207,13 +207,15 @@ typewriter_echo "Help me get a video from the Internet."
 sudo -u "$username" -H bash --init-file $res_dir/subshellrc
 clear
 
-typewriter_echo "Uhoh!" 0.5
-typewriter_echo "More awesome ASCII art! Booom!" 0.5
-typewriter_echo "3 ... 2 ... 1 ..." 0.5
-typewriter_echo "Quick, $username, type startx to escape!"
+typewriter_echo "Uhoh!" 1
+python -B $res_dir/bomb.py "$username"
+rv=$?
 
 stty intr ^C
 stty eof ^D
 
-# Start the terminal as the new user
-exec sudo -u "$username" -i -H bash
+if [ $rv -eq 0 ]; then
+    startx
+else
+    exec kano-init
+fi
