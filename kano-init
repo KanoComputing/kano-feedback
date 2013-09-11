@@ -137,6 +137,10 @@ if [ -n "$old_user" ]; then
     # Rename the 'Home' desktop icon
     sed -i "s/^\(Name\(\[.\+\]\)\?\)\=.*$/\1=$username/" \
            "/home/$username/Desktop/Home"
+
+    # Create a symbolic link for possible /home/pi harcoded paths
+    sudo ln -s /home/$username /home/pi
+    
 else
     # TODO: We might create the user in this case
     echo "Error: No user with UID=1000 found."
