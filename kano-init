@@ -139,8 +139,9 @@ if [ -n "$old_user" ]; then
            "/home/$username/Desktop/Home"
 
     # Create a symbolic link for possible /home/pi harcoded paths
+    rm -f /home/pi
     sudo ln -s /home/$username /home/pi
-    
+
 else
     # TODO: We might create the user in this case
     echo "Error: No user with UID=1000 found."
