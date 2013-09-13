@@ -216,7 +216,7 @@ stty intr ^C
 stty eof ^D
 
 if [ $rv -eq 0 ]; then
-    startx
+    sudo -u "$username" -H startx
 else
     exec kano-init
 fi
