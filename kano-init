@@ -55,6 +55,7 @@ function set_autologin_user
 {
     sed -i "s/\(1:2345:respawn:\).\+\$/\1\/sbin\/getty -a $1 38400 tty1/" \
         /etc/inittab
+    init q
 }
 
 function enable_autostart
@@ -217,7 +218,7 @@ stty eof ^D
 
 if [ $rv -eq 0 ]; then
     sudo -u "$username" -H startx
-    exec login -f "$username"
+    exit
 else
     exec kano-init
 fi
