@@ -1,54 +1,8 @@
 #!/bin/bash
 
-function rand_wait
-{
-    local low=$1  # miliseconds
-    local high=$2 # miliseconds
-    local rv=`bc <<< "scale=4; $[($RANDOM % ($high - $low)) + $low] / 1000"`
-    echo "0$rv"
-}
-
 function linebreak
 {
     echo -ne "\n"
-}
-
-# params:
-#   $1: Sring to be printed
-#   $2: Wait time at the end of the line (optional)
-#   $3: Number of line breaks at the end (optional)
-function typewriter_echo
-{
-    string="$1"
-    while test -n "$string"; do
-        c=${string:0:1}
-        echo -ne "$c"
-        if [ "$c" == " " ]; then
-            sleep 0.07
-        elif [ "$c" == "." ] || [ "$c" == "?" ]; then
-            sleep 0.05
-        else
-            sleep 0.05
-        fi
-        string=${string:1}
-    done
-
-    if [ -n "$2" ]; then
-        sleep `bc <<<"scale=4; ($2 / 4) * 3"`
-    fi
-
-    line_size="1"
-    if [ -n "$3" ]; then
-        line_size="$3"
-    fi
-
-    for n in `seq 1 $line_size`; do
-        linebreak
-    done
-
-    if [ -n "$2" ]; then
-        sleep `bc <<<"scale=4; ($2 / 4)"`
-    fi
 }
 
 function set_autologin_user
