@@ -210,14 +210,21 @@ sudo -u "$username" -H bash --init-file $res_dir/subshellrc
 clear
 
 typewriter_echo "Uhoh!" 1
-python -B $res_dir/bomb.py "$username"
-rv=$?
+
+while true; do
+    python -B $res_dir/bomb.py "$username"
+    rv=$?
+
+    clear
+    if [ $rv -ne 0 ]; then
+        sleep 1
+        typewriter_echo "Try again!" 2
+    else
+        break
+    fi
+done
 
 stty intr ^C
 stty eof ^D
 
-if [ $rv -eq 0 ]; then
-    sudo -u "$username" -H startx
-else
-    exec kano-init
-fi
+sudo -u "$username" -H startx

@@ -110,6 +110,37 @@ def draw_frame(frame, screen, x, y):
             screen.addstr(y + n, x, line)
         n += 1
 
+def blink(screen, duration, interval):
+    """
+        Blink the screen
+
+        The `duration` parameter says how long will the blinking
+        last. The `interval` argument controls the time between
+        individual flashes. Both values are in seconds.
+    """
+
+    with l:
+        # initialize colours for blinking
+        curses.start_color()
+        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_WHITE)
+
+        curses.curs_set(0)
+        h, w = screen.getmaxyx()
+
+    repeats = int((duration * 1.0) / interval)
+    colour = 1
+    for n in range(0, repeats):
+        for y in range(0, h):
+            with l:
+                screen.addstr(y, 0, " " * (w - 1), curses.color_pair(colour))
+
+        with l:
+            screen.refresh()
+
+        colour = 2 if colour == 1 else 1
+        time.sleep(interval)
+
 def main(screen, username):
     res_dir = "."
     if not os.path.isdir("ascii_art"):
@@ -168,6 +199,7 @@ def main(screen, username):
 
             numbers_frame += 1
             if numbers_frame >= len(numbers):
+                blink(screen, 1.0, 0.08)
                 return 1
 
         # animate the spark
@@ -188,12 +220,14 @@ def main(screen, username):
         cycle += 1
         time.sleep(0.125)
 
+    return 0
+
+
 if __name__ == "__main__":
     screen=curses.initscr()
     curses.noecho()
     curses.cbreak()
     screen.keypad(1)
-    #curses.curs_set(0)
 
     user = "buddy"
     if len(sys.argv) > 1:
