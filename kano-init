@@ -76,7 +76,7 @@ while true; do
     if [ -z "$username" ]; then
         typewriter_echo "I need to know your name:"
     elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
-        typewriter_echo "Only letters and numbers are allowed. Pick another one:"
+        typewriter_echo "Just one word, and only letters or numbers! Try again:"
     else
         break
     fi
