@@ -159,8 +159,11 @@ typewriter_echo "Lets hunt for the signal." 0.5
 
 kwifiprompt.py
 linebreak
+sleep 1
+clear
 
-typewriter_echo "Help me get a video from the Internet."
+typewriter_echo "I can show you more than just words."
+typewriter_echo "Help me get a video."
 sudo -u "$username" -H bash --init-file $res_dir/subshellrc
 clear
 
