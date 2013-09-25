@@ -1,3 +1,57 @@
+kano-init (0.1-13) unstable; urgency=low
+
+  * Package rebuilt, updated to revision 86740ccc.
+
+ -- Team Kano <hello@kano.me>  Thu, 19 Sep 2013 01:00:06 +0100
+
+kano-init (0.1-12) unstable; urgency=low
+
+  * Package rebuilt, updated to revision c613917e.
+
+ -- Team Kano <hello@kano.me>  Wed, 18 Sep 2013 07:49:10 +0100
+
+kano-init (0.1-11) unstable; urgency=low
+
+  * Package rebuilt, updated to revision 4219607a.
+
+ -- Team Kano <hello@kano.me>  Sun, 15 Sep 2013 22:24:37 +0100
+
+kano-init (0.1-10) unstable; urgency=low
+
+  * Package rebuilt, updated to revision 5a48c286.
+
+ -- Team Kano <hello@kano.me>  Sat, 14 Sep 2013 09:14:12 +0100
+
+kano-init (0.1-9) unstable; urgency=low
+
+  * Package rebuilt, updated to revision 689d4702.
+
+ -- Team Kano <hello@kano.me>  Fri, 13 Sep 2013 08:11:43 +0100
+
+kano-init (0.1-8) unstable; urgency=low
+
+  * Package rebuilt, updated to revision 34f29aa3.
+
+ -- Team Kano <hello@kano.me>  Fri, 13 Sep 2013 07:36:53 +0100
+
+kano-init (0.1-7) unstable; urgency=low
+
+  * Package rebuilt, updated to revision 8820605a.
+
+ -- Team Kano <hello@kano.me>  Wed, 11 Sep 2013 23:51:27 +0100
+
+kano-init (0.1-6) unstable; urgency=low
+
+  * Package rebuilt, updated to revision 10cb3fcb.
+
+ -- Team Kano <hello@kano.me>  Tue, 10 Sep 2013 23:39:14 +0100
+
+kano-init (0.1-5) unstable; urgency=low
+
+  * Package rebuilt, updated to revision 311ba1dc.
+
+ -- Team Kano <hello@kano.me>  Mon, 09 Sep 2013 21:50:15 +0100
+
 kano-init (0.1-4) unstable; urgency=low
 
   * Automatic rebuild. Updated to revision b41a257f.
