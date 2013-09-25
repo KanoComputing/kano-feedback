@@ -167,7 +167,7 @@ typewriter_echo "Help me get a video."
 sudo -u "$username" -H bash --init-file $res_dir/subshellrc
 clear
 
-typewriter_echo "Uhoh!" 1
+typewriter_echo "Uhoh..." 2
 
 while true; do
     python -B $res_dir/bomb.py "$username"
