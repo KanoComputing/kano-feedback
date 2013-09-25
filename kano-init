@@ -152,7 +152,8 @@ while true; do
 done
 
 typewriter_echo "I'm good at remembering and combining things." 0.5
-typewriter_echo "But, I need humans to help me make new things." 0.5 2
+typewriter_echo "But, I need humans to help me make new things." 2 2
+clear
 typewriter_echo "I'm even smarter when I can talk to other computers on the Internet." 0.5
 typewriter_echo "Lets hunt for the signal." 0.5
 
