@@ -63,6 +63,9 @@ fi
 stty intr undef
 stty eof '?'
 
+# Get the username of the user with UID=1000
+old_user=`grep "^[^:]*:[^:]*:1000:1000" /etc/passwd | awk -F ':' '{ print $1 }'`
+
 clear
 sleep 1
 
@@ -77,13 +80,14 @@ while true; do
         typewriter_echo "I need to know your name:"
     elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
         typewriter_echo "Just one word, and only letters or numbers! Try again:"
+    elif [ -n "`grep "$username" /etc/passwd`" ] && \
+         [ ! "$username" == "$old_user" ]; then
+        typewriter_echo "This one is already taken! Try again:"
     else
         break
     fi
 done
 
-# Get the username of the user with UID=1000
-old_user=`grep "^[^:]*:[^:]*:1000:1000" /etc/passwd | awk -F ':' '{ print $1 }'`
 if [ -n "$old_user" ]; then
     # Change both the user group names and move home dir
     usermod -l "$username" -d "/home/$username" -m "$old_user" 2>/dev/null
