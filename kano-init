@@ -49,6 +49,15 @@ if [ "$1" == "reset" ]; then
     set_autologin_user "root"
     enable_autostart
     echo "kano-init scheduled for the next system reboot"
+    
+    username=`grep "^[^:]*:[^:]*:1000:1000" /etc/passwd | awk -F ':' '{ print $1 }'`
+    # Clean and copy initial pong.py script into Pong-content
+    rm /home/$username/Pong-content/*
+    cp -a /usr/share/make-pong/pong/pong.py /home/$username/Pong-content/pong.py
+    chown -R 1000:1000 /home/$username/Pong-content/
+    # Clean Minecraft-content folder
+    rm /home/$username/Minecraft-content/*.xml
+    
     exit 0
 fi
 
