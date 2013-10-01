@@ -59,7 +59,8 @@ if [ "$1" == "reset" ]; then
     rm -f /home/$username/Minecraft-content/*.xml
     # Remove MC generated worlds
     rm -rf /home/$username/.minecraft/games/com.mojang/minecraftWorlds/*
-    
+    # Remove cached blocks
+    rm -f /home/$username/.local/share/webkit/databases/*
     exit 0
 fi
 
