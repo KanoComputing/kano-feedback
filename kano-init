@@ -12,14 +12,14 @@ function set_autologin_user
     init q
 }
 
-function enable_autostart
+function set_autostart_stage
 {
-    sed -i "s/^\(ENABLED\=\)[01]$/\11/" /etc/profile.d/autostart-kano-init.sh
+    sed -i "s/^\(STAGE\=\)[0-4]$/\1$1/" /etc/profile.d/autostart-kano-init.sh
 }
 
 function disable_autostart
 {
-    sed -i "s/^\(ENABLED\=\)[01]$/\10/" /etc/profile.d/autostart-kano-init.sh
+    sed -i "s/^\(STAGE\=\)[0-4]$/\10/" /etc/profile.d/autostart-kano-init.sh
 }
 
 function get_option
@@ -37,9 +37,21 @@ function get_option
     done
 }
 
+function get_username
+{
+    un=`grep "^[^:]*:[^:]*:1000:1000" /etc/passwd | awk -F ':' '{ print $1 }'`
+    if [ -n "$un" ]; then
+        echo "$un"
+    else
+        # TODO: We might create the user in this case
+        echo "Error: No user with UID=1000 found." 1>&2
+        exit 1
+    fi
+}
+
 # Check for root priviledges.
 if [ `id -u` -ne 0 ]; then
-    echo "kano-init must be executed with root privileges"
+    echo "Error: kano-init must be executed with root privileges" 1>&2
     exit 1
 fi
 
@@ -47,20 +59,25 @@ fi
 # to be executed during the next reboot
 if [ "$1" == "reset" ]; then
     set_autologin_user "root"
-    enable_autostart
+    set_autostart_stage 1
     echo "kano-init scheduled for the next system reboot"
-    
-    username=`grep "^[^:]*:[^:]*:1000:1000" /etc/passwd | awk -F ':' '{ print $1 }'`
+
+    username=`get_username`
+
     # Clean and copy initial pong.py script into Pong-content
     rm -f /home/$username/Pong-content/*
     cp -a /usr/share/make-pong/pong/pong.py /home/$username/Pong-content/pong.py
     chown -R 1000:1000 /home/$username/Pong-content/
+
     # Clean Minecraft-content folder
     rm -f /home/$username/Minecraft-content/*.xml
+
     # Remove MC generated worlds
     rm -rf /home/$username/.minecraft/games/com.mojang/minecraftWorlds/*
+
     # Remove cached blocks
     rm -f /home/$username/.local/share/webkit/databases/*
+
     exit 0
 fi
 
@@ -76,31 +93,41 @@ stty intr undef
 stty eof '?'
 
 # Get the username of the user with UID=1000
-old_user=`grep "^[^:]*:[^:]*:1000:1000" /etc/passwd | awk -F ':' '{ print $1 }'`
+old_user=`get_username`
+
+stage=1
+if [ -n "$1" ]; then
+    if [ -n "`grep [1234] <<<"$1"`" ]; then
+        stage="$1"
+    else
+        echo "Error: Unknown parameter '$1'"
+        exit 1
+    fi
+fi
 
 clear
 sleep 1
 
-typewriter_echo "Hello!" 0.5
-typewriter_echo "I'm Kano. Thanks for bringing me to life." 0.5 2
-typewriter_echo "What's your first name?"
+if [ "$stage" -le 1 ]; then
+    typewriter_echo "Hello!" 0.5
+    typewriter_echo "I'm Kano. Thanks for bringing me to life." 0.5 2
+    typewriter_echo "What's your first name?"
 
-# Read the username
-while true; do
-    read -e username
-    if [ -z "$username" ]; then
-        typewriter_echo "I need to know your name:"
-    elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
-        typewriter_echo "Just one word, and only letters or numbers! Try again:"
-    elif [ -n "`grep "$username" /etc/passwd`" ] && \
-         [ ! "$username" == "$old_user" ]; then
-        typewriter_echo "This one is already taken! Try again:"
-    else
-        break
-    fi
-done
+    # Read the username
+    while true; do
+        read -e username
+        if [ -z "$username" ]; then
+            typewriter_echo "I need to know your name:"
+        elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
+            typewriter_echo "Just one word, and only letters or numbers! Try again:"
+        elif [ -n "`grep "$username" /etc/passwd`" ] && \
+             [ ! "$username" == "$old_user" ]; then
+            typewriter_echo "This one is already taken! Try again:"
+        else
+            break
+        fi
+    done
 
-if [ -n "$old_user" ]; then
     # Change both the user group names and move home dir
     usermod -l "$username" -d "/home/$username" -m "$old_user" 2>/dev/null
     groupmod -n "$username" "$old_user" 2>/dev/null
@@ -113,90 +140,102 @@ if [ -n "$old_user" ]; then
     rm -f /home/pi
     sudo ln -s /home/$username /home/pi
 
+    set_autostart_stage 2
 else
-    # TODO: We might create the user in this case
-    echo "Error: No user with UID=1000 found."
-    exit 1
+    typewriter_echo "Where was I? All right, I remember ..." 0.5 2
+    username="$old_user"
 fi
 
-# Setup automatic login for this user on any subsequent reboot
-set_autologin_user "$username"
-disable_autostart
+if [ "$stage" -le 2 ]; then
+    echo -ne "\n"
+    typewriter_echo "$username, follow the white rabbit... " 1 0
+    typewriter_echo "If you dare." 0.5 2
+    typewriter_echo "But first, I bet I can out-think you..." 0.5 2
 
-echo -ne "\n"
-typewriter_echo "$username, follow the white rabbit... " 1 0
-typewriter_echo "If you dare." 0.5 2
-typewriter_echo "But first, I bet I can out-think you..." 0.5 2
+    while true; do
+        typewriter_echo "Pick a type [1-3]:" 0.1
+        typewriter_echo "  1) Animal" 0.1
+        typewriter_echo "  2) Plant" 0.1
+        typewriter_echo "  3) Machine" 0.1 2
+        typewriter_echo "Your choice:"
+        get_option "picked_type"
+        linebreak
 
-while true; do
-    typewriter_echo "Pick a type [1-3]:" 0.1
-    typewriter_echo "  1) Animal" 0.1
-    typewriter_echo "  2) Plant" 0.1
-    typewriter_echo "  3) Machine" 0.1 2
-    typewriter_echo "Your choice:"
-    get_option "picked_type"
-    linebreak
+        typewriter_echo "Pick a size [1-3]:" 0.1
+        typewriter_echo "  1) Big" 0.1
+        typewriter_echo "  2) Medium" 0.1
+        typewriter_echo "  3) Small" 0.1 2
+        typewriter_echo "Your choice:"
+        get_option "picked_size"
+        linebreak
 
-    typewriter_echo "Pick a size [1-3]:" 0.1
-    typewriter_echo "  1) Big" 0.1
-    typewriter_echo "  2) Medium" 0.1
-    typewriter_echo "  3) Small" 0.1 2
-    typewriter_echo "Your choice:"
-    get_option "picked_size"
-    linebreak
+        ascii_art_dir="$res_dir/ascii_art"
+        case "$picked_type$picked_size" in
+            11) cat "$ascii_art_dir/elephant.txt" ;;
+            12) cat "$ascii_art_dir/human.txt" ;;
+            13) cat "$ascii_art_dir/rabbit.txt" ;;
+            21) cat "$ascii_art_dir/tree.txt" ;;
+            22) cat "$ascii_art_dir/potato-head.txt" ;;
+            23) cat "$ascii_art_dir/flower.txt" ;;
+            31) cat "$ascii_art_dir/car.txt" ;;
+            32) cat "$ascii_art_dir/robot.txt" ;;
+            33) cat "$ascii_art_dir/chip.txt" ;;
+        esac
+        linebreak
 
-    ascii_art_dir="$res_dir/ascii_art"
-    case "$picked_type$picked_size" in
-        11) cat "$ascii_art_dir/elephant.txt" ;;
-        12) cat "$ascii_art_dir/human.txt" ;;
-        13) cat "$ascii_art_dir/rabbit.txt" ;;
-        21) cat "$ascii_art_dir/tree.txt" ;;
-        22) cat "$ascii_art_dir/potato-head.txt" ;;
-        23) cat "$ascii_art_dir/flower.txt" ;;
-        31) cat "$ascii_art_dir/car.txt" ;;
-        32) cat "$ascii_art_dir/robot.txt" ;;
-        33) cat "$ascii_art_dir/chip.txt" ;;
-    esac
-    linebreak
+        if [ "$picked_type$picked_size" -eq 13 ]; then
+            typewriter_echo "You win..." 0.5 2
+            break
+        else
+            typewriter_echo "Computers rule! Try again." 0.5 2
+        fi
+    done
 
-    if [ "$picked_type$picked_size" -eq 13 ]; then
-        typewriter_echo "You win..." 0.5 2
-        break
-    else
-        typewriter_echo "Computers rule! Try again." 0.5 2
-    fi
-done
+    typewriter_echo "I'm good at remembering and combining things." 0.5
+    typewriter_echo "But, I need humans to help me make new things." 2 2
+    typewriter_echo "I'm even smarter when I can talk to other computers on the Internet." 0.5 0
 
-typewriter_echo "I'm good at remembering and combining things." 0.5
-typewriter_echo "But, I need humans to help me make new things." 2 2
-clear
-typewriter_echo "I'm even smarter when I can talk to other computers on the Internet." 0.5
-typewriter_echo "Lets hunt for the signal." 0.5
+    clear
+
+    set_autostart_stage 3
+fi
+
+# Wifi config is enforced every time
+typewriter_echo "Help me find the signal." 0.5
 
 kwifiprompt.py
 linebreak
 sleep 1
 clear
 
-typewriter_echo "I can show you more than just words."
-typewriter_echo "Help me get a video."
-sudo -u "$username" -H bash --init-file $res_dir/subshellrc
-clear
-
-typewriter_echo "Uhoh..." 2
-
-while true; do
-    python -B $res_dir/bomb.py "$username"
-    rv=$?
-
+if [ "$stage" -le 3 ]; then
+    typewriter_echo "I can show you more than just words."
+    typewriter_echo "Help me get a video."
+    sudo -u "$username" -H bash --init-file $res_dir/subshellrc
     clear
-    if [ $rv -ne 0 ]; then
-        sleep 1
-        typewriter_echo "Try again!" 2
-    else
-        break
-    fi
-done
+
+    set_autostart_stage 4
+fi
+
+if [ "$stage" -le 4 ]; then
+    typewriter_echo "Uhoh..." 2
+    while true; do
+        python -B $res_dir/bomb.py "$username"
+        rv=$?
+
+        clear
+        if [ $rv -ne 0 ]; then
+            sleep 1
+            typewriter_echo "Try again!" 2
+        else
+            break
+        fi
+    done
+fi
+
+# Setup automatic login for this user on any subsequent reboot
+set_autologin_user "$username"
+disable_autostart
 
 stty intr ^C
 stty eof ^D
