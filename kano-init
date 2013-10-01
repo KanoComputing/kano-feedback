@@ -57,6 +57,8 @@ if [ "$1" == "reset" ]; then
     chown -R 1000:1000 /home/$username/Pong-content/
     # Clean Minecraft-content folder
     rm -f /home/$username/Minecraft-content/*.xml
+    # Remove MC generated worlds
+    rm -rf /home/$username/.minecraft/games/com.mojang/minecraftWorlds/*
     
     exit 0
 fi
