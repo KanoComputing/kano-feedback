@@ -201,8 +201,6 @@ if [ "$stage" -le 2 ]; then
 fi
 
 # Wifi config is enforced every time
-typewriter_echo "Help me find the signal." 0.5
-
 kwifiprompt.py
 linebreak
 sleep 1
