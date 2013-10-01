@@ -240,4 +240,4 @@ disable_autostart
 stty intr ^C
 stty eof ^D
 
-sudo -u "$username" -H startx
+su "$username" -l -c "startx"
