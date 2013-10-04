@@ -72,12 +72,13 @@ if [ "$1" == "reset" ]; then
     # Clean Minecraft-content folder
     rm -f /home/$username/Minecraft-content/*.xml
 
-    # Remove MC generated worlds
+    # Remove MC generated worlds and copy Kano-Minecraft world across to home directory
     rm -rf /home/$username/.minecraft/games/com.mojang/minecraftWorlds/*
-
+    cp -rf /home/$username/Minecraft-content/.minecraft/games/com.mojang/minecraftWorlds/world /home/$username/.minecraft/games/com.mojang/minecraftWorlds
+    
     # Remove cached blocks
     rm -f /home/$username/.local/share/webkit/databases/*
-
+    
     exit 0
 fi
 
