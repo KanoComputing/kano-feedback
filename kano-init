@@ -135,7 +135,7 @@ old_user=`get_username`
 
 stage=1
 if [ -n "$1" ]; then
-    if [ -n "`grep [1234] <<<"$1"`" ]; then
+    if [ -n "`grep [123] <<<"$1"`" ]; then
         stage="$1"
     else
         echo "Error: Unknown parameter '$1'"
