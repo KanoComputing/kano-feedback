@@ -22,7 +22,8 @@ function linebreak
 
 function set_autologin_user
 {
-    sed -i "s/\(1:2345:respawn:\).\+\$/\1\/sbin\/getty -a $1 38400 tty1/" \
+    # Set autologin in console
+    sed -i "s/\(1:2345:respawn:\).\+\$/\1\/sbin\/getty -n -o'-f $1' 38400 tty1/" \
         /etc/inittab
     init q
 }
