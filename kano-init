@@ -158,7 +158,7 @@ if [ "$stage" -le 1 ]; then
             typewriter_echo "I need to know your name:"
         elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
             typewriter_echo "Just one word, and only letters or numbers! Try again:"
-        elif [ -n "`grep "$username" /etc/passwd`" ] && \
+        elif [ -n "`grep "^$username\:" /etc/passwd`" ] && \
              [ ! "$username" == "$old_user" ]; then
             typewriter_echo "This one is already taken! Try again:"
         else
