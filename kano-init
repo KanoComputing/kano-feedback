@@ -26,6 +26,21 @@ function set_autologin_user
     sed -i "s/\(1:2345:respawn:\).\+\$/\1\/sbin\/getty -n -o'-f $1' 38400 tty1/" \
         /etc/inittab
     init q
+
+    # Set autologin in lightdm
+    /usr/lib/arm-linux-gnueabihf/lightdm/lightdm-set-defaults --autologin "$1"
+}
+
+function enable_lxde_autostart
+{
+    # Enable the lightdm service
+    update-rc.d lightdm enable 2 >/dev/null 2>/dev/null
+}
+
+function disable_lxde_autostart
+{
+    # Disable the lightdm service
+    update-rc.d lightdm disable 2 >/dev/null 2>/dev/null
 }
 
 function set_autostart_stage
@@ -80,6 +95,7 @@ fi
 if [ "$1" == "reset" ]; then
     set_autologin_user "root"
     set_autostart_stage 1
+    disable_lxde_autostart
     echo "kano-init scheduled for the next system reboot"
 
     username=`get_username`
@@ -240,9 +256,11 @@ fi
 
 # Setup automatic login for this user on any subsequent reboot
 set_autologin_user "$username"
+enable_lxde_autostart
 disable_autostart
 
 stty intr ^C
 stty eof ^D
 
-su "$username" -l -c "startx"
+# Start LXDE
+service lightdm start
