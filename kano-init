@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# A fun console script to set up your Raspberry Pi
+
+function usage
+{
+    echo "Usage: kano-init [stage|reset]"
+    echo ""
+    echo "    stage     The stage to start the init procedure from."
+    echo "              Values from 1 to 3 are supported."
+    echo ""
+    echo "    reset     Reset the kano-kit to it's initial state."
+    echo ""
+
+    exit "$1"
+}
+
 function linebreak
 {
     echo -ne "\n"
@@ -55,6 +70,10 @@ if [ `id -u` -ne 0 ]; then
     exit 1
 fi
 
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    usage 0
+fi
+
 # Special case: With the 'autostart' argument, kano-init will set up
 # to be executed during the next reboot
 if [ "$1" == "reset" ]; then
@@ -74,11 +93,12 @@ if [ "$1" == "reset" ]; then
 
     # Remove MC generated worlds and copy Kano-Minecraft world across to home directory
     rm -rf /home/$username/.minecraft/games/com.mojang/minecraftWorlds/*
-    cp -rf /home/$username/Minecraft-content/.minecraft/games/com.mojang/minecraftWorlds/world /home/$username/.minecraft/games/com.mojang/minecraftWorlds
-    
+    cp -rf /home/$username/Minecraft-content/.minecraft/games/com.mojang/minecraftWorlds/world \
+           /home/$username/.minecraft/games/com.mojang/minecraftWorlds
+
     # Remove cached blocks
     rm -f /home/$username/.local/share/webkit/databases/*
-    
+
     exit 0
 fi
 
