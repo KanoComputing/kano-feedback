@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# A fun console script to set up your Raspberry Pi
+
+function usage
+{
+    echo "Usage: kano-init [stage|reset]"
+    echo ""
+    echo "    stage     The stage to start the init procedure from."
+    echo "              Values from 1 to 3 are supported."
+    echo ""
+    echo "    reset     Reset the kano-kit to it's initial state."
+    echo ""
+
+    exit "$1"
+}
+
 function linebreak
 {
     echo -ne "\n"
@@ -7,9 +22,25 @@ function linebreak
 
 function set_autologin_user
 {
-    sed -i "s/\(1:2345:respawn:\).\+\$/\1\/sbin\/getty -a $1 38400 tty1/" \
+    # Set autologin in console
+    sed -i "s/\(1:2345:respawn:\).\+\$/\1\/sbin\/getty -n -o'-f $1' 38400 tty1/" \
         /etc/inittab
     init q
+
+    # Set autologin in lightdm
+    /usr/lib/arm-linux-gnueabihf/lightdm/lightdm-set-defaults --autologin "$1"
+}
+
+function enable_lxde_autostart
+{
+    # Enable the lightdm service
+    update-rc.d lightdm enable 2 >/dev/null 2>/dev/null
+}
+
+function disable_lxde_autostart
+{
+    # Disable the lightdm service
+    update-rc.d lightdm disable 2 >/dev/null 2>/dev/null
 }
 
 function set_autostart_stage
@@ -55,11 +86,16 @@ if [ `id -u` -ne 0 ]; then
     exit 1
 fi
 
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    usage 0
+fi
+
 # Special case: With the 'autostart' argument, kano-init will set up
 # to be executed during the next reboot
 if [ "$1" == "reset" ]; then
     set_autologin_user "root"
     set_autostart_stage 1
+    disable_lxde_autostart
     echo "kano-init scheduled for the next system reboot"
 
     username=`get_username`
@@ -74,11 +110,12 @@ if [ "$1" == "reset" ]; then
 
     # Remove MC generated worlds and copy Kano-Minecraft world across to home directory
     rm -rf /home/$username/.minecraft/games/com.mojang/minecraftWorlds/*
-    cp -rf /home/$username/Minecraft-content/.minecraft/games/com.mojang/minecraftWorlds/world /home/$username/.minecraft/games/com.mojang/minecraftWorlds
-    
+    cp -rf /home/$username/Minecraft-content/.minecraft/games/com.mojang/minecraftWorlds/world \
+           /home/$username/.minecraft/games/com.mojang/minecraftWorlds
+
     # Remove cached blocks
     rm -f /home/$username/.local/share/webkit/databases/*
-    
+
     exit 0
 fi
 
@@ -98,7 +135,7 @@ old_user=`get_username`
 
 stage=1
 if [ -n "$1" ]; then
-    if [ -n "`grep [1234] <<<"$1"`" ]; then
+    if [ -n "`grep [123] <<<"$1"`" ]; then
         stage="$1"
     else
         echo "Error: Unknown parameter '$1'"
@@ -121,7 +158,7 @@ if [ "$stage" -le 1 ]; then
             typewriter_echo "I need to know your name:"
         elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
             typewriter_echo "Just one word, and only letters or numbers! Try again:"
-        elif [ -n "`grep "$username" /etc/passwd`" ] && \
+        elif [ -n "`grep "^$username\:" /etc/passwd`" ] && \
              [ ! "$username" == "$old_user" ]; then
             typewriter_echo "This one is already taken! Try again:"
         else
@@ -219,9 +256,11 @@ fi
 
 # Setup automatic login for this user on any subsequent reboot
 set_autologin_user "$username"
+enable_lxde_autostart
 disable_autostart
 
 stty intr ^C
 stty eof ^D
 
-su "$username" -l -c "startx"
+# Start LXDE
+service lightdm start
