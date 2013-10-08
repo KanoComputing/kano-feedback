@@ -180,10 +180,11 @@ if [ "$stage" -le 1 ]; then
 
     set_autostart_stage 2
 else
-    typewriter_echo "Where was I? All right, I remember ..." 0.5 2
+    typewriter_echo "Where was I? All right, I remember!" 0.5 2
     username="$old_user"
 fi
 
+numFails=0
 if [ "$stage" -le 2 ]; then
     echo -ne "\n"
     typewriter_echo "$username, follow the white rabbit... " 1 0
@@ -225,7 +226,13 @@ if [ "$stage" -le 2 ]; then
             typewriter_echo "You win..." 0.5 2
             break
         else
-            typewriter_echo "Computers rule! Try again." 0.5 2
+            numFails=$(($numFails+1))
+            case "$numFails" in
+                1) typewriter_echo "Computers rule! Follow the white... what was it again?" 0.5 2 ;;
+                2) typewriter_echo "I'll give you another hint, it's got big ears..." 0.5 2 ;;
+                *) typewriter_echo "It's a small animal, I think..." 0.5 2 ;;
+            esac
+            linebreak
         fi
     done
 
