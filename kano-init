@@ -148,7 +148,7 @@ sleep 1
 
 if [ "$stage" -le 1 ]; then
     typewriter_echo "Hello!" 0.5
-    typewriter_echo "I'm Kano. Thanks for bringing me to life." 0.5 2
+    typewriter_echo "I'm KANO. Thanks for bringing me to life." 0.5 2
     typewriter_echo "What's your first name?"
 
     # Read the username
