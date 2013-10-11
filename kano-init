@@ -110,7 +110,7 @@ if [ "$1" == "reset" ]; then
 
     # Remove MC generated worlds and copy Kano-Minecraft world across to home directory
     rm -rf /home/$username/.minecraft/games/com.mojang/minecraftWorlds/*
-    cp -rf /home/$username/Minecraft-content/.minecraft/games/com.mojang/minecraftWorlds/world \
+    cp -rf /home/$username/Minecraft-content/.minecraft/games/com.mojang/minecraftWorlds/Kano\ world/ \
            /home/$username/.minecraft/games/com.mojang/minecraftWorlds
 
     # Remove cached blocks
