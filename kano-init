@@ -149,15 +149,15 @@ sleep 1
 if [ "$stage" -le 1 ]; then
     typewriter_echo "Hello!" 0.5
     typewriter_echo "I'm KANO. Thanks for bringing me to life." 0.5 2
-    typewriter_echo "What's your first name?"
+    typewriter_echo "What should I call you?"
 
     # Read the username
     while true; do
         read -e username
         if [ -z "$username" ]; then
-            typewriter_echo "I need to know your name:"
+            typewriter_echo "Type a cool name:"
         elif [ -z "`grep "^[a-zA-Z0-9]\+$" <<<"$username"`" ]; then
-            typewriter_echo "Just one word, and only letters or numbers! Try again:"
+            typewriter_echo "Just one word, letters or numbers! Try again:"
         elif [ -n "`grep "^$username\:" /etc/passwd`" ] && \
              [ ! "$username" == "$old_user" ]; then
             typewriter_echo "This one is already taken! Try again:"
