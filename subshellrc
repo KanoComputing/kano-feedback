@@ -1,3 +1,0 @@
-alias youtube="pi-yt; exit"
-cd
-. .bashrc
