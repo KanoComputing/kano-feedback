@@ -54,7 +54,7 @@
 
 /* General App Style */
 #define APP_STYLING  " \
-QApp { \
+QWidget { \
     background-color: #ffffff; \
      \
 }" //background-color: #d1d2d4;

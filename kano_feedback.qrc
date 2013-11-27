@@ -1,6 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>resources/logo.png</file>
     <file>resources/send.png</file>
     <file>resources/expand.png</file>
     <file>resources/close.png</file>
