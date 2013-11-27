@@ -8,3 +8,4 @@ HEADERS       = include/mainwindow.h
 SOURCES       = cpp/main.cpp \
                 cpp/mainwindow.cpp
 RESOURCES     = kano_feedback.qrc
+QMAKE_CXXFLAGS += -std=c++0x

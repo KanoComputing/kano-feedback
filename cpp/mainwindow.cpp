@@ -34,6 +34,13 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QImage>
+#include <QInputDialog>
+
+#include <string.h>
+#include <pwd.h>
+#include <iostream>
+#include <fstream>
+#include <unistd.h>
 
 #include "include/mainwindow.h"
 
@@ -123,7 +130,7 @@ MainWindow::MainWindow(QApplication &app)
   FeedbackCategoryLabel->setText(tr("What category is this?"));
   FeedbackCategoryLabel->setStyleSheet(LABEL_STYLING);
 
-  categories << "Comment" << "Bug" << "Suggestions";
+  categories << "Comment" << "Bug" << "Suggestions" << "Question";
 
   FeedbackCategoryDropdown = new QComboBox;
   FeedbackCategoryDropdown->setFixedWidth(WIDTH / 2);
@@ -186,8 +193,187 @@ void MainWindow::createActions()
 
 void MainWindow::handleSubmitButton()
 {
-  int index = FeedbackCategoryDropdown->currentIndex();
-  //cout << categories[index];
+  int dropdownIndex = FeedbackCategoryDropdown->currentIndex();
+  std::string category = categories.at(dropdownIndex).toLocal8Bit().constData();
+  std::string response = FeedbackTextPane->toPlainText().toStdString();
+
+  // Make sure they have entered a comment
+  if (!response.compare(""))
+    {
+      QMessageBox noResponse;
+      noResponse.setText(tr("You haven't entered a response"));
+      noResponse.exec();
+      return;
+    }
+
+  // If we don't have an e-mail address for the user, ask them to input it.
+  // The e-mail is stored in ~/.email if one has been provided.
+  bool noEmail = true;
+  std::string email_addr;
+
+  std::ifstream file;
+  std::string email_filename;
+  struct passwd *pw = getpwuid(getuid());
+  const char *homedir = pw->pw_dir;
+
+  email_filename.append(homedir);
+  email_filename.append("/.email");
+  std::cout << "Opening file " << email_filename << "..." << "\n";
+  file.open(email_filename.c_str());
+
+  if (!file.is_open())
+    {
+      std::cout << "E-mail file not found\n";
+    } else {
+      std::cout << "E-mail file open\n";
+
+      while (!file.eof())
+        {
+          getline(file, email_addr);
+          // skip empty and CR+LF lines
+          if (email_addr.length() > 3)
+            {
+              std::cout << "found e-mail: " << email_addr << "\n";
+              noEmail = false;
+              break;
+            }
+        }
+
+      file.close();
+    }
+  
+  // Prompt for e-mail input if one not found.
+  bool ok;
+  if (noEmail)
+    {
+      QMessageBox emailBox;
+      emailBox.setWindowTitle("Your e-mail address");
+      emailBox.setText("We don't know your e-mail address.");
+      emailBox.setInformativeText("Enter your e-mail address so that we can send your comments");
+      emailBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+      emailBox.setDefaultButton(QMessageBox::Ok);
+      emailBox.exec();
+
+      QString text = QInputDialog::getText(this, tr("No e-mail provided."),
+                                           tr("You haven't provided an e-mail address. Please add one before you submit."),
+                                           QLineEdit::Normal, tr(""), &ok);
+      if (ok && !text.isEmpty())
+        {
+          std::cout << text.toStdString() << "\n";
+          email_addr = text.toStdString();
+        } else {
+          // Return them to the window.
+          return;
+        }
+    }
+
+  // Check that they want to send.
+  QMessageBox confirmSendMsgBox;
+  confirmSendMsgBox.setWindowTitle("Are you sure you want to send?");
+  confirmSendMsgBox.setText("You are about to send us your improvements.");
+  confirmSendMsgBox.setInformativeText("Do you want to send?");
+  confirmSendMsgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+  confirmSendMsgBox.setDefaultButton(QMessageBox::Ok);
+  int confirmSendMsgBoxSelected = confirmSendMsgBox.exec();
+  if (confirmSendMsgBoxSelected == QMessageBox::Cancel)
+    {
+      // Return them to the window.
+      std::cout << "Will not send\n\n";
+      return;
+    }
+
+  // We have everything. Form the object to send.
+  std::cout << "\n" << email_addr << "\n";
+  std::cout << response << "\n";
+  std::cout << category << "\n";
+
+  std::string url = "https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse";
+
+  std::string email_entry = "entry.1110323866";
+  std::string category_entry = "entry.1341620943";
+  std::string response_entry = "entry.162771870";
+
+  std::string dataToSend;
+  // E-mail
+  dataToSend += "";
+  dataToSend += email_entry;
+  dataToSend += "=";
+  dataToSend += email_addr;
+  dataToSend += "&";
+  // Category
+  dataToSend += category_entry;
+  dataToSend += "=";
+  dataToSend += category;
+  dataToSend += "&";
+  // Response
+  dataToSend += response_entry;
+  dataToSend += "=";
+  dataToSend += response;
+  dataToSend += "";
+
+  // Send the data
+
+  // Build the command-line command
+  // curl --progress-bar -d 'entry.1110323866=email&entry.1341620943=category&entry.162771870=comment' https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse
+  char command[4096];
+
+  strcpy (command, "curl --progress-bar -d '");
+  strcat (command, dataToSend.c_str());
+  strcat (command, "' https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse");
+  // Execute the command
+  std::string uploadResult = executeCommand(command);
+
+  // Parse the command output
+  QMessageBox successBox;
+  if (uploadResult.find("Thanks!") == std::string::npos)
+  {
+    // Upload failed
+    std::cout << "Upload failed\n";
+    successBox.setWindowTitle("Failed!");
+    successBox.setText(tr("I'm afraid that there was a problem uploading your thoughts. Check that you are connected to the internet and try again."));
+  } else {
+    // Upload success
+    std::cout << "Upload success\n";
+    successBox.setWindowTitle("Success");
+    successBox.setText(tr("Thank you for your help! We will use your views to improve Kano."));
+  }
+  successBox.exec();
+}
+
+/***************** Executes the given command *****************
+ * @param  {const char *} command  The command to be executed *
+ * @return {std::string}   result  Output from command        *
+ *                          -1     Error running command      *
+ **************************************************************/
+std::string MainWindow::executeCommand(const char* command)
+{
+  FILE* fp = NULL;
+
+  std::cout << "Executing >>> " << command << "\n";
+
+  // Execute the command
+  fp = popen(command, "r");
+  if (fp == NULL) {
+      std::cout << "Error\n";
+      return "-1";
+  }
+
+  // Store the stdout from the command so that it can be returned
+  char buffer[128];
+  std::string result = "";
+  while(!feof(fp)) {
+    if(fgets(buffer, 128, fp) != NULL)
+      result += buffer;
+  }
+
+  // Clean up
+  int status = pclose(fp);
+  if (status == -1) {
+    std::cout << "Error\n";
+    return "-1";
+  }
+
+  return result;
 }
 
 /****************************************************/

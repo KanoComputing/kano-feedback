@@ -26,6 +26,8 @@
 #include <QPushButton>
 #include <QComboBox>
 
+#include <string>
+
 class QAction;
 class QMenu;
 class QProcess;
@@ -50,6 +52,7 @@ private slots:
 
 private:
     void createActions();
+    std::string executeCommand(const char* command);
 
 
     QTextEdit *FeedbackTextPane;
@@ -58,7 +61,6 @@ private:
     QComboBox *FeedbackCategoryDropdown;
 
     QPushButton *SubmitButton;
-
 
     QAction *aboutAct;
     QAction *aboutQtAct;
