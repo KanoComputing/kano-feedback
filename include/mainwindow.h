@@ -60,6 +60,7 @@ private:
     QStringList categories;
     QComboBox *FeedbackCategoryDropdown;
 
+    QPushButton *CloseButton;
     QPushButton *SubmitButton;
 
     QAction *aboutAct;

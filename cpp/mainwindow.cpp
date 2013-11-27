@@ -53,20 +53,34 @@
 /***********************************************/
 
 /* General App Style */
-#define APP_STYLING  "\
-background-color: #d1d2d4"
+#define APP_STYLING  " \
+QApp { \
+    background-color: #ffffff; \
+     \
+}" //background-color: #d1d2d4;
+
+/* The main heading label */
+#define HEADING_LABEL_STYLING  " \
+QLabel { \
+    background-color: #ffffff; \
+    color: #000000; \
+    margin-top: 2px; \
+    margin-bottom: 0; \
+    padding: 8px; \
+    font-family: 'Bariol'; \
+    font-size: 35px; \
+}"
 
 /* The label describing the output pane */
 #define LABEL_STYLING  " \
 QLabel { \
-    background-color: #e7e7e8; \
-    color: #636466; \
+    background-color: #ffffff; \
+    color: #000000; \
     margin-top: 2px; \
     margin-bottom: 0; \
     padding: 8px; \
     font-family: 'Bariol'; \
     font-size: 18px; \
-    color: #636466; \
 }"
 
 /* The pane showing the output */
@@ -82,14 +96,16 @@ QTextEdit { \
 QComboBox { \
     background-color: #ffffff; \
     margin: 0; \
+    padding: 5px 20px; \
     font-family: 'Bariol'; \
+    height: 30px; \
     font-size: 18px; \
     color: #636466; \
 }"
 
 #define SUBMIT_BUTTON_STYLING  " \
 QPushButton { \
-    background-color: #5cbf48; \
+    background-color: #ffa53b; \
     margin: 0; \
     font-family: 'Bariol'; \
     font-size: 18px; \
@@ -108,55 +124,50 @@ QPushButton { \
 
 MainWindow::MainWindow(QApplication &app)
 {
-  /* Logo */
-  QLabel * logoImage = new QLabel();
-  logoImage->setPixmap( QPixmap( ":resources/logo.png" ) );
-  logoImage->show();
+  /* Main heading */
+  QLabel * feedbackLabel = new QLabel();
+  feedbackLabel->setText("Send feedback to the Kano Team!");
+  feedbackLabel->setStyleSheet(HEADING_LABEL_STYLING);
+
+  /* Explanation heading */
+  QLabel * explanationLabel = new QLabel();
+  explanationLabel->setText("Found bugs or just like what we've done?");
+  explanationLabel->setStyleSheet(LABEL_STYLING);
+
+  /* Feedback category */
+  categories << "Subject" << "--------------------------------------------------------" << "Comment" << "Bug" << "Suggestions" << "Question";
+
+  FeedbackCategoryDropdown = new QComboBox;
+  FeedbackCategoryDropdown->setFixedWidth(WIDTH);
+  FeedbackCategoryDropdown->setStyleSheet(FEEDBACK_CATEGORY_PANE_STYLING);
+  FeedbackCategoryDropdown->addItems(categories);
 
   /* Feedback input */
-  QLabel * FeedbackTextLabel = new QLabel(this);
-  FeedbackTextLabel->setFixedWidth(WIDTH);
-  FeedbackTextLabel->setText(tr("Help us improve your experience. Give us your thoughts"));
-  FeedbackTextLabel->setStyleSheet(LABEL_STYLING);
-
   FeedbackTextPane = new QTextEdit;
   FeedbackTextPane->setFixedWidth(WIDTH);
   FeedbackTextPane->setStyleSheet(FEEDBACK_TEXT_PANE_STYLING);
   FeedbackTextPane->setReadOnly(false);
 
-  /* Feedback category */
-  QLabel * FeedbackCategoryLabel = new QLabel(this);
-  FeedbackCategoryLabel->setFixedWidth(WIDTH / 2);
-  FeedbackCategoryLabel->setText(tr("What category is this?"));
-  FeedbackCategoryLabel->setStyleSheet(LABEL_STYLING);
-
-  categories << "Comment" << "Bug" << "Suggestions" << "Question";
-
-  FeedbackCategoryDropdown = new QComboBox;
-  FeedbackCategoryDropdown->setFixedWidth(WIDTH / 2);
-  FeedbackCategoryDropdown->setStyleSheet(FEEDBACK_CATEGORY_PANE_STYLING);
-  FeedbackCategoryDropdown->addItems(categories);
-
-  QGridLayout * feedbackCategoryLayout = new QGridLayout;
-  feedbackCategoryLayout->addWidget(FeedbackCategoryLabel, 0, 0);
-  feedbackCategoryLayout->addWidget(FeedbackCategoryDropdown, 0, 1);
-
   /* Submit button */
-  SubmitButton = new QPushButton("Send to us", this);
+  SubmitButton = new QPushButton("Send", this);
   SubmitButton->setStyleSheet(SUBMIT_BUTTON_STYLING);
+  SubmitButton->setIcon(QPixmap( ":resources/send.png" ));
+  SubmitButton->setMinimumWidth(110);
 
   // Connect button signal to appropriate slot
   connect(SubmitButton, SIGNAL(released()), this, SLOT(handleSubmitButton()));
 
 /* Main Content Layout */
   QGridLayout * mainContentLayout = new QGridLayout;
-  mainContentLayout->addWidget(logoImage, 0, 0);
-  mainContentLayout->addWidget(FeedbackTextLabel, 1, 0);
-  mainContentLayout->addWidget(FeedbackTextPane, 2, 0);
-  mainContentLayout->addLayout(feedbackCategoryLayout, 3, 0);
-  mainContentLayout->addWidget(SubmitButton, 4, 0);
+  mainContentLayout->addWidget(feedbackLabel, 0, 0);
+  mainContentLayout->addWidget(explanationLabel, 1, 0);
+  //mainContentLayout->addLayout(feedbackCategoryLayout, 2, 0);
+  mainContentLayout->addWidget(FeedbackCategoryDropdown, 2, 0);
+  //mainContentLayout->addWidget(FeedbackTextLabel, 3, 0);
+  mainContentLayout->addWidget(FeedbackTextPane, 4, 0);
+  mainContentLayout->addWidget(SubmitButton, 5, 0, Qt::AlignRight);
 
-  mainContentLayout->setVerticalSpacing(0);
+  mainContentLayout->setVerticalSpacing(10);
 
   QWidget * mainWidget = new QWidget(this);
   mainWidget->setLayout(mainContentLayout);
@@ -175,9 +186,9 @@ MainWindow::MainWindow(QApplication &app)
   connect(&app, SIGNAL( aboutToQuit() ), this, SLOT( onExitCleanup() ) );
 }
 
-/**************************************************************************/
-/*********************** Creation of menus/toolbars ***********************/
-/**************************************************************************/
+/*******************************************************/
+/*********************** Actions ***********************/
+/*******************************************************/
 
 void MainWindow::createActions()
 {
@@ -203,6 +214,15 @@ void MainWindow::handleSubmitButton()
       QMessageBox noResponse;
       noResponse.setText(tr("You haven't entered a response"));
       noResponse.exec();
+      return;
+    }
+
+  // Make sure they have selected a subject
+  if (!category.compare("Subject") || !category.compare("--------------------------------------------------------"))
+    {
+      QMessageBox noSubject;
+      noSubject.setText(tr("You haven't selected a subject"));
+      noSubject.exec();
       return;
     }
 
@@ -331,13 +351,16 @@ void MainWindow::handleSubmitButton()
     std::cout << "Upload failed\n";
     successBox.setWindowTitle("Failed!");
     successBox.setText(tr("I'm afraid that there was a problem uploading your thoughts. Check that you are connected to the internet and try again."));
+    successBox.exec();
   } else {
     // Upload success
     std::cout << "Upload success\n";
     successBox.setWindowTitle("Success");
     successBox.setText(tr("Thank you for your help! We will use your views to improve Kano."));
+    successBox.exec();
+    close();
   }
-  successBox.exec();
+  
 }
 
 /***************** Executes the given command *****************
