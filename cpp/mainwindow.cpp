@@ -442,11 +442,13 @@ std::string MainWindow::removeQuotationMarks(std::string data)
 bool MainWindow::emailValid(std::string email)
 {
   // Build the command-line command
-  // egrep "[a-zA-Z0-9_\.-]+@[a-zA-Z0-9_.-]+\.[a-zA-Z0-9_.-]" <<< email
+  // echo email | egrep "[a-zA-Z0-9_\.-]+@[a-zA-Z0-9_.-]+\.[a-zA-Z0-9_.-]"
   char command[4096];
 
-  strcpy (command, "egrep \"[a-zA-Z0-9_\\.-]+@[a-zA-Z0-9_.-]+\\.[a-zA-Z0-9_.-]\" <<< ");
+  strcpy (command, "echo ");
   strcat (command, email.c_str());
+  strcat (command, " | egrep \"[a-zA-Z0-9_\\.-]+@[a-zA-Z0-9_.-]+\\.[a-zA-Z0-9_.-]\"");
+  
   // Execute the command
   std::string validResult = executeCommand(command);
   if (!validResult.compare(""))
