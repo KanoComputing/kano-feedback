@@ -124,6 +124,16 @@ QPushButton { \
 
 MainWindow::MainWindow(QApplication &app)
 {
+  /* Close button */
+  QPushButton * CloseButton = new QPushButton("", this);
+  CloseButton->setFlat(true);
+  CloseButton->setIcon(QPixmap( ":resources/close.png" ));
+  CloseButton->setMinimumWidth(20);
+
+  // Connect button signal to appropriate slot
+  connect(CloseButton, SIGNAL(released()), this, SLOT(onExit()));
+
+
   /* Main heading */
   QLabel * feedbackLabel = new QLabel();
   feedbackLabel->setText("Send feedback to the Kano Team!");
@@ -159,11 +169,10 @@ MainWindow::MainWindow(QApplication &app)
 
 /* Main Content Layout */
   QGridLayout * mainContentLayout = new QGridLayout;
-  mainContentLayout->addWidget(feedbackLabel, 0, 0);
-  mainContentLayout->addWidget(explanationLabel, 1, 0);
-  //mainContentLayout->addLayout(feedbackCategoryLayout, 2, 0);
-  mainContentLayout->addWidget(FeedbackCategoryDropdown, 2, 0);
-  //mainContentLayout->addWidget(FeedbackTextLabel, 3, 0);
+  mainContentLayout->addWidget(CloseButton, 0, 0, Qt::AlignRight);
+  mainContentLayout->addWidget(feedbackLabel, 1, 0);
+  mainContentLayout->addWidget(explanationLabel, 2, 0);
+  mainContentLayout->addWidget(FeedbackCategoryDropdown, 3, 0);
   mainContentLayout->addWidget(FeedbackTextPane, 4, 0);
   mainContentLayout->addWidget(SubmitButton, 5, 0, Qt::AlignRight);
 
@@ -446,9 +455,14 @@ bool MainWindow::emailValid(std::string email)
 /*********************** Exit ***********************/
 /****************************************************/
 
+void MainWindow::onExit()
+{
+  close();
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-
+  close();
 }
 
 void MainWindow::onExitCleanup()

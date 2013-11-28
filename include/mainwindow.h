@@ -45,6 +45,7 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private slots:
+    void onExit();
     void onExitCleanup();
     void about();
     void handleSubmitButton();
