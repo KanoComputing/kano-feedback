@@ -1,3 +1,16 @@
+kano-feedback (0.1-2) unstable; urgency=low
+
+  * Package rebuilt, updated to revision 72a95bc5.
+
+ -- Team Kano <hello@kano.me>  Thu, 28 Nov 2013 17:29:04 +0000
+
+kano-feedback (0.1-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Package rebuilt, updated to revision 31053f24.
+
+ -- Team Kano <hello@kano.me>  Thu, 28 Nov 2013 16:27:40 +0000
+
 kano-feedback (0.1-1) unstable; urgency=low
 
   * Initial release.
