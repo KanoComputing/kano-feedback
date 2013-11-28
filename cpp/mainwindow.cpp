@@ -228,8 +228,7 @@ void MainWindow::handleSubmitButton()
 
   // If we don't have an e-mail address for the user, ask them to input it.
   // The e-mail is stored in ~/.email if one has been provided.
-  bool noEmail = true;
-  std::string email_addr;
+  std::string email_addr = "";
 
   std::ifstream file;
   std::string email_filename;
@@ -254,7 +253,6 @@ void MainWindow::handleSubmitButton()
           if (email_addr.length() > 3)
             {
               std::cout << "found e-mail: " << email_addr << "\n";
-              noEmail = false;
               break;
             }
         }
@@ -262,32 +260,29 @@ void MainWindow::handleSubmitButton()
       file.close();
     }
   
-  // Prompt for e-mail input if one not found.
+  // Prompt for e-mail input. Default text is the found email.
   bool ok;
-  if (noEmail)
+  QString text = QInputDialog::getText(this, tr("Your e-mail?"),
+                                       tr("How can we contact you about your comments? Enter your e-mail"),
+                                       QLineEdit::Normal, tr(email_addr.c_str() ), &ok);
+  if (ok)
     {
-      QString text = QInputDialog::getText(this, tr("No e-mail provided."),
-                                           tr("You haven't provided an e-mail address. Please add one before you submit."),
-                                           QLineEdit::Normal, tr(""), &ok);
-      if (ok)
+      if (!emailValid(text.toUtf8().constData()))
         {
-          if (text.isEmpty())
-            {
-              QMessageBox blankEmail;
-              blankEmail.setWindowTitle("No e-mail provided");
-              blankEmail.setText("You didn't enter an address.");
-              blankEmail.setInformativeText("Try again.");
-              blankEmail.setStandardButtons(QMessageBox::Ok);
-              blankEmail.setDefaultButton(QMessageBox::Ok);
-              blankEmail.exec();
-              return;
-            }
-          std::cout << text.toStdString() << "\n";
-          email_addr = text.toStdString();
-        } else {
-          // Return them to the window.
+          QMessageBox blankEmail;
+          blankEmail.setWindowTitle("Invalid e-mail provided");
+          blankEmail.setText("You didn't enter a valid address.");
+          blankEmail.setInformativeText("Try again.");
+          blankEmail.setStandardButtons(QMessageBox::Ok);
+          blankEmail.setDefaultButton(QMessageBox::Ok);
+          blankEmail.exec();
           return;
         }
+      std::cout << text.toStdString() << "\n";
+      email_addr = text.toStdString();
+    } else {
+      // Return them to the window.
+      return;
     }
 
   // Check that they want to send.
@@ -422,6 +417,29 @@ std::string MainWindow::removeQuotationMarks(std::string data)
         data = " " + data;
       }
   return data;
+}
+
+/************** Checks that a string is a valid e-mail address **************
+ * @param  {std::string} email  E-mail to check                             *
+ * @return {bool}         true  The e-mail is valid                         *
+ *                       false  The e-mail is invalid                       *
+ ****************************************************************************/
+bool MainWindow::emailValid(std::string email)
+{
+  // Build the command-line command
+  // egrep "[a-zA-Z0-9_\.-]+@[a-zA-Z0-9_.-]+\.[a-zA-Z0-9_.-]" <<< email
+  char command[4096];
+
+  strcpy (command, "egrep \"[a-zA-Z0-9_\\.-]+@[a-zA-Z0-9_.-]+\\.[a-zA-Z0-9_.-]\" <<< ");
+  strcat (command, email.c_str());
+  // Execute the command
+  std::string validResult = executeCommand(command);
+  if (!validResult.compare(""))
+    {
+      return false;
+    } else {
+      return true;
+    }
 }
 
 /****************************************************/

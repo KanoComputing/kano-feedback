@@ -54,6 +54,7 @@ private:
     void createActions();
     std::string executeCommand(const char* command);
     std::string removeQuotationMarks(std::string data);
+    bool emailValid(std::string email);
 
 
     QTextEdit *FeedbackTextPane;
