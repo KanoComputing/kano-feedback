@@ -163,6 +163,7 @@ MainWindow::MainWindow(QApplication &app)
   SubmitButton->setStyleSheet(SUBMIT_BUTTON_STYLING);
   SubmitButton->setIcon(QPixmap( ":resources/send.png" ));
   SubmitButton->setMinimumWidth(110);
+  SubmitButton->setMinimumHeight(40);
 
   // Connect button signal to appropriate slot
   connect(SubmitButton, SIGNAL(released()), this, SLOT(handleSubmitButton()));
@@ -410,6 +411,11 @@ std::string MainWindow::executeCommand(const char* command)
   return result;
 }
 
+/********************************** Replaces all " with ' **********************************
+ **************** ensures that the data is in an appropriate format to send ****************
+ * @param  {std::string} data  String to parse                                             *
+ * @return {std::string} data  The parsed string                                           *
+ *******************************************************************************************/
 std::string MainWindow::removeQuotationMarks(std::string data)
 {
   size_t found = data.find("\"");
@@ -462,7 +468,7 @@ void MainWindow::onExit()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-  close();
+
 }
 
 void MainWindow::onExitCleanup()
