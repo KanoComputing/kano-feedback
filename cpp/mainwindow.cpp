@@ -266,19 +266,22 @@ void MainWindow::handleSubmitButton()
   bool ok;
   if (noEmail)
     {
-      QMessageBox emailBox;
-      emailBox.setWindowTitle("Your e-mail address");
-      emailBox.setText("We don't know your e-mail address.");
-      emailBox.setInformativeText("Enter your e-mail address so that we can send your comments");
-      emailBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-      emailBox.setDefaultButton(QMessageBox::Ok);
-      emailBox.exec();
-
       QString text = QInputDialog::getText(this, tr("No e-mail provided."),
                                            tr("You haven't provided an e-mail address. Please add one before you submit."),
                                            QLineEdit::Normal, tr(""), &ok);
-      if (ok && !text.isEmpty())
+      if (ok)
         {
+          if (text.isEmpty())
+            {
+              QMessageBox blankEmail;
+              blankEmail.setWindowTitle("No e-mail provided");
+              blankEmail.setText("You didn't enter an address.");
+              blankEmail.setInformativeText("Try again.");
+              blankEmail.setStandardButtons(QMessageBox::Ok);
+              blankEmail.setDefaultButton(QMessageBox::Ok);
+              blankEmail.exec();
+              return;
+            }
           std::cout << text.toStdString() << "\n";
           email_addr = text.toStdString();
         } else {
@@ -318,18 +321,17 @@ void MainWindow::handleSubmitButton()
   dataToSend += "";
   dataToSend += email_entry;
   dataToSend += "=";
-  dataToSend += email_addr;
+  dataToSend += removeQuotationMarks(email_addr);
   dataToSend += "&";
   // Category
   dataToSend += category_entry;
   dataToSend += "=";
-  dataToSend += category;
+  dataToSend += removeQuotationMarks(category);
   dataToSend += "&";
   // Response
   dataToSend += response_entry;
   dataToSend += "=";
-  dataToSend += response;
-  dataToSend += "";
+  dataToSend += removeQuotationMarks(response);
 
   // Send the data
 
@@ -337,9 +339,9 @@ void MainWindow::handleSubmitButton()
   // curl --progress-bar -d 'entry.1110323866=email&entry.1341620943=category&entry.162771870=comment' https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse
   char command[4096];
 
-  strcpy (command, "curl --progress-bar -d '");
+  strcpy (command, "curl --progress-bar -d \"");
   strcat (command, dataToSend.c_str());
-  strcat (command, "' https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse");
+  strcat (command, "\" https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse");
   // Execute the command
   std::string uploadResult = executeCommand(command);
 
@@ -349,6 +351,7 @@ void MainWindow::handleSubmitButton()
   {
     // Upload failed
     std::cout << "Upload failed\n";
+    std::cout << uploadResult << "\n";
     successBox.setWindowTitle("Failed!");
     successBox.setText(tr("I'm afraid that there was a problem uploading your thoughts. Check that you are connected to the internet and try again."));
     successBox.exec();
@@ -362,6 +365,10 @@ void MainWindow::handleSubmitButton()
   }
   
 }
+
+/*******************************************
+ **************** Utilities ****************
+ *******************************************/
 
 /***************** Executes the given command *****************
  * @param  {const char *} command  The command to be executed *
@@ -397,6 +404,24 @@ std::string MainWindow::executeCommand(const char* command)
   }
 
   return result;
+}
+
+std::string MainWindow::removeQuotationMarks(std::string data)
+{
+  size_t found = data.find("\"");
+  while (found != std::string::npos)
+  {
+    std::cout << "Found quotation " << found << "\n";
+    // Replace quotation mark
+    data.replace(found, 1, "'");
+    found = data.find("\"");
+  }
+  // Fix upload error when data field begins with " or '
+  if (data.find("\"") == 0 || data.find("'") == 0 )
+      {
+        data = " " + data;
+      }
+  return data;
 }
 
 /****************************************************/

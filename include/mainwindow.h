@@ -53,6 +53,7 @@ private slots:
 private:
     void createActions();
     std::string executeCommand(const char* command);
+    std::string removeQuotationMarks(std::string data);
 
 
     QTextEdit *FeedbackTextPane;
@@ -60,7 +61,6 @@ private:
     QStringList categories;
     QComboBox *FeedbackCategoryDropdown;
 
-    QPushButton *CloseButton;
     QPushButton *SubmitButton;
 
     QAction *aboutAct;
