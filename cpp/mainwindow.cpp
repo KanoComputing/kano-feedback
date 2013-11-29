@@ -1,24 +1,6 @@
 /****************************************************************************
 **
-** Copyright (c) 2013 Samuel Aaron
-**
-** Permission is hereby granted, free of charge, to any person obtaining a copy
-** of this software and associated documentation files (the "Software"), to deal
-** in the Software without restriction, including without limitation the rights
-** to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-** copies of the Software, and to permit persons to whom the Software is
-** furnished to do so, subject to the following conditions:
-**
-** The above copyright notice and this permission notice shall be included in
-** all copies or substantial portions of the Software.
-**
-** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-** OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-** THE SOFTWARE.
+** A tool for sharing feedback on the Kano OS
 **
 ****************************************************************************/
 
@@ -46,11 +28,11 @@
 
 #define WIDTH     500
 
-/******************* Styling *******************/
-/*                                             */
-/* TODO: Move away from using the preprocessor */
-/*                                             */
-/***********************************************/
+/******************* Styling *******************
+ *                                             *
+ * TODO: Move away from using the preprocessor *
+ *                                             *
+ ***********************************************/
 
 /* General App Style */
 #define APP_STYLING  " \
@@ -113,9 +95,9 @@ QPushButton { \
 }"
 
 
-/***** End *****/
-/*      of     */
-/*** styling ***/
+/***** End *****
+ *      of     *
+ *** styling ***/
 
 
 /***********************************************************/
@@ -168,7 +150,7 @@ MainWindow::MainWindow(QApplication &app)
   // Connect button signal to appropriate slot
   connect(SubmitButton, SIGNAL(released()), this, SLOT(handleSubmitButton()));
 
-/* Main Content Layout */
+  /* Main Content Layout */
   QGridLayout * mainContentLayout = new QGridLayout;
   mainContentLayout->addWidget(CloseButton, 0, 0, Qt::AlignRight);
   mainContentLayout->addWidget(feedbackLabel, 1, 0);
@@ -237,7 +219,7 @@ void MainWindow::handleSubmitButton()
     }
 
   // If we don't have an e-mail address for the user, ask them to input it.
-  // The e-mail is stored in ~/.email if one has been provided.
+  // The e-mail is stored in ~/.useremail if one has been provided.
   std::string email_addr = "";
 
   std::ifstream file;
@@ -246,7 +228,7 @@ void MainWindow::handleSubmitButton()
   const char *homedir = pw->pw_dir;
 
   email_filename.append(homedir);
-  email_filename.append("/.email");
+  email_filename.append("/.useremail");
   std::cout << "Opening file " << email_filename << "..." << "\n";
   file.open(email_filename.c_str());
 
@@ -420,17 +402,16 @@ std::string MainWindow::removeQuotationMarks(std::string data)
 {
   size_t found = data.find("\"");
   while (found != std::string::npos)
-  {
-    std::cout << "Found quotation " << found << "\n";
-    // Replace quotation mark
-    data.replace(found, 1, "'");
-    found = data.find("\"");
-  }
+    {
+      // Replace quotation mark
+      data.replace(found, 1, "'");
+      found = data.find("\"");
+    }
   // Fix upload error when data field begins with " or '
   if (data.find("\"") == 0 || data.find("'") == 0 )
-      {
-        data = " " + data;
-      }
+    {
+      data = " " + data;
+    }
   return data;
 }
 
