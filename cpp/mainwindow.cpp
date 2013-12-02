@@ -207,7 +207,7 @@ void MainWindow::handleSubmitButton()
 
   // Kanux Version
   // Execute `ls -l /etc/kanux_version | awk '{ print $6 " " $7 " " $8 }'`
-  char command[4096];
+  char command[512];
   strcpy (command, "ls -l /etc/kanux_version | awk '{ print $6 \" \" $7 \" \" $8 }'");
   std::string kanux_version = executeCommand(command);
 
@@ -314,10 +314,6 @@ void MainWindow::handleSubmitButton()
     }
 
   // We have everything. Form the object to send.
-  std::cout << "\n" << email_addr << "\n";
-  std::cout << response << "\n";
-  std::cout << category << "\n";
-
   std::string url = "https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse";
 
   std::string email_entry = "entry.1110323866";
@@ -364,11 +360,12 @@ void MainWindow::handleSubmitButton()
 
   // Build the command-line command
   // curl --progress-bar -d 'entry.1110323866=email&entry.1341620943=category&entry.162771870=comment' https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse
-  strcpy (command, "curl --progress-bar -d \"");
-  strcat (command, dataToSend.c_str());
-  strcat (command, "\" https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse");
+  char uploadCommand[dataToSend.length() + 100];
+  strcpy (uploadCommand, "curl --progress-bar -d \"");
+  strcat (uploadCommand, dataToSend.c_str());
+  strcat (uploadCommand, "\" https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse");
   // Execute the command
-  std::string uploadResult = executeCommand(command);
+  std::string uploadResult = executeCommand(uploadCommand);
 
   // Parse the command output
   QMessageBox successBox;
@@ -462,7 +459,7 @@ bool MainWindow::emailValid(std::string email)
 {
   // Build the command-line command
   // echo email | egrep "[a-zA-Z0-9_\.-]+@[a-zA-Z0-9_.-]+\.[a-zA-Z0-9_.-]"
-  char command[4096];
+  char command[email.length() + 100];
 
   strcpy (command, "echo ");
   strcat (command, email.c_str());
