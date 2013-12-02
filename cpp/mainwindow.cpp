@@ -475,14 +475,14 @@ void MainWindow::handleSubmitButton()
   if (uploadResult.find("Thanks!") == std::string::npos)
   {
     // Upload failed
-    std::cout << "Upload failed\n";
-    std::cout << uploadResult << "\n";
+    // std::cout << "Upload failed\n";
+    // std::cout << uploadResult << "\n";
     successBox.setWindowTitle("Failed!");
     successBox.setText(tr("I'm afraid that there was a problem uploading your thoughts. Check that you are connected to the internet and try again."));
     successBox.exec();
   } else {
     // Upload success
-    std::cout << "Upload success\n";
+    // std::cout << "Upload success\n";
     successBox.setWindowTitle("Success");
     successBox.setText(tr("Thank you for your help! We will use your views to improve Kano."));
     successBox.exec();
@@ -504,7 +504,7 @@ std::string MainWindow::executeCommand(const char* command)
 {
   FILE* fp = NULL;
 
-  std::cout << "Executing >>> " << command << "\n";
+  // std::cout << "Executing >>> " << command << "\n";
 
   // Execute the command
   fp = popen(command, "r");
