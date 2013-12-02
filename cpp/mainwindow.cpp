@@ -95,9 +95,11 @@ QPushButton { \
 }"
 
 
-/***** End *****
- *      of     *
- *** styling ***/
+/***************
+ ***** End *****
+ ****** of *****
+ *** styling ***
+ ***************/
 
 
 /***********************************************************/
@@ -106,6 +108,10 @@ QPushButton { \
 
 MainWindow::MainWindow(QApplication &app)
 {
+  /********************************************************
+   **************** Define the app widgets ****************
+   ********************************************************/
+
   /* Close button */
   QPushButton * CloseButton = new QPushButton("", this);
   CloseButton->setFlat(true);
@@ -147,10 +153,38 @@ MainWindow::MainWindow(QApplication &app)
   SubmitButton->setMinimumWidth(110);
   SubmitButton->setMinimumHeight(40);
 
-  // Connect button signal to appropriate slot
+  // Connect submit button signal to appropriate slot
   connect(SubmitButton, SIGNAL(released()), this, SLOT(handleSubmitButton()));
 
-  /* Main Content Layout */
+
+  /*************************************************
+   ************** Main Content Layout **************
+   *************************************************
+   * Should look something like this               *
+   *************************************************
+   *                                            x  *
+   *  Kano Feedback                                *
+   *                                               *
+   *  Give us your comments                        *
+   *  -------------------------------------------  *
+   *  | Subject                              v  |  *
+   *  -------------------------------------------  *
+   *                                               *
+   *  -------------------------------------------  *
+   *  | Response                                |  *
+   *  |                                         |  *
+   *  |                                         |  *
+   *  |                                         |  *
+   *  |                                         |  *
+   *  |                                         |  *
+   *  |                                         |  *
+   *  ------------------------------------------   *
+   *                                               *
+   *                                 ------------  *
+   *                                 |   Send   |  *
+   *                                 ------------  *
+   *************************************************/
+
   QGridLayout * mainContentLayout = new QGridLayout;
   mainContentLayout->addWidget(CloseButton, 0, 0, Qt::AlignRight);
   mainContentLayout->addWidget(feedbackLabel, 1, 0);
@@ -159,28 +193,24 @@ MainWindow::MainWindow(QApplication &app)
   mainContentLayout->addWidget(FeedbackTextPane, 4, 0);
   mainContentLayout->addWidget(SubmitButton, 5, 0, Qt::AlignRight);
 
+  // Settings for the main content layout
   mainContentLayout->setVerticalSpacing(10);
 
+  // The main app
   QWidget * mainWidget = new QWidget(this);
   mainWidget->setLayout(mainContentLayout);
-
   setCentralWidget(mainWidget);
-
   setStyleSheet(APP_STYLING);
-
-  createActions();
-
   setWindowTitle("Kano Feedback");
 
-  // connect(runProcess, SIGNAL(readyReadStandardOutput()),
-  //         this, SLOT(updateOutput()));
-
+  // Create actions and connect signals
+  createActions();
   connect(&app, SIGNAL( aboutToQuit() ), this, SLOT( onExitCleanup() ) );
 }
 
-/*******************************************************/
-/*********************** Actions ***********************/
-/*******************************************************/
+/*******************************************************
+ *********************** Actions ***********************
+ *******************************************************/
 
 void MainWindow::createActions()
 {
@@ -194,9 +224,15 @@ void MainWindow::createActions()
 
 }
 
+/******************** Called when submit is clicked ********************
+ * Gathers the data, confirms sending with the user, sends and checks  *
+ * that everything was sent correctly.                                 *
+ ***********************************************************************/
 void MainWindow::handleSubmitButton()
 {
-  // Collect the data to send
+  /********************************************************
+   *************** Collect the data to send ***************
+   ********************************************************/
   
   // Category
   int dropdownIndex = FeedbackCategoryDropdown->currentIndex();
@@ -226,6 +262,17 @@ void MainWindow::handleSubmitButton()
   strcpy (command, "dmesg");
   std::string dmesg = executeCommand(command);
 
+  // Syslog
+  // Execute `cat /var/log/messages`
+  strcpy (command, "cat /var/log/messages");
+  std::string syslog = executeCommand(command);
+
+  /***************************************************
+   **************** Validate the data ****************
+   ***************************************************
+   * Check that data is entered and a subject chosen *
+   ***************************************************/
+
   // Make sure they have entered a comment
   if (!response.compare(""))
     {
@@ -244,10 +291,18 @@ void MainWindow::handleSubmitButton()
       return;
     }
 
-  // If we don't have an e-mail address for the user, ask them to input it.
-  // The e-mail is stored in ~/.useremail if one has been provided.
+
+  /*******************************************************************************
+   ****************************** E-mail Collection ******************************
+   *******************************************************************************
+   * If an e-mail address has provided then it is stored in ~/.useremail         *
+   * Try looking in this file and if an address is found, suggest it to the user *
+   * else ask them to input it.                                                  *
+   *******************************************************************************/
+
   std::string email_addr = "";
 
+  // Try the file
   std::ifstream file;
   std::string email_filename;
   struct passwd *pw = getpwuid(getuid());
@@ -255,14 +310,14 @@ void MainWindow::handleSubmitButton()
 
   email_filename.append(homedir);
   email_filename.append("/.useremail");
-  std::cout << "Opening file " << email_filename << "..." << "\n";
+  // std::cout << "Opening file " << email_filename << "..." << "\n";
   file.open(email_filename.c_str());
 
   if (!file.is_open())
     {
-      std::cout << "E-mail file not found\n";
+      // std::cout << "E-mail file not found\n";
     } else {
-      std::cout << "E-mail file open\n";
+      // std::cout << "E-mail file open\n";
 
       while (!file.eof())
         {
@@ -270,7 +325,7 @@ void MainWindow::handleSubmitButton()
           // skip empty and CR+LF lines
           if (email_addr.length() > 3)
             {
-              std::cout << "found e-mail: " << email_addr << "\n";
+              // std::cout << "found e-mail: " << email_addr << "\n";
               break;
             }
         }
@@ -296,14 +351,18 @@ void MainWindow::handleSubmitButton()
           blankEmail.exec();
           return;
         }
-      std::cout << text.toStdString() << "\n";
       email_addr = text.toStdString();
     } else {
       // Return them to the window.
       return;
     }
 
-  // Check that they want to send.
+
+  /******************************************************
+   ************ Check that they want to send ************
+   ******************************************************
+   * Give notification of the data which is being sent  *
+   ******************************************************/
   QMessageBox confirmSendMsgBox;
   confirmSendMsgBox.setWindowTitle("Are you sure you want to send?");
   confirmSendMsgBox.setText("You are about to send us your suggestions. Some additional information about your system will also be sent to help us with your comment but none of this can be used to identify you.");
@@ -314,9 +373,31 @@ void MainWindow::handleSubmitButton()
   if (confirmSendMsgBoxSelected == QMessageBox::Cancel)
     {
       // Return them to the window.
-      std::cout << "Will not send\n\n";
+      // std::cout << "Will not send\n\n";
       return;
     }
+
+
+  /***********************************************************************************************************
+   ********************************************** Send the data **********************************************
+   ***********************************************************************************************************
+   * Execute                                                                                                 *
+   ***********************************************************************************************************
+   * curl --progress-bar -d '                                                                                *
+   * entry.1110323866=email&                                                                                 *
+   * entry.1341620943=category&                                                                              *
+   * entry.162771870=comment&                                                                                *
+   * entry.1932769824=kanux_version&                                                                         *
+   * entry.868132968=running_processes&                                                                      *
+   * entry.1747707726=installed_packages&                                                                    *
+   * dmesg_entry = entry.1892657243=dmesg&                                                                   *
+   * syslog_entryentry.355029695=syslog                                                                      *
+   * ' https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse   *
+   ***********************************************************************************************************/
+
+  /******************************************************
+   ******** Construct string of the data to send ********
+   ******************************************************/
 
   // We have everything. Form the object to send.
   std::string url = "https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse";
@@ -328,8 +409,10 @@ void MainWindow::handleSubmitButton()
   std::string running_processes_entry = "entry.868132968";
   std::string packages_entry = "entry.1747707726";
   std::string dmesg_entry = "entry.1892657243";
+  std::string syslog_entry = "entry.355029695";
 
   std::string dataToSend;
+
   // E-mail
   dataToSend += "";
   dataToSend += email_entry;
@@ -365,12 +448,16 @@ void MainWindow::handleSubmitButton()
   dataToSend += dmesg_entry;
   dataToSend += "=";
   dataToSend += removeQuotationMarks(dmesg);
+  dataToSend += "&";
+  // Syslog
+  dataToSend += syslog_entry;
+  dataToSend += "=";
+  dataToSend += removeQuotationMarks(syslog);
 
 
-  // Send the data
-
-  // Build the command-line command
-  // curl --progress-bar -d 'entry.1110323866=email&entry.1341620943=category&entry.162771870=comment' https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse
+  /***************************************************************
+   ************************ Send the data ************************
+   ***************************************************************/
   char uploadCommand[dataToSend.length() + 100];
   strcpy (uploadCommand, "curl --progress-bar -d \"");
   strcat (uploadCommand, dataToSend.c_str());
@@ -378,7 +465,12 @@ void MainWindow::handleSubmitButton()
   // Execute the command
   std::string uploadResult = executeCommand(uploadCommand);
 
-  // Parse the command output
+
+  /********************************************
+   ********* Parse the command output *********
+   ********************************************
+   * Check if the upload succeeded            *
+   ********************************************/
   QMessageBox successBox;
   if (uploadResult.find("Thanks!") == std::string::npos)
   {
@@ -486,13 +578,13 @@ bool MainWindow::emailValid(std::string email)
     }
 }
 
-/****************************************************/
-/*********************** Exit ***********************/
-/****************************************************/
+/****************************************************
+ *********************** Exit ***********************
+ ****************************************************/
 
 void MainWindow::onExit()
 {
-  close();
+
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -505,9 +597,9 @@ void MainWindow::onExitCleanup()
 
 }
 
-/*******************************************************************/
-/*********************** About/Help/Settings ***********************/
-/*******************************************************************/
+/*******************************************************************
+ *********************** About/Help/Settings ***********************
+ *******************************************************************/
 
 void MainWindow::about()
 {
