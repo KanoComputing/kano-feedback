@@ -306,8 +306,8 @@ void MainWindow::handleSubmitButton()
   // Check that they want to send.
   QMessageBox confirmSendMsgBox;
   confirmSendMsgBox.setWindowTitle("Are you sure you want to send?");
-  confirmSendMsgBox.setText("You are about to send us your improvements.");
-  confirmSendMsgBox.setInformativeText("Do you want to send?");
+  confirmSendMsgBox.setText("You are about to send us your suggestions. Some additional information about your system will also be sent to help us with your comment but none of this can be used to identify you.");
+  confirmSendMsgBox.setInformativeText("Are you happy to send?");
   confirmSendMsgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
   confirmSendMsgBox.setDefaultButton(QMessageBox::Ok);
   int confirmSendMsgBoxSelected = confirmSendMsgBox.exec();
