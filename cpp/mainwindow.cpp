@@ -196,9 +196,30 @@ void MainWindow::createActions()
 
 void MainWindow::handleSubmitButton()
 {
+  // Collect the data to send
+  
+  // Category
   int dropdownIndex = FeedbackCategoryDropdown->currentIndex();
   std::string category = categories.at(dropdownIndex).toLocal8Bit().constData();
+
+  // Response
   std::string response = FeedbackTextPane->toPlainText().toStdString();
+
+  // Kanux Version
+  // Execute `ls -l /etc/kanux_version | awk '{ print $6 " " $7 " " $8 }'`
+  char command[4096];
+  strcpy (command, "ls -l /etc/kanux_version | awk '{ print $6 \" \" $7 \" \" $8 }'");
+  std::string kanux_version = executeCommand(command);
+
+  // Running processes
+  // Execute `ps -e | awk '{ printf( $4 "," ) }'`
+  strcpy (command, "ps -e | awk '{ printf( $4 \",\" ) }'");
+  std::string running_processes = executeCommand(command);
+
+  // Running processes
+  // Execute `dpkg-query -l | awk '{ printf( $2 "-" $3 "," ) }'`
+  strcpy (command, "dpkg-query -l | awk '{ printf( $2 \"-\" $3 \",\" ) }'");
+  std::string packages = executeCommand(command);
 
   // Make sure they have entered a comment
   if (!response.compare(""))
@@ -302,6 +323,9 @@ void MainWindow::handleSubmitButton()
   std::string email_entry = "entry.1110323866";
   std::string category_entry = "entry.1341620943";
   std::string response_entry = "entry.162771870";
+  std::string kanux_version_entry = "entry.1932769824";
+  std::string running_processes_entry = "entry.868132968";
+  std::string packages_entry = "entry.1747707726";
 
   std::string dataToSend;
   // E-mail
@@ -319,13 +343,27 @@ void MainWindow::handleSubmitButton()
   dataToSend += response_entry;
   dataToSend += "=";
   dataToSend += removeQuotationMarks(response);
+  dataToSend += "&";
+  // Kanux Version
+  dataToSend += kanux_version_entry;
+  dataToSend += "=";
+  dataToSend += removeQuotationMarks(kanux_version);
+  dataToSend += "&";
+  // Running Processes
+  dataToSend += running_processes_entry;
+  dataToSend += "=";
+  dataToSend += removeQuotationMarks(running_processes);
+  dataToSend += "&";
+  // Running Processes
+  dataToSend += packages_entry;
+  dataToSend += "=";
+  dataToSend += removeQuotationMarks(packages);
+
 
   // Send the data
 
   // Build the command-line command
   // curl --progress-bar -d 'entry.1110323866=email&entry.1341620943=category&entry.162771870=comment' https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse
-  char command[4096];
-
   strcpy (command, "curl --progress-bar -d \"");
   strcat (command, dataToSend.c_str());
   strcat (command, "\" https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse");
