@@ -584,7 +584,7 @@ bool MainWindow::emailValid(std::string email)
 
 void MainWindow::onExit()
 {
-
+  close();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
