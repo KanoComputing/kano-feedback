@@ -212,14 +212,19 @@ void MainWindow::handleSubmitButton()
   std::string kanux_version = executeCommand(command);
 
   // Running processes
-  // Execute `ps -e | awk '{ printf( $4 "," ) }'`
-  strcpy (command, "ps -e | awk '{ printf( $4 \",\" ) }'");
+  // Execute `ps -e | awk '{ print $4 }'`
+  strcpy (command, "ps -e | awk '{ print $4 }'");
   std::string running_processes = executeCommand(command);
 
   // Running processes
-  // Execute `dpkg-query -l | awk '{ printf( $2 "-" $3 "," ) }'`
-  strcpy (command, "dpkg-query -l | awk '{ printf( $2 \"-\" $3 \",\" ) }'");
+  // Execute `dpkg-query -l | awk '{ print $2 "-" $3 }'`
+  strcpy (command, "dpkg-query -l | awk '{ print $2 \"-\" $3 }'");
   std::string packages = executeCommand(command);
+
+  // Dmesg
+  // Execute `dmesg`
+  strcpy (command, "dmesg");
+  std::string dmesg = executeCommand(command);
 
   // Make sure they have entered a comment
   if (!response.compare(""))
@@ -322,6 +327,7 @@ void MainWindow::handleSubmitButton()
   std::string kanux_version_entry = "entry.1932769824";
   std::string running_processes_entry = "entry.868132968";
   std::string packages_entry = "entry.1747707726";
+  std::string dmesg_entry = "entry.1892657243";
 
   std::string dataToSend;
   // E-mail
@@ -354,6 +360,11 @@ void MainWindow::handleSubmitButton()
   dataToSend += packages_entry;
   dataToSend += "=";
   dataToSend += removeQuotationMarks(packages);
+  dataToSend += "&";
+  // Dmesg
+  dataToSend += dmesg_entry;
+  dataToSend += "=";
+  dataToSend += removeQuotationMarks(dmesg);
 
 
   // Send the data
