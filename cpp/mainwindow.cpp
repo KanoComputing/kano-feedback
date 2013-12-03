@@ -264,9 +264,9 @@ void MainWindow::handleSubmitButton()
   strcpy (command, "dmesg");
   std::string dmesg = executeCommand(command);
 
-  // Syslog
-  // Execute `cat /var/log/messages`
-  strcpy (command, "cat /var/log/messages");
+  // Syslog - Just get the last lines else there is too much info.
+  // Execute `tail -n 100 /var/log/messages`
+  strcpy (command, "tail -n 100 /var/log/messages");
   std::string syslog = executeCommand(command);
 
   /***************************************************
