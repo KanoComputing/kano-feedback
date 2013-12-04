@@ -480,7 +480,7 @@ void MainWindow::handleSubmitButton()
     // std::cout << "Upload failed\n";
     // std::cout << uploadResult << "\n";
     successBox.setWindowTitle("Failed!");
-    successBox.setText(tr("I'm afraid that there was a problem uploading your thoughts. Check that you are connected to the internet and try again."));
+    successBox.setText(tr("I'm afraid that there was a problem uploading your thoughts. Check that you are connected to the internet and try again. If this problem persists then you can log your bug on talk.kano.me"));
     successBox.exec();
   } else {
     // Upload success
