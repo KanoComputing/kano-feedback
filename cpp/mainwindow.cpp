@@ -435,26 +435,30 @@ void MainWindow::handleSubmitButton()
   dataToSend += kanux_version_entry;
   dataToSend += "=";
   dataToSend += removeQuotationMarks(kanux_version);
-  dataToSend += "&";
-  // Running Processes
-  dataToSend += running_processes_entry;
-  dataToSend += "=";
-  dataToSend += removeQuotationMarks(running_processes);
-  dataToSend += "&";
-  // Running Processes
-  dataToSend += packages_entry;
-  dataToSend += "=";
-  dataToSend += removeQuotationMarks(packages);
-  dataToSend += "&";
-  // Dmesg
-  dataToSend += dmesg_entry;
-  dataToSend += "=";
-  dataToSend += removeQuotationMarks(dmesg);
-  dataToSend += "&";
-  // Syslog
-  dataToSend += syslog_entry;
-  dataToSend += "=";
-  dataToSend += removeQuotationMarks(syslog);
+  // Only send diagnostic information if a bug is being reported.
+  if (!category.compare("Bug"))
+    {
+      dataToSend += "&";
+      // Running Processes
+      dataToSend += running_processes_entry;
+      dataToSend += "=";
+      dataToSend += removeQuotationMarks(running_processes);
+      dataToSend += "&";
+      // Installed Packages
+      dataToSend += packages_entry;
+      dataToSend += "=";
+      dataToSend += removeQuotationMarks(packages);
+      dataToSend += "&";
+      // Dmesg
+      dataToSend += dmesg_entry;
+      dataToSend += "=";
+      dataToSend += removeQuotationMarks(dmesg);
+      dataToSend += "&";
+      // Syslog
+      dataToSend += syslog_entry;
+      dataToSend += "=";
+      dataToSend += removeQuotationMarks(syslog);
+    }
 
 
   /***************************************************************
