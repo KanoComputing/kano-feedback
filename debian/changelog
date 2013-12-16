@@ -2,110 +2,110 @@ kano-feedback (1.0-11) unstable; urgency=low
 
   * Package rebuilt, updated to revision f37dcd49.
 
- -- Team Kano <hello@kano.me>  Fri, 13 Dec 2013 16:29:49 +0000
+ -- Team Kano <dev@kano.me>  Fri, 13 Dec 2013 16:29:49 +0000
 
 kano-feedback (1.0-10) unstable; urgency=low
 
   * Package rebuilt, updated to revision 7a0d8e07.
 
- -- Team Kano <hello@kano.me>  Mon, 09 Dec 2013 18:07:30 +0000
+ -- Team Kano <dev@kano.me>  Mon, 09 Dec 2013 18:07:30 +0000
 
 kano-feedback (1.0-9) unstable; urgency=low
 
   * Package rebuilt, updated to revision 9c231490.
 
- -- Team Kano <hello@kano.me>  Mon, 09 Dec 2013 02:31:35 +0000
+ -- Team Kano <dev@kano.me>  Mon, 09 Dec 2013 02:31:35 +0000
 
 kano-feedback (1.0-8) unstable; urgency=low
 
   * Package rebuilt, updated to revision d39c0feb.
 
- -- Team Kano <hello@kano.me>  Sun, 08 Dec 2013 02:31:27 +0000
+ -- Team Kano <dev@kano.me>  Sun, 08 Dec 2013 02:31:27 +0000
 
 kano-feedback (1.0-7) unstable; urgency=low
 
   * Package rebuilt, updated to revision 5c608ca2.
 
- -- Team Kano <hello@kano.me>  Sat, 07 Dec 2013 02:31:34 +0000
+ -- Team Kano <dev@kano.me>  Sat, 07 Dec 2013 02:31:34 +0000
 
 kano-feedback (1.0-6) unstable; urgency=low
 
   * Package rebuilt, updated to revision 7172e305.
 
- -- Team Kano <hello@kano.me>  Thu, 05 Dec 2013 18:34:11 +0000
+ -- Team Kano <dev@kano.me>  Thu, 05 Dec 2013 18:34:11 +0000
 
 kano-feedback (1.0-5) unstable; urgency=low
 
   * Package rebuilt, updated to revision b2ce2630.
 
- -- Team Kano <hello@kano.me>  Wed, 04 Dec 2013 10:17:11 +0000
+ -- Team Kano <dev@kano.me>  Wed, 04 Dec 2013 10:17:11 +0000
 
 kano-feedback (1.0-4) unstable; urgency=low
 
   * Package rebuilt, updated to revision ad87566a.
 
- -- Team Kano <hello@kano.me>  Wed, 04 Dec 2013 02:31:15 +0000
+ -- Team Kano <dev@kano.me>  Wed, 04 Dec 2013 02:31:15 +0000
 
 kano-feedback (1.0-3) unstable; urgency=low
 
   * Package rebuilt, updated to revision 8dc3070f.
 
- -- Team Kano <hello@kano.me>  Tue, 03 Dec 2013 22:19:13 +0000
+ -- Team Kano <dev@kano.me>  Tue, 03 Dec 2013 22:19:13 +0000
 
 kano-feedback (1.0-2) unstable; urgency=low
 
   * Package rebuilt, updated to revision 867fbf92.
 
- -- Team Kano <hello@kano.me>  Tue, 03 Dec 2013 15:26:11 +0000
+ -- Team Kano <dev@kano.me>  Tue, 03 Dec 2013 15:26:11 +0000
 
 kano-feedback (1.0-1) unstable; urgency=low
 
   * Kanux MincePie.
 
- -- Team Kano <hello@kano.me>  Mon, 02 Dec 2013 20:56:23 +0000
+ -- Team Kano <dev@kano.me>  Mon, 02 Dec 2013 20:56:23 +0000
 
 kano-feedback (0.1-7) unstable; urgency=low
 
   * Package rebuilt, updated to revision ed760cdd.
 
- -- Team Kano <hello@kano.me>  Mon, 02 Dec 2013 14:56:23 +0000
+ -- Team Kano <dev@kano.me>  Mon, 02 Dec 2013 14:56:23 +0000
 
 kano-feedback (0.1-6) unstable; urgency=low
 
   * Package rebuilt, updated to revision 5a301c1b.
 
- -- Team Kano <hello@kano.me>  Mon, 02 Dec 2013 12:25:31 +0000
+ -- Team Kano <dev@kano.me>  Mon, 02 Dec 2013 12:25:31 +0000
 
 kano-feedback (0.1-5) unstable; urgency=low
 
   * Package rebuilt, updated to revision 489770fd.
 
- -- Team Kano <hello@kano.me>  Mon, 02 Dec 2013 11:33:07 +0000
+ -- Team Kano <dev@kano.me>  Mon, 02 Dec 2013 11:33:07 +0000
 
 kano-feedback (0.1-4) unstable; urgency=low
 
   * Package rebuilt, updated to revision bb5d191a.
 
- -- Team Kano <hello@kano.me>  Mon, 02 Dec 2013 11:00:04 +0000
+ -- Team Kano <dev@kano.me>  Mon, 02 Dec 2013 11:00:04 +0000
 
 kano-feedback (0.1-3) unstable; urgency=low
 
   * Package rebuilt, updated to revision 7b680e01.
 
- -- Team Kano <hello@kano.me>  Fri, 29 Nov 2013 22:06:33 +0000
+ -- Team Kano <dev@kano.me>  Fri, 29 Nov 2013 22:06:33 +0000
 
 kano-feedback (0.1-2) unstable; urgency=low
 
   * Package rebuilt, updated to revision 72a95bc5.
 
- -- Team Kano <hello@kano.me>  Thu, 28 Nov 2013 17:29:04 +0000
+ -- Team Kano <dev@kano.me>  Thu, 28 Nov 2013 17:29:04 +0000
 
 kano-feedback (0.1-1.1) unstable; urgency=low
 
   * Non-maintainer upload.
   * Package rebuilt, updated to revision 31053f24.
 
- -- Team Kano <hello@kano.me>  Thu, 28 Nov 2013 16:27:40 +0000
+ -- Team Kano <dev@kano.me>  Thu, 28 Nov 2013 16:27:40 +0000
 
 kano-feedback (0.1-1) unstable; urgency=low
 
