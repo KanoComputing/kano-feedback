@@ -13,6 +13,7 @@
 #include "include/mainwindow.h"
 #include <signal.h>
 #include <stdio.h>
+
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(kano_feedback);

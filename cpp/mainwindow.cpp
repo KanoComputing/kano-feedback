@@ -121,7 +121,10 @@ MainWindow::MainWindow(QApplication &app)
   CloseButton->setMinimumWidth(20);
 
   // Connect button signal to appropriate slot
-  connect(CloseButton, SIGNAL(released()), this, SLOT(onExit()));
+  connect(CloseButton,
+          SIGNAL(released()),
+          this,
+          SLOT(onExit()));
 
 
   /* Main heading */
@@ -135,7 +138,12 @@ MainWindow::MainWindow(QApplication &app)
   explanationLabel->setStyleSheet(LABEL_STYLING);
 
   /* Feedback category */
-  categories << "Subject" << "--------------------------------------------------------" << "Comment" << "Bug" << "Suggestions" << "Question";
+  categories << "Subject"
+             << "--------------------------------------------------------"
+             << "Comment"
+             << "Bug"
+             << "Suggestions"
+             << "Question";
 
   FeedbackCategoryDropdown = new QComboBox;
   FeedbackCategoryDropdown->setFixedWidth(WIDTH);
@@ -156,7 +164,10 @@ MainWindow::MainWindow(QApplication &app)
   SubmitButton->setMinimumHeight(40);
 
   // Connect submit button signal to appropriate slot
-  connect(SubmitButton, SIGNAL(released()), this, SLOT(handleSubmitButton()));
+  connect(SubmitButton,
+          SIGNAL(released()),
+          this,
+          SLOT(handleSubmitButton()));
 
 
   /*************************************************
@@ -188,7 +199,7 @@ MainWindow::MainWindow(QApplication &app)
    *************************************************/
 
   QGridLayout * mainContentLayout = new QGridLayout;
-  mainContentLayout->addWidget(CloseButton, 0, 0, Qt::AlignRight);
+  mainContentLayout->addWidget(CloseButton,0, 0, Qt::AlignRight);
   mainContentLayout->addWidget(feedbackLabel, 1, 0);
   mainContentLayout->addWidget(explanationLabel, 2, 0);
   mainContentLayout->addWidget(FeedbackCategoryDropdown, 3, 0);
@@ -207,7 +218,10 @@ MainWindow::MainWindow(QApplication &app)
 
   // Create actions and connect signals
   createActions();
-  connect(&app, SIGNAL( aboutToQuit() ), this, SLOT( onExitCleanup() ) );
+  connect(&app,
+          SIGNAL( aboutToQuit() ),
+          this,
+          SLOT( onExitCleanup() ) );
 }
 
 /*******************************************************
@@ -218,11 +232,17 @@ void MainWindow::createActions()
 {
   aboutAct = new QAction(tr("&About"), this);
   aboutAct->setStatusTip(tr("Show the application's About box"));
-  connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+  connect(aboutAct,
+          SIGNAL( triggered() ),
+          this,
+          SLOT( about() ) );
 
   aboutQtAct = new QAction(tr("About &Qt"), this);
   aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
-  connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+  connect(aboutQtAct,
+          SIGNAL(triggered()),
+          qApp,
+          SLOT(aboutQt()));
 
 }
 
@@ -315,10 +335,8 @@ void MainWindow::handleSubmitButton()
   // std::cout << "Opening file " << email_filename << "..." << "\n";
   file.open(email_filename.c_str());
 
-  if (!file.is_open())
+  if (file.is_open())
     {
-      // std::cout << "E-mail file not found\n";
-    } else {
       // std::cout << "E-mail file open\n";
 
       while (!file.eof())
@@ -334,12 +352,15 @@ void MainWindow::handleSubmitButton()
 
       file.close();
     }
-  
+
   // Prompt for e-mail input. Default text is the found email.
   bool ok;
-  QString text = QInputDialog::getText(this, tr("Your e-mail?"),
+  QString text = QInputDialog::getText(this,
+                                       tr("Your e-mail?"),
                                        tr("How can we contact you about your comments? Enter your e-mail"),
-                                       QLineEdit::Normal, tr(email_addr.c_str() ), &ok);
+                                       QLineEdit::Normal,
+                                       tr(email_addr.c_str()),
+                                       &ok);
   if (ok)
     {
       if (!emailValid(text.toUtf8().constData()))
@@ -371,6 +392,7 @@ void MainWindow::handleSubmitButton()
   confirmSendMsgBox.setInformativeText("Are you happy to send?");
   confirmSendMsgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
   confirmSendMsgBox.setDefaultButton(QMessageBox::Ok);
+
   int confirmSendMsgBoxSelected = confirmSendMsgBox.exec();
   if (confirmSendMsgBoxSelected == QMessageBox::Cancel)
     {
@@ -506,9 +528,9 @@ void MainWindow::handleSubmitButton()
  * @return {std::string}   result  Output from command        *
  *                          -1     Error running command      *
  **************************************************************/
-std::string MainWindow::executeCommand(const char* command)
+std::string MainWindow::executeCommand(const char * command)
 {
-  FILE* fp = NULL;
+  FILE * fp = NULL;
 
   // std::cout << "Executing >>> " << command << "\n";
 
@@ -609,9 +631,10 @@ void MainWindow::onExitCleanup()
 
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About Kano Feedback"),
-            tr("Use <b>Kano Feedback</b> to give us your thoughts on the Kano OS. "
-               "Help us improve your experience!"));
+   QMessageBox::about(this,
+                      tr("About Kano Feedback"),
+                      tr("Use <b>Kano Feedback</b> to give us your thoughts on the Kano OS. "
+                         "Help us improve your experience!"));
 }
 
 /******************************************************************/

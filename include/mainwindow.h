@@ -26,34 +26,40 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QApplication &ref);
+    MainWindow(
+        QApplication & ref);
 
 protected:
-    void closeEvent(QCloseEvent *event);
+    void          closeEvent(
+                      QCloseEvent * event);
 
 private slots:
-    void onExit();
-    void onExitCleanup();
-    void about();
-    void handleSubmitButton();
+    void          onExit();
+    void          onExitCleanup();
+    void          about();
+    void          handleSubmitButton();
 
 
 private:
-    void createActions();
-    std::string executeCommand(const char* command);
-    std::string removeQuotationMarks(std::string data);
-    bool emailValid(std::string email);
+    void          createActions();
+    std::string   executeCommand(
+                      const char * command);
+    std::string   removeQuotationMarks(
+                      std::string data);
+    bool          emailValid(
+                      std::string email);
 
 
-    QTextEdit *FeedbackTextPane;
+    QTextEdit   * FeedbackTextPane;
 
-    QStringList categories;
-    QComboBox *FeedbackCategoryDropdown;
+    QStringList   categories;
+    QComboBox   * FeedbackCategoryDropdown;
 
-    QPushButton *SubmitButton;
+    QPushButton * SubmitButton;
 
-    QAction *aboutAct;
-    QAction *aboutQtAct;
+    // Actions
+    QAction     * aboutAct;
+    QAction     * aboutQtAct;
 
 };
 
