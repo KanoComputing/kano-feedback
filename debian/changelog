@@ -1,3 +1,10 @@
+kano-feedback (1.0-11.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Package rebuilt, updated to revision d52393b8.
+
+ -- Team Kano <hello@kano.me>  Tue, 17 Dec 2013 02:26:45 +0000
+
 kano-feedback (1.0-11) unstable; urgency=low
 
   * Package rebuilt, updated to revision f37dcd49.
