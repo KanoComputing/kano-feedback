@@ -384,23 +384,25 @@ void MainWindow::handleSubmitButton()
   /******************************************************
    ************ Check that they want to send ************
    ******************************************************
-   * Give notification of the data which is being sent  *
+   * Give notification of the data which is being sent if bug reported *
    ******************************************************/
-  QMessageBox confirmSendMsgBox;
-  confirmSendMsgBox.setWindowTitle("Are you sure you want to send?");
-  confirmSendMsgBox.setText("You are about to send us your suggestions. Some additional information about your system will also be sent to help us with your comment but none of this can be used to identify you.");
-  confirmSendMsgBox.setInformativeText("Are you happy to send?");
-  confirmSendMsgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-  confirmSendMsgBox.setDefaultButton(QMessageBox::Ok);
-
-  int confirmSendMsgBoxSelected = confirmSendMsgBox.exec();
-  if (confirmSendMsgBoxSelected == QMessageBox::Cancel)
+  if (!category.compare("Bug"))
     {
-      // Return them to the window.
-      // std::cout << "Will not send\n\n";
-      return;
-    }
+      QMessageBox confirmSendMsgBox;
+      confirmSendMsgBox.setWindowTitle("Are you sure you want to send?");
+      confirmSendMsgBox.setText("You are about to send us your suggestions. Some additional information about your system will also be sent to help us with your comment but none of this can be used to identify you.");
+      confirmSendMsgBox.setInformativeText("Are you happy to send?");
+      confirmSendMsgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+      confirmSendMsgBox.setDefaultButton(QMessageBox::Ok);
 
+      int confirmSendMsgBoxSelected = confirmSendMsgBox.exec();
+      if (confirmSendMsgBoxSelected == QMessageBox::Cancel)
+        {
+          // Return them to the window.
+          // std::cout << "Will not send\n\n";
+          return;
+        }
+    }
 
   /***********************************************************************************************************
    ********************************************** Send the data **********************************************
