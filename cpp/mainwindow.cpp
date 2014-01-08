@@ -28,7 +28,8 @@
 
 #include "include/mainwindow.h"
 
-#define WIDTH     500
+#define WIDTH     420
+#define MARGIN    10
 
 /******************* Styling *******************
  *                                             *
@@ -40,62 +41,91 @@
 #define APP_STYLING  " \
 QWidget { \
     background-color: #ffffff; \
-     \
+    padding: 0; \
 }" //background-color: #d1d2d4;
+
+#define HEADER_IMAGE_STYLING " \
+QLabel { \
+    margin: 0; \
+    padding: 0; \
+}"
+
+#define CLOSE_BUTTON_STYLING " \
+QPushButton { \
+    width: 20px; \
+    margin: 5px 10px; \
+}"
 
 /* The main heading label */
 #define HEADING_LABEL_STYLING  " \
 QLabel { \
     background-color: #ffffff; \
     color: #000000; \
-    margin-top: 2px; \
-    margin-bottom: 0; \
+    margin: 0; \
     padding: 8px; \
     font-family: 'Bariol'; \
-    font-size: 35px; \
+    font-weight: bold; \
+    font-size: 24px; \
 }"
 
 /* The label describing the output pane */
-#define LABEL_STYLING  " \
+#define SUBHEADING_LABEL_STYLING  " \
 QLabel { \
     background-color: #ffffff; \
     color: #000000; \
-    margin-top: 2px; \
-    margin-bottom: 0; \
+    margin: -10px 0 5px 0; \
     padding: 8px; \
     font-family: 'Bariol'; \
-    font-size: 18px; \
+    font-size: 20px; \
 }"
 
 /* The pane showing the output */
 #define FEEDBACK_TEXT_PANE_STYLING  " \
 QTextEdit { \
     background-color: #ffffff; \
-    margin: 0; \
+    margin: 10px auto; \
+    padding: 10px; \
     font-family: 'Bariol'; \
-    font-size: 30px; \
+    font-size: 20px; \
 }"
 
 #define FEEDBACK_CATEGORY_PANE_STYLING  " \
 QComboBox { \
     background-color: #ffffff; \
-    margin: 0; \
+    margin: 0 auto; \
     padding: 5px 20px; \
     font-family: 'Bariol'; \
-    height: 30px; \
-    font-size: 18px; \
+    font-weight: bold; \
+    height: 44px; \
+    font-size: 20px; \
     color: #636466; \
+} \
+\
+QComboBox::drop-down { \
+   width: 40px; \
+   border: 0px; \
+} \
+\
+QComboBox::down-arrow { \
+    image: url(resources/dropdown.png); \
+    width: 20px; \
+    height: 20px; \
 }"
 
 #define SUBMIT_BUTTON_STYLING  " \
 QPushButton { \
-    background-color: #ffa53b; \
-    margin: 0; \
+    background-color: #f85b5b; \
+    height: 44px; \
+    width: 110px; \
+    border-style: solid; \
+    border-width: 0px; \
+    border-radius: 22px; \
+    margin: 10px 50px 30px auto; \
     font-family: 'Bariol'; \
+    font-weight: bold; \
     font-size: 18px; \
     color: #ffffff; \
 }"
-
 
 /***************
  ***** End *****
@@ -118,7 +148,7 @@ MainWindow::MainWindow(QApplication &app)
   QPushButton * CloseButton = new QPushButton("", this);
   CloseButton->setFlat(true);
   CloseButton->setIcon(QPixmap( ":resources/close.png" ));
-  CloseButton->setMinimumWidth(20);
+  CloseButton->setStyleSheet(CLOSE_BUTTON_STYLING);
 
   // Connect button signal to appropriate slot
   connect(CloseButton,
@@ -128,6 +158,10 @@ MainWindow::MainWindow(QApplication &app)
 
 
   /* Main heading */
+  QLabel * headerImage = new QLabel();
+  headerImage->setPixmap(QPixmap(":resources/header.png"));
+  headerImage->setStyleSheet(HEADER_IMAGE_STYLING);
+
   QLabel * feedbackLabel = new QLabel();
   feedbackLabel->setText("Send feedback to the Kano Team!");
   feedbackLabel->setStyleSheet(HEADING_LABEL_STYLING);
@@ -135,24 +169,24 @@ MainWindow::MainWindow(QApplication &app)
   /* Explanation heading */
   QLabel * explanationLabel = new QLabel();
   explanationLabel->setText("Found bugs or just like what we've done?");
-  explanationLabel->setStyleSheet(LABEL_STYLING);
+  explanationLabel->setStyleSheet(SUBHEADING_LABEL_STYLING);
 
   /* Feedback category */
   categories << "Subject"
-             << "--------------------------------------------------------"
+             << "------------------------------------"
              << "Comment"
              << "Bug"
              << "Suggestions"
              << "Question";
 
   FeedbackCategoryDropdown = new QComboBox;
-  FeedbackCategoryDropdown->setFixedWidth(WIDTH);
+  FeedbackCategoryDropdown->setFixedWidth(WIDTH - MARGIN);
   FeedbackCategoryDropdown->setStyleSheet(FEEDBACK_CATEGORY_PANE_STYLING);
   FeedbackCategoryDropdown->addItems(categories);
 
   /* Feedback input */
   FeedbackTextPane = new QTextEdit;
-  FeedbackTextPane->setFixedWidth(WIDTH);
+  FeedbackTextPane->setFixedWidth(WIDTH - MARGIN);
   FeedbackTextPane->setStyleSheet(FEEDBACK_TEXT_PANE_STYLING);
   FeedbackTextPane->setReadOnly(false);
 
@@ -160,8 +194,7 @@ MainWindow::MainWindow(QApplication &app)
   SubmitButton = new QPushButton("Send", this);
   SubmitButton->setStyleSheet(SUBMIT_BUTTON_STYLING);
   SubmitButton->setIcon(QPixmap( ":resources/send.png" ));
-  SubmitButton->setMinimumWidth(110);
-  SubmitButton->setMinimumHeight(40);
+  // SubmitButton->setFlat(true);
 
   // Connect submit button signal to appropriate slot
   connect(SubmitButton,
@@ -199,7 +232,8 @@ MainWindow::MainWindow(QApplication &app)
    *************************************************/
 
   QGridLayout * mainContentLayout = new QGridLayout;
-  mainContentLayout->addWidget(CloseButton,0, 0, Qt::AlignRight);
+  mainContentLayout->addWidget(headerImage, 0, 0, 0);
+  mainContentLayout->addWidget(CloseButton, 0, 0, Qt::AlignTop|Qt::AlignRight);
   mainContentLayout->addWidget(feedbackLabel, 1, 0);
   mainContentLayout->addWidget(explanationLabel, 2, 0);
   mainContentLayout->addWidget(FeedbackCategoryDropdown, 3, 0);
@@ -207,7 +241,8 @@ MainWindow::MainWindow(QApplication &app)
   mainContentLayout->addWidget(SubmitButton, 5, 0, Qt::AlignRight);
 
   // Settings for the main content layout
-  mainContentLayout->setVerticalSpacing(10);
+  mainContentLayout->setVerticalSpacing(5);
+  mainContentLayout->setContentsMargins(0, 0, 0, 0);
 
   // The main app
   QWidget * mainWidget = new QWidget(this);
@@ -305,7 +340,7 @@ void MainWindow::handleSubmitButton()
     }
 
   // Make sure they have selected a subject
-  if (!category.compare("Subject") || !category.compare("--------------------------------------------------------"))
+  if (!category.compare("Subject") || !category.compare("------------------------------------"))
     {
       QMessageBox noSubject;
       noSubject.setText(tr("You haven't selected a subject"));
