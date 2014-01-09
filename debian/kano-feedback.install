@@ -1,1 +1,4 @@
 ./kano-feedback /usr/bin/
+
+./icon/Feedback usr/share/kano-desktop/extras
+./icon/feedback.png usr/share/kano-desktop/icons
