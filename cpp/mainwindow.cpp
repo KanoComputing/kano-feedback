@@ -42,7 +42,7 @@
 QWidget { \
     background-color: #ffffff; \
     padding: 0; \
-}" //background-color: #d1d2d4;
+}"
 
 #define HEADER_IMAGE_STYLING " \
 QLabel { \
@@ -53,7 +53,7 @@ QLabel { \
 #define CLOSE_BUTTON_STYLING " \
 QPushButton { \
     width: 20px; \
-    margin: 5px 5px; \
+    margin: 10px 10px; \
 } \
 \
 QPushButton:focus { \
@@ -89,7 +89,7 @@ QTextEdit { \
     background-color: #ffffff; \
     color: #6e6e6e; \
     margin: 0 25px 10px 25px; \
-    padding: 10px; \
+    padding: 15px; \
     border: 1px solid #e4e4e4; \
     font-family: 'Bariol'; \
     font-size: 16px; \
@@ -99,7 +99,7 @@ QTextEdit { \
 QComboBox { \
     background-color: #ffffff; \
     margin: 5px 25px; \
-    padding: 5px 25px/; \
+    padding: 5px 15px/; \
     border: 1px solid #e4e4e4; \
     font-family: 'Bariol'; \
     font-weight: bold; \
@@ -109,7 +109,7 @@ QComboBox { \
 } \
 \
 QComboBox::drop-down { \
-   border: 0px; \
+   border: 0; \
    width: 40px; \
 } \
 \
@@ -117,6 +117,12 @@ QComboBox::down-arrow { \
     image: url(resources/dropdown.png); \
     width: 20px; \
     height: 20px; \
+}\
+QComboBox QListView { \
+    max-width: 368px; \
+    min-width: 368px; \
+    margin: 0 25px; \
+    border: 1px solid #e4e4e4; \
 }"
 
 #define SUBMIT_BUTTON_STYLING  " \
