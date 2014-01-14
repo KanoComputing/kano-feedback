@@ -123,9 +123,10 @@ QComboBox::down-arrow { \
     height: 20px; \
 }\
 QComboBox QListView { \
-    max-width: 368px; \
-    min-width: 368px; \
+    max-width: 338px; \
+    min-width: 338px; \
     margin: 0 25px; \
+    padding: 0 15px; \
     border: 1px solid #e4e4e4; \
 }"
 
