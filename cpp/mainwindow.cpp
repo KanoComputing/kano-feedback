@@ -53,57 +53,64 @@ QLabel { \
 #define CLOSE_BUTTON_STYLING " \
 QPushButton { \
     width: 20px; \
-    margin: 5px 10px; \
+    margin: 5px 5px; \
+} \
+\
+QPushButton:focus { \
+    outline: none; \
 }"
 
 /* The main heading label */
 #define HEADING_LABEL_STYLING  " \
 QLabel { \
     background-color: #ffffff; \
-    color: #000000; \
-    margin: 0; \
-    padding: 8px; \
+    color: #323232; \
+    margin: 25px 25px 0 25px; \
+    padding: 0; \
     font-family: 'Bariol'; \
     font-weight: bold; \
-    font-size: 24px; \
+    font-size: 22px; \
 }"
 
 /* The label describing the output pane */
 #define SUBHEADING_LABEL_STYLING  " \
 QLabel { \
     background-color: #ffffff; \
-    color: #000000; \
-    margin: -10px 0 5px 0; \
-    padding: 8px; \
+    color: #6e6e6e; \
+    margin: 3px 25px 5px 25px; \
+    padding: 0; \
     font-family: 'Bariol'; \
-    font-size: 20px; \
+    font-size: 16px; \
 }"
 
 /* The pane showing the output */
 #define FEEDBACK_TEXT_PANE_STYLING  " \
 QTextEdit { \
     background-color: #ffffff; \
-    margin: 10px auto; \
+    color: #6e6e6e; \
+    margin: 0 25px 10px 25px; \
     padding: 10px; \
+    border: 1px solid #e4e4e4; \
     font-family: 'Bariol'; \
-    font-size: 20px; \
+    font-size: 16px; \
 }"
 
 #define FEEDBACK_CATEGORY_PANE_STYLING  " \
 QComboBox { \
     background-color: #ffffff; \
-    margin: 0 auto; \
-    padding: 5px 20px; \
+    margin: 5px 25px; \
+    padding: 5px 25px/; \
+    border: 1px solid #e4e4e4; \
     font-family: 'Bariol'; \
     font-weight: bold; \
     height: 44px; \
-    font-size: 20px; \
-    color: #636466; \
+    font-size: 16px; \
+    color: #323232; \
 } \
 \
 QComboBox::drop-down { \
-   width: 40px; \
    border: 0px; \
+   width: 40px; \
 } \
 \
 QComboBox::down-arrow { \
@@ -120,7 +127,7 @@ QPushButton { \
     border-style: solid; \
     border-width: 0px; \
     border-radius: 22px; \
-    margin: 10px 50px 30px auto; \
+    margin: 10px 25px 25px 25px; \
     font-family: 'Bariol'; \
     font-weight: bold; \
     font-size: 18px; \
@@ -180,21 +187,18 @@ MainWindow::MainWindow(QApplication &app)
              << "Question";
 
   FeedbackCategoryDropdown = new QComboBox;
-  FeedbackCategoryDropdown->setFixedWidth(WIDTH - MARGIN);
   FeedbackCategoryDropdown->setStyleSheet(FEEDBACK_CATEGORY_PANE_STYLING);
   FeedbackCategoryDropdown->addItems(categories);
 
   /* Feedback input */
   FeedbackTextPane = new QTextEdit;
-  FeedbackTextPane->setFixedWidth(WIDTH - MARGIN);
   FeedbackTextPane->setStyleSheet(FEEDBACK_TEXT_PANE_STYLING);
   FeedbackTextPane->setReadOnly(false);
 
   /* Submit button */
-  SubmitButton = new QPushButton("Send", this);
+  SubmitButton = new QPushButton(" Send", this);
   SubmitButton->setStyleSheet(SUBMIT_BUTTON_STYLING);
   SubmitButton->setIcon(QPixmap( ":resources/send.png" ));
-  // SubmitButton->setFlat(true);
 
   // Connect submit button signal to appropriate slot
   connect(SubmitButton,
