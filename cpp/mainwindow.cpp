@@ -130,6 +130,20 @@ QComboBox QListView { \
     border: 1px solid #e4e4e4; \
 }"
 
+#define FEEDBACK_CATEGORY_DROPDOWN_STYLING " \
+QListView { \
+    outline: none; \
+} \
+\
+QListView::item { \
+    outline: none; \
+    padding: 10px 0; \
+} \
+QListView::item:selected { \
+    outline: none; \
+    background-color: #f85b5b; \
+}"
+
 #define SUBMIT_BUTTON_STYLING  " \
 QPushButton { \
     background-color: #f85b5b; \
@@ -198,8 +212,12 @@ MainWindow::MainWindow(QApplication &app)
              << "Question";
 
   FeedbackCategoryDropdown = new QComboBox;
-  FeedbackCategoryDropdown->setStyleSheet(FEEDBACK_CATEGORY_PANE_STYLING);
   FeedbackCategoryDropdown->addItems(categories);
+  FeedbackCategoryDropdown->setStyleSheet(FEEDBACK_CATEGORY_PANE_STYLING);
+
+  QListView * categoriesView = new QListView(FeedbackCategoryDropdown);
+  categoriesView->setStyleSheet(FEEDBACK_CATEGORY_DROPDOWN_STYLING);
+  FeedbackCategoryDropdown->setView(categoriesView);
 
   /* Feedback input */
   FeedbackTextPane = new QTextEdit;

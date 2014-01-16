@@ -12,6 +12,7 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QComboBox>
+#include <QListView>
 
 #include <string>
 
@@ -53,6 +54,7 @@ private:
     QTextEdit   * FeedbackTextPane;
 
     QStringList   categories;
+    QListView   * categoriesView;
     QComboBox   * FeedbackCategoryDropdown;
 
     QPushButton * SubmitButton;
