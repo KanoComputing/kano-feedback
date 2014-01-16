@@ -114,7 +114,7 @@ QComboBox::drop-down { \
 } \
 \
 QComboBox::drop-down:hover { \
-    background-color: #f85b5b; \
+    background-color: #dddddd; \
 } \
 \
 QComboBox::down-arrow { \
@@ -141,7 +141,8 @@ QListView::item { \
 } \
 QListView::item:selected { \
     outline: none; \
-    background-color: #f85b5b; \
+    background-color: #dddddd; \
+    color: #323232; \
 }"
 
 #define SUBMIT_BUTTON_STYLING  " \
