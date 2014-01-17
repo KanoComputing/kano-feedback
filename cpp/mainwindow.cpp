@@ -118,7 +118,7 @@ QComboBox::drop-down:hover { \
 } \
 \
 QComboBox::down-arrow { \
-    image: url(resources/dropdown.png); \
+    image: url(:resources/dropdown.png); \
     width: 20px; \
     height: 20px; \
 }\
