@@ -1,3 +1,9 @@
+kano-feedback (1.0-31) unstable; urgency=low
+
+  * Package rebuilt, updated to revision d30ae81b.
+
+ -- Team Kano <dev@kano.me>  Fri, 17 Jan 2014 11:01:30 +0000
+
 kano-feedback (1.0-30) unstable; urgency=low
 
   * Package rebuilt, updated to revision 6ea1d1ab.
