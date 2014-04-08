@@ -1,7 +1,7 @@
 kano-feedback /usr/bin/
 
-icon/Feedback /usr/share/kano-desktop/extras
-icon/feedback.png /usr/share/kano-desktop/icons
+icon/Feedback /usr/share/kano-extras/extras
+icon/feedback.png /usr/share/kano-extras/icons
 
 kdesktop/Feedback.lnk /usr/share/kano-desktop/kdesk/kdesktop/
 icon/feedback-desktop.png /usr/share/kano-desktop/icons
