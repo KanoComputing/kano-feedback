@@ -1,4 +1,6 @@
-kano-feedback /usr/bin/
+bin/* usr/bin/
+kano_feedback usr/lib/python2.7/dist-packages/
+media usr/share/kano-feedback/
 
 icon/Feedback /usr/share/kano-extras/extras
 icon/feedback.png /usr/share/kano-extras/icons
