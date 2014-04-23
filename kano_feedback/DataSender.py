@@ -10,10 +10,37 @@
 
 from kano.utils import run_cmd
 from os.path import expanduser
+from kano.world.connection import request_wrapper
 
 
 def send_data(text, fullInfo):
+    send_data_old(text, fullInfo)
 
+    meta = {
+        'kanux_version': get_version()
+    }
+
+    if fullInfo:
+        meta['process'] = get_process()
+        meta['packages'] = get_packages()
+        meta['dmesg'] = get_dmesg()
+        meta['syslog'] = get_syslog()
+
+    payload = {
+        'text': text,
+        'email': get_email(),
+        'category': 'os',
+        'meta': meta
+    }
+
+    success, text, data = request_wrapper('post', '/feedback', data=payload)
+    if not success:
+        print text
+        return False, text
+    return True
+
+
+def send_data_old(text, fullInfo):
     dataToSend = ''
     # Email entry
     dataToSend += 'entry.1110323866'
@@ -96,8 +123,9 @@ def get_syslog():
 
 
 def get_email():
+    return 'abc@abc.abc'
+    return
     email_path = expanduser("~") + "/.useremail"
-
     with open(email_path, 'r') as f:
         return f.readline()
     return ""
