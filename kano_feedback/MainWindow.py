@@ -11,7 +11,7 @@
 import sys
 from gi.repository import Gtk, Gdk
 
-from kano_extras.UIElements import TopBar
+from kano_feedback.UIElements import TopBar
 from DataSender import send_data
 from kano.utils import run_cmd
 from kano_feedback import Media
