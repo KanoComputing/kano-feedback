@@ -56,6 +56,13 @@ class MainWindow(Gtk.Window):
         self._textbuffer.set_text("Let us know your feeback!")
         scrolledwindow.add(self._text)
 
+        # Create check box
+        self._bug_check = Gtk.CheckButton()
+        check_label = Gtk.Label("Reporting a bug? Check here for sending full details")
+        check_label.get_style_context().add_class("apply_changes_text")
+        self._bug_check.add(check_label)
+        self._grid.attach(self._bug_check, 0, 2, 1, 1)
+
         # Create send button
         send_button = Gtk.EventBox()
         send_button.get_style_context().add_class("apply_changes_button")
@@ -65,22 +72,23 @@ class MainWindow(Gtk.Window):
         send_button.add(send_label)
         send_button.set_size_request(200, 44)
         send_button.connect("button_press_event", self.send_feedback)
-        self._grid.attach(send_button, 0, 2, 1, 1)
+        self._grid.attach(send_button, 0, 3, 1, 1)
 
         self._grid.set_row_spacing(0)
         self.add(self._grid)
 
     def send_feedback(self, event=None, button=None):
 
-        msg = "You are about to send sensitive data. \nDo you want to continue?"
-        _, _, rc = run_cmd('zenity --question --text "{}"'.format(msg))
-        if rc != 0:
-            sys.exit()
-
+        fullinfo = self._bug_check.get_active()
+        if fullinfo:
+            msg = "You are about to send sensitive data. \nDo you want to continue?"
+            _, _, rc = run_cmd('zenity --question --text "{}"'.format(msg))
+            if rc != 0:
+                sys.exit()
         textbuffer = self._text.get_buffer()
         startiter, enditer = textbuffer.get_bounds()
         text = textbuffer.get_text(startiter, enditer, True)
-        success = send_data(text, False)
+        success = send_data(text, fullinfo)
         if success:
             msg = "Feedback sent correctly"
         else:
