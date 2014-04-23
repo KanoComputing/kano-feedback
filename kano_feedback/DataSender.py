@@ -10,7 +10,8 @@
 
 from kano.utils import run_cmd
 from os.path import expanduser
-from kano.world.connection import request_wrapper
+from kano.world.connection import request_wrapper, content_type_json
+import json
 
 
 def send_data(text, fullInfo):
@@ -33,7 +34,7 @@ def send_data(text, fullInfo):
         'meta': meta
     }
 
-    success, error, data = request_wrapper('post', '/feedback', data=payload)
+    success, error, data = request_wrapper('post', '/feedback', data=json.dumps(payload), headers=content_type_json)
     if not success:
         return False, error
     return True, None
