@@ -33,11 +33,10 @@ def send_data(text, fullInfo):
         'meta': meta
     }
 
-    success, text, data = request_wrapper('post', '/feedback', data=payload)
+    success, error, data = request_wrapper('post', '/feedback', data=payload)
     if not success:
-        print text
-        return False, text
-    return True
+        return False, error
+    return True, None
 
 
 def send_data_old(text, fullInfo):
@@ -123,8 +122,6 @@ def get_syslog():
 
 
 def get_email():
-    return 'abc@abc.abc'
-    return
     email_path = expanduser("~") + "/.useremail"
     with open(email_path, 'r') as f:
         return f.readline()
