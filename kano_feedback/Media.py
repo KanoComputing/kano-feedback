@@ -10,16 +10,25 @@
 import os
 from gi.repository import Gtk, GdkPixbuf
 
-MEDIA_LOCS = ['../media', '/usr/share/kano-feedback/media']
 APP_ICON_SIZE = 68
 
 
 def media_dir():
-    for path in MEDIA_LOCS:
-        if os.path.exists(path):
-            return os.path.abspath(path) + '/'
+    # setting up directories
+    dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-    raise Exception('Media directory not found.')
+    # media dir
+    media_local = os.path.join(dir_path, 'media')
+    media_usr = '/usr/share/kano-feedback/media'
+
+    if os.path.exists(media_local):
+        media_dir = media_local
+    elif os.path.exists(media_usr):
+        media_dir = media_usr
+    else:
+        raise Exception('Neither local nor usr media dir found!')
+
+    return media_dir + '/'
 
 
 def get_ui_icon(name):

@@ -88,9 +88,9 @@ class MainWindow(Gtk.Window):
         textbuffer = self._text.get_buffer()
         startiter, enditer = textbuffer.get_bounds()
         text = textbuffer.get_text(startiter, enditer, True)
-        success = send_data(text, fullinfo)
+        success, error = send_data(text, fullinfo)
         if success:
             msg = "Feedback sent correctly"
         else:
-            msg = "Something went wrong"
+            msg = "Something went wrong, error: {}".format(error)
         run_cmd('zenity --info --text "{}"'.format(msg))
