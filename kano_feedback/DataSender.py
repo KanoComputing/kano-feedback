@@ -8,9 +8,10 @@
 # Functions related to sending feedback data
 #
 
+import os
 import sys
 import json
-from os.path import expanduser, isfile
+from os.path import expanduser
 
 from kano.utils import run_cmd
 from kano.world.connection import request_wrapper, content_type_json
@@ -127,7 +128,7 @@ def get_syslog():
 def get_email():
     email_path = expanduser("~") + "/.useremail"
 
-    if isfile(email_path):
+    if os.path.isfile(email_path):
         with open(email_path, 'r') as f:
             return f.readline()
     else:
