@@ -29,8 +29,8 @@
     engine: none;
     border-width: 0px;
 
-    -GtkScrolledWindow-scrollbar-spacing: 0;
-    -GtkScrolledWindow-scrollbars-within-bevel: 1;
+    -GtkCheckMenuItem-indicator-color: #00ff00;
+    -GtkCheckButton-indicator-color: #0000ff;
 }
 
 GtkWindow {
@@ -71,6 +71,35 @@ GtkLabel {
     color: @active_writing;
 }
 
+GtkCheckButton {
+    border-width: 2px;
+    border-radius: 3px;
+    border-style: solid;
+    color: @button_color;
+    background: #ffffff;
+}
+
+GtkCheckButton:hover {
+    background: transparent;
+}
+
+GtkCheckButton GtkLabel {
+    font: Bariol 14px;
+}
+
+GtkCheckButton,
+GtkRadioButton {
+    border-style: solid;
+    border-color: @active_border;
+    border-width: 2px;
+    font: Bariol 13;
+}
+
+GtkCheckButton:active,
+GtkRadioButton:active {
+    color: #9ed874;
+}
+
 /* The bar at the top that mimics the window bar */
 .top_bar_container {
     background: #eeeeee;
@@ -94,6 +123,20 @@ GtkLabel {
     background: #eeeeee;
 }
 
+.green_button {
+    background: @button_color;
+    padding: 10px 20px 10px 20px;
+    border-radius: 3px;
+}
+
+.green_button GtkLabel {
+    color: #ffffff;
+    font: Bariol Bold 14;
+}
+
+.grey {
+    background: #eeeeee;
+}
 
 /********************************************************
  * Scrollbars                                           *
