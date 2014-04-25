@@ -49,30 +49,52 @@ class MainWindow(Gtk.Window):
         scrolledwindow = Gtk.ScrolledWindow()
         scrolledwindow.set_hexpand(True)
         scrolledwindow.set_vexpand(True)
-        self._grid.attach(scrolledwindow, 0, 1, 1, 1)
         self._text = Gtk.TextView()
         self._text.set_editable(True)
         self._textbuffer = self._text.get_buffer()
-        self._textbuffer.set_text("Let us know your feeback!")
+        self._textbuffer.set_text("Type your feedback here!")
         scrolledwindow.add(self._text)
+
+        # Very hacky way to get a border: create a grey event box which is a little bigger than the widget below
+        padding_box = Gtk.Alignment()
+        padding_box.set_padding(3, 3, 3, 3)
+        padding_box.add(scrolledwindow)
+        border = Gtk.EventBox()
+        border.get_style_context().add_class("grey")
+        border.add(padding_box)
+
+        # This is the "actual" padding
+        padding_box2 = Gtk.Alignment()
+        padding_box2.set_padding(20, 20, 20, 20)
+        padding_box2.add(border)
+        self._grid.attach(padding_box2, 0, 1, 1, 1)
 
         # Create check box
         self._bug_check = Gtk.CheckButton()
-        check_label = Gtk.Label("Reporting a bug? Check here for sending full details")
-        check_label.get_style_context().add_class("apply_changes_text")
+        check_label = Gtk.Label("Reporting a bug? Check this to send full details")
         self._bug_check.add(check_label)
-        self._grid.attach(self._bug_check, 0, 2, 1, 1)
+        self._bug_check.set_can_focus(False)
 
         # Create send button
-        send_button = Gtk.EventBox()
-        send_button.get_style_context().add_class("apply_changes_button")
-        send_button.get_style_context().add_class("green")
-        send_label = Gtk.Label("SEND")
-        send_label.get_style_context().add_class("apply_changes_text")
-        send_button.add(send_label)
-        send_button.set_size_request(200, 44)
+        send_button = Gtk.Button("SEND")
+        send_button.get_style_context().add_class("green_button")
         send_button.connect("button_press_event", self.send_feedback)
-        self._grid.attach(send_button, 0, 3, 1, 1)
+
+        # Create grey box to put checkbox and button in
+        bottom_box = Gtk.Box()
+        bottom_box.pack_start(self._bug_check, False, False, 10)
+        bottom_box.pack_end(send_button, False, False, 10)
+
+        bottom_align = Gtk.Alignment(xalign=0.5, yalign=0.5)
+        bottom_align.set_padding(10, 10, 10, 10)
+        bottom_align.add(bottom_box)
+
+        bottom_background = Gtk.EventBox()
+        bottom_background.get_style_context().add_class("grey")
+        bottom_background.add(bottom_align)
+
+        self._grid.attach(bottom_background, 0, 2, 1, 1)
+        #self._grid.attach(send_button_align, 0, 3, 1, 1)
 
         self._grid.set_row_spacing(0)
         self.add(self._grid)

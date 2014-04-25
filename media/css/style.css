@@ -28,9 +28,6 @@
     /* Turns off annoying borders */
     engine: none;
     border-width: 0px;
-
-    -GtkScrolledWindow-scrollbar-spacing: 0;
-    -GtkScrolledWindow-scrollbars-within-bevel: 1;
 }
 
 GtkWindow {
@@ -71,6 +68,27 @@ GtkLabel {
     color: @active_writing;
 }
 
+GtkCheckButton,
+GtkRadioButton {
+    border-style: solid;
+    border-color: @active_border;
+    border-width: 2px;
+    background: #ffffff;
+}
+
+GtkCheckButton:active,
+GtkRadioButton:active {
+    color: @button_color;;
+}
+
+GtkCheckButton:hover {
+    background: transparent;
+}
+
+GtkCheckButton GtkLabel {
+    font: Bariol 14px;
+}
+
 /* The bar at the top that mimics the window bar */
 .top_bar_container {
     background: #eeeeee;
@@ -94,6 +112,20 @@ GtkLabel {
     background: #eeeeee;
 }
 
+.green_button {
+    background: @button_color;
+    padding: 10px 20px 10px 20px;
+    border-radius: 3px;
+}
+
+.green_button GtkLabel {
+    color: #ffffff;
+    font: Bariol Bold 14;
+}
+
+.grey {
+    background: #eeeeee;
+}
 
 /********************************************************
  * Scrollbars                                           *
