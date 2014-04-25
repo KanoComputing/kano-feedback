@@ -28,9 +28,6 @@
     /* Turns off annoying borders */
     engine: none;
     border-width: 0px;
-
-    -GtkCheckMenuItem-indicator-color: #00ff00;
-    -GtkCheckButton-indicator-color: #0000ff;
 }
 
 GtkWindow {
@@ -71,12 +68,17 @@ GtkLabel {
     color: @active_writing;
 }
 
-GtkCheckButton {
-    border-width: 2px;
-    border-radius: 3px;
+GtkCheckButton,
+GtkRadioButton {
     border-style: solid;
-    color: @button_color;
+    border-color: @active_border;
+    border-width: 2px;
     background: #ffffff;
+}
+
+GtkCheckButton:active,
+GtkRadioButton:active {
+    color: @button_color;;
 }
 
 GtkCheckButton:hover {
@@ -85,19 +87,6 @@ GtkCheckButton:hover {
 
 GtkCheckButton GtkLabel {
     font: Bariol 14px;
-}
-
-GtkCheckButton,
-GtkRadioButton {
-    border-style: solid;
-    border-color: @active_border;
-    border-width: 2px;
-    font: Bariol 13;
-}
-
-GtkCheckButton:active,
-GtkRadioButton:active {
-    color: #9ed874;
 }
 
 /* The bar at the top that mimics the window bar */
