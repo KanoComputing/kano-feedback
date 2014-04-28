@@ -23,7 +23,7 @@ class MainWindow(Gtk.Window):
 
         screen = Gdk.Screen.get_default()
         self._win_width = 500
-        self._win_height = int(screen.get_height() * 0.5)
+        self._win_height = int(screen.get_height() * 0.35)
 
         self.set_decorated(False)
         self.set_resizable(False)
