@@ -116,3 +116,5 @@ class MainWindow(Gtk.Window):
         else:
             msg = "Something went wrong, error: {}".format(error)
         run_cmd('zenity --info --text "{}"'.format(msg))
+        sys.exit()
+        
