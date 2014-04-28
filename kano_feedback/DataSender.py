@@ -8,12 +8,11 @@
 # Functions related to sending feedback data
 #
 
-import os
 import sys
 import json
 from os.path import expanduser
 
-from kano.utils import run_cmd
+from kano.utils import run_cmd, read_file_contents
 from kano.world.connection import request_wrapper, content_type_json
 
 
@@ -127,18 +126,15 @@ def get_syslog():
 
 def get_email():
     email_path = expanduser("~") + "/.useremail"
-
-    if os.path.isfile(email_path):
-        with open(email_path, 'r') as f:
-            return f.readline()
-    else:
+    email = read_file_contents(email_path)
+    if not email:
         msg = "We haven't got your email.\n \
 1) Go to Settings\n \
 2) Introduce a valid email address\n\n \
 Now we can reply back to you!"
         run_cmd('zenity --info --text "{}"'.format(msg))
         sys.exit()
-    return ""
+    return email
 
 
 def sanitise_input(text):
