@@ -123,6 +123,14 @@ GtkCheckButton GtkLabel {
     font: Bariol Bold 14;
 }
 
+.green_button:insensitive {
+    background: #555555;
+}
+
+.green_button GtkLabel:insensitive {
+    color: #999999;
+}
+
 .grey {
     background: #eeeeee;
 }
