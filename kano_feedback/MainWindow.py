@@ -99,7 +99,10 @@ class MainWindow(Gtk.Window):
         self._grid.set_row_spacing(0)
         self.add(self._grid)
 
-    def send_feedback(self, event=None, button=None):
+    def send_feedback(self, button=None, event=None):
+        # Disable button and refresh
+        button.set_sensitive(False)
+        Gtk.main_iteration()
 
         fullinfo = self._bug_check.get_active()
         if fullinfo:
