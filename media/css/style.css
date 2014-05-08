@@ -89,6 +89,14 @@ GtkCheckButton GtkLabel {
     font: Bariol 14px;
 }
 
+GtkTextView {
+    color: @inactive_writing;
+}
+
+GtkTextView.active {
+    color: @active_writing;
+}
+
 /* The bar at the top that mimics the window bar */
 .top_bar_container {
     background: #eeeeee;
