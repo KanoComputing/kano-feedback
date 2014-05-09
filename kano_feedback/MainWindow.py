@@ -54,6 +54,7 @@ class MainWindow(Gtk.Window):
         self._textbuffer = self._text.get_buffer()
         self._textbuffer.set_text("Type your feedback here!")
         scrolledwindow.add(self._text)
+        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
 
         # Very hacky way to get a border: create a grey event box which is a little bigger than the widget below
         padding_box = Gtk.Alignment()
@@ -120,4 +121,9 @@ class MainWindow(Gtk.Window):
             msg = "Something went wrong, error: {}".format(error)
         run_cmd('zenity --info --text "{}"'.format(msg))
         sys.exit()
-        
+
+    def clear_buffer(self, textbuffer, textiter, text, length):
+        self._text.get_style_context().add_class("active")
+        textbuffer.set_text("")
+        textbuffer.disconnect(self._clear_buffer_handler_id)
+
