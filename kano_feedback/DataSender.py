@@ -8,12 +8,12 @@
 # Functions related to sending feedback data
 #
 
-import sys
 import json
-from os.path import expanduser
 
-from kano.utils import run_cmd, read_file_contents
+from kano.utils import run_cmd
 from kano.world.connection import request_wrapper, content_type_json
+from kano.world.functions import get_email
+from kano.profile.badges import increment_app_state_variable_with_dialog
 
 
 def send_data(text, fullInfo):
@@ -28,6 +28,9 @@ def send_data(text, fullInfo):
         meta['packages'] = get_packages()
         meta['dmesg'] = get_dmesg()
         meta['syslog'] = get_syslog()
+
+        # kano-profile stat collection
+        increment_app_state_variable_with_dialog('kano-feedback', 'bugs_submitted', 1)
 
     payload = {
         'text': text,
@@ -122,19 +125,6 @@ def get_syslog():
     cmd = "tail -n 100 /var/log/messages"
     o, _, _ = run_cmd(cmd)
     return o
-
-
-def get_email():
-    email_path = expanduser("~") + "/.useremail"
-    email = read_file_contents(email_path)
-    if not email:
-        msg = "We haven't got your email.\n \
-1) Go to Settings\n \
-2) Introduce a valid email address\n\n \
-Now we can reply back to you!"
-        run_cmd('zenity --info --text "{}"'.format(msg))
-        sys.exit()
-    return email
 
 
 def sanitise_input(text):

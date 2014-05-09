@@ -15,6 +15,7 @@ from kano_feedback.UIElements import TopBar
 from DataSender import send_data
 from kano.utils import run_cmd
 from kano_feedback import Media
+from kano.profile.badges import increment_app_state_variable_with_dialog
 
 
 class MainWindow(Gtk.Window):
@@ -99,6 +100,9 @@ class MainWindow(Gtk.Window):
 
         self._grid.set_row_spacing(0)
         self.add(self._grid)
+
+        # kano-profile stat collection
+        increment_app_state_variable_with_dialog('kano-feedback', 'starts', 1)
 
     def send_feedback(self, button=None, event=None):
         # Disable button and refresh
