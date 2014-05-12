@@ -28,6 +28,10 @@ def send_data(text, fullInfo):
         meta['packages'] = get_packages()
         meta['dmesg'] = get_dmesg()
         meta['syslog'] = get_syslog()
+        meta['wpalog'] = get_wpalog()
+        meta['ntp-tzupdate'] = get_ntp_tzupdate()
+        meta['wlaniface'] = get_wlaniface()
+        meta['kwificache'] = get_kwifi_cache()
 
         # kano-profile stat collection
         increment_app_state_variable_with_dialog('kano-feedback', 'bugs_submitted', 1)
@@ -122,7 +126,32 @@ def get_dmesg():
 
 
 def get_syslog():
-    cmd = "tail -n 100 /var/log/messages"
+    cmd = "tail -v -n 100 /var/log/messages"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_wpalog():
+    cmd = "tail -n 80 /var/log/kano_wpa.log"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_ntp_tzupdate():
+    cmd = "tail -v /var/log/tzupdate.log /var/log/rdate.log"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_wlaniface():
+    cmd = "iwconfig wlan0"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_kwifi_cache():
+    # We do not collect sensitive private information - Keypass is sent as "obfuscated" literal
+    cmd = "cat /etc/kwifiprompt-cache.conf | sed 's/\"enckey\":.*/\"enckey\": \"obfuscated\"/'"
     o, _, _ = run_cmd(cmd)
     return o
 
