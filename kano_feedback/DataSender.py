@@ -32,6 +32,7 @@ def send_data(text, fullInfo):
         meta['ntp-tzupdate'] = get_ntp_tzupdate()
         meta['wlaniface'] = get_wlaniface()
         meta['kwificache'] = get_kwifi_cache()
+        meta['usbdevices'] = get_usb_devices()
 
         # kano-profile stat collection
         increment_app_state_variable_with_dialog('kano-feedback', 'bugs_submitted', 1)
@@ -152,6 +153,15 @@ def get_wlaniface():
 def get_kwifi_cache():
     # We do not collect sensitive private information - Keypass is sent as "obfuscated" literal
     cmd = "cat /etc/kwifiprompt-cache.conf | sed 's/\"enckey\":.*/\"enckey\": \"obfuscated\"/'"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_usb_devices():
+    # Gives us 2 short lists of usb devices, first one with deviceIDs and manufacturer strings
+    # Second one in hierarchy mode along with matching kernel drivers controlling each device
+    # So we will know for a wireless dongle which kernel driver linux decides to load. Same for HIDs.
+    cmd = "lsusb && lsusb -t"
     o, _, _ = run_cmd(cmd)
     return o
 
