@@ -78,14 +78,15 @@ class MainWindow(Gtk.Window):
         self._bug_check.set_can_focus(False)
 
         # Create send button
-        send_button = Gtk.Button("SEND")
-        send_button.get_style_context().add_class("green_button")
-        send_button.connect("button_press_event", self.send_feedback)
+        self._send_button = Gtk.Button("SEND")
+        self._send_button.set_sensitive(False)
+        self._send_button.get_style_context().add_class("green_button")
+        self._send_button.connect("button_press_event", self.send_feedback)
 
         # Create grey box to put checkbox and button in
         bottom_box = Gtk.Box()
         bottom_box.pack_start(self._bug_check, False, False, 10)
-        bottom_box.pack_end(send_button, False, False, 10)
+        bottom_box.pack_end(self._send_button, False, False, 10)
 
         bottom_align = Gtk.Alignment(xalign=0.5, yalign=0.5)
         bottom_align.set_padding(10, 10, 10, 10)
@@ -131,3 +132,4 @@ class MainWindow(Gtk.Window):
         textbuffer.set_text("")
         textbuffer.disconnect(self._clear_buffer_handler_id)
 
+        self._send_button.set_sensitive(True)
