@@ -9,6 +9,7 @@
 #
 
 import json
+import os
 
 from kano.utils import run_cmd
 from kano.world.connection import request_wrapper, content_type_json
@@ -33,6 +34,7 @@ def send_data(text, fullInfo):
         meta['wlaniface'] = get_wlaniface()
         meta['kwificache'] = get_kwifi_cache()
         meta['usbdevices'] = get_usb_devices()
+        meta['updater-log'] = get_updater_log()
 
         # kano-profile stat collection
         increment_app_state_variable_with_dialog('kano-feedback', 'bugs_submitted', 1)
@@ -148,6 +150,14 @@ def get_wlaniface():
     cmd = "iwconfig wlan0"
     o, _, _ = run_cmd(cmd)
     return o
+
+def get_updater_log():
+    updater_log = "No updates.\n"
+    if os.path.exists("/var/log/kano-updater-log"):
+        with open("/var/log/kano-updater-log", "r") as f:
+            updater_log = f.read()
+
+    return updater_log
 
 
 def get_kwifi_cache():
