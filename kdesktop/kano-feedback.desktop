@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Exec=/usr/bin/kano-launcher /usr/bin/kano-feedback feedback
+Icon=/usr/share/kano-extras/icons/feedback.png
+Terminal=false
+Name=Feedback
+Comment= Send us your thoughts
+Categories=Application;Utility;Kano;

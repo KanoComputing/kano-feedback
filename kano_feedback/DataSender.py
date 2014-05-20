@@ -8,13 +8,13 @@
 # Functions related to sending feedback data
 #
 
-import os
-import sys
 import json
-from os.path import expanduser
+import os
 
 from kano.utils import run_cmd
 from kano.world.connection import request_wrapper, content_type_json
+from kano.world.functions import get_email
+from kano.profile.badges import increment_app_state_variable_with_dialog
 
 
 def send_data(text, fullInfo):
@@ -29,6 +29,15 @@ def send_data(text, fullInfo):
         meta['packages'] = get_packages()
         meta['dmesg'] = get_dmesg()
         meta['syslog'] = get_syslog()
+        meta['wpalog'] = get_wpalog()
+        meta['ntp-tzupdate'] = get_ntp_tzupdate()
+        meta['wlaniface'] = get_wlaniface()
+        meta['kwificache'] = get_kwifi_cache()
+        meta['usbdevices'] = get_usb_devices()
+        meta['updater-log'] = get_updater_log()
+
+        # kano-profile stat collection
+        increment_app_state_variable_with_dialog('kano-feedback', 'bugs_submitted', 1)
 
     payload = {
         'text': text,
@@ -120,25 +129,51 @@ def get_dmesg():
 
 
 def get_syslog():
-    cmd = "tail -n 100 /var/log/messages"
+    cmd = "tail -v -n 100 /var/log/messages"
     o, _, _ = run_cmd(cmd)
     return o
 
 
-def get_email():
-    email_path = expanduser("~") + "/.useremail"
+def get_wpalog():
+    cmd = "tail -n 80 /var/log/kano_wpa.log"
+    o, _, _ = run_cmd(cmd)
+    return o
 
-    if os.path.isfile(email_path):
-        with open(email_path, 'r') as f:
-            return f.readline()
-    else:
-        msg = "We haven't got your email.\n \
-1) Go to Settings\n \
-2) Introduce a valid email address\n\n \
-Now we can reply back to you!"
-        run_cmd('zenity --info --text "{}"'.format(msg))
-        sys.exit()
-    return ""
+
+def get_ntp_tzupdate():
+    cmd = "tail -v /var/log/tzupdate.log /var/log/rdate.log"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_wlaniface():
+    cmd = "iwconfig wlan0"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+def get_updater_log():
+    updater_log = "No updates.\n"
+    if os.path.exists("/var/log/kano-updater-log"):
+        with open("/var/log/kano-updater-log", "r") as f:
+            updater_log = f.read()
+
+    return updater_log
+
+
+def get_kwifi_cache():
+    # We do not collect sensitive private information - Keypass is sent as "obfuscated" literal
+    cmd = "cat /etc/kwifiprompt-cache.conf | sed 's/\"enckey\":.*/\"enckey\": \"obfuscated\"/'"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_usb_devices():
+    # Gives us 2 short lists of usb devices, first one with deviceIDs and manufacturer strings
+    # Second one in hierarchy mode along with matching kernel drivers controlling each device
+    # So we will know for a wireless dongle which kernel driver linux decides to load. Same for HIDs.
+    cmd = "lsusb && lsusb -t"
+    o, _, _ = run_cmd(cmd)
+    return o
 
 
 def sanitise_input(text):

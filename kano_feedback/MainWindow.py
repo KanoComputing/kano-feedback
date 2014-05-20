@@ -15,6 +15,7 @@ from kano_feedback.UIElements import TopBar
 from DataSender import send_data
 from kano.utils import run_cmd
 from kano_feedback import Media
+from kano.profile.badges import increment_app_state_variable_with_dialog
 
 
 class MainWindow(Gtk.Window):
@@ -23,7 +24,7 @@ class MainWindow(Gtk.Window):
 
         screen = Gdk.Screen.get_default()
         self._win_width = 500
-        self._win_height = int(screen.get_height() * 0.5)
+        self._win_height = int(screen.get_height() * 0.35)
 
         self.set_decorated(False)
         self.set_resizable(False)
@@ -54,6 +55,7 @@ class MainWindow(Gtk.Window):
         self._textbuffer = self._text.get_buffer()
         self._textbuffer.set_text("Type your feedback here!")
         scrolledwindow.add(self._text)
+        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
 
         # Very hacky way to get a border: create a grey event box which is a little bigger than the widget below
         padding_box = Gtk.Alignment()
@@ -76,14 +78,15 @@ class MainWindow(Gtk.Window):
         self._bug_check.set_can_focus(False)
 
         # Create send button
-        send_button = Gtk.Button("SEND")
-        send_button.get_style_context().add_class("green_button")
-        send_button.connect("button_press_event", self.send_feedback)
+        self._send_button = Gtk.Button("SEND")
+        self._send_button.set_sensitive(False)
+        self._send_button.get_style_context().add_class("green_button")
+        self._send_button.connect("button_press_event", self.send_feedback)
 
         # Create grey box to put checkbox and button in
         bottom_box = Gtk.Box()
         bottom_box.pack_start(self._bug_check, False, False, 10)
-        bottom_box.pack_end(send_button, False, False, 10)
+        bottom_box.pack_end(self._send_button, False, False, 10)
 
         bottom_align = Gtk.Alignment(xalign=0.5, yalign=0.5)
         bottom_align.set_padding(10, 10, 10, 10)
@@ -99,7 +102,13 @@ class MainWindow(Gtk.Window):
         self._grid.set_row_spacing(0)
         self.add(self._grid)
 
-    def send_feedback(self, event=None, button=None):
+        # kano-profile stat collection
+        increment_app_state_variable_with_dialog('kano-feedback', 'starts', 1)
+
+    def send_feedback(self, button=None, event=None):
+        # Disable button and refresh
+        button.set_sensitive(False)
+        Gtk.main_iteration()
 
         fullinfo = self._bug_check.get_active()
         if fullinfo:
@@ -116,3 +125,11 @@ class MainWindow(Gtk.Window):
         else:
             msg = "Something went wrong, error: {}".format(error)
         run_cmd('zenity --info --text "{}"'.format(msg))
+        sys.exit()
+
+    def clear_buffer(self, textbuffer, textiter, text, length):
+        self._text.get_style_context().add_class("active")
+        textbuffer.set_text("")
+        textbuffer.disconnect(self._clear_buffer_handler_id)
+
+        self._send_button.set_sensitive(True)

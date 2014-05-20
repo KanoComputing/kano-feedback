@@ -9,11 +9,12 @@
 import os
 import sys
 from gi.repository import Gtk
+from kano.world.functions import is_registered
 
 if __name__ == '__main__' and __package__ is None:
     dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     if dir_path != '/usr':
-        sys.path.append(dir_path)
+        sys.path.insert(0, dir_path)
 
 from kano_feedback.MainWindow import MainWindow
 
@@ -27,4 +28,9 @@ def main():
     return 0
 
 if __name__ == '__main__':
+    # Check if user is registered
+    if not is_registered():
+        os.system('/usr/bin/kano-login')
+        sys.exit(0)
+    # User is registered, launch app 
     sys.exit(main())

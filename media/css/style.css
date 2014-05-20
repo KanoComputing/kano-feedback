@@ -89,9 +89,17 @@ GtkCheckButton GtkLabel {
     font: Bariol 14px;
 }
 
+GtkTextView {
+    color: @inactive_writing;
+}
+
+GtkTextView.active {
+    color: @active_writing;
+}
+
 /* The bar at the top that mimics the window bar */
 .top_bar_container {
-    background: #eeeeee;
+    background: #e1e1e1;
 }
 
 /* Header in top bar (title of window) */
@@ -121,6 +129,14 @@ GtkCheckButton GtkLabel {
 .green_button GtkLabel {
     color: #ffffff;
     font: Bariol Bold 14;
+}
+
+.green_button:insensitive {
+    background: #555555;
+}
+
+.green_button GtkLabel:insensitive {
+    color: #999999;
 }
 
 .grey {
