@@ -73,7 +73,7 @@ class MainWindow(Gtk.Window):
 
         # Create check box
         self._bug_check = Gtk.CheckButton()
-        check_label = Gtk.Label("Reporting a bug? Check this to send full details")
+        check_label = Gtk.Label("Did you see a bug or error?")
         self._bug_check.add(check_label)
         self._bug_check.set_can_focus(False)
 
