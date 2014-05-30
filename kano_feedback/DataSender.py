@@ -15,7 +15,7 @@ from kano.utils import run_cmd
 from kano.world.connection import request_wrapper, content_type_json
 from kano.world.functions import get_email
 from kano.profile.badges import increment_app_state_variable_with_dialog
-
+import base64
 
 def send_data(text, fullInfo):
     send_data_old(text, fullInfo)
@@ -35,9 +35,7 @@ def send_data(text, fullInfo):
         meta['kwificache'] = get_kwifi_cache()
         meta['usbdevices'] = get_usb_devices()
         meta['updater-log'] = get_updater_log()
-
-        # kano-profile stat collection
-        increment_app_state_variable_with_dialog('kano-feedback', 'bugs_submitted', 1)
+        meta['screenshot'] = get_screenshot()
 
     payload = {
         'text': text,
@@ -49,6 +47,9 @@ def send_data(text, fullInfo):
     success, error, data = request_wrapper('post', '/feedback', data=json.dumps(payload), headers=content_type_json)
     if not success:
         return False, error
+    if fullInfo:
+        # kano-profile stat collection
+        increment_app_state_variable_with_dialog('kano-feedback', 'bugs_submitted', 1)
     return True, None
 
 
@@ -151,6 +152,7 @@ def get_wlaniface():
     o, _, _ = run_cmd(cmd)
     return o
 
+
 def get_updater_log():
     updater_log = "No updates.\n"
     if os.path.exists("/var/log/kano-updater-log"):
@@ -174,6 +176,18 @@ def get_usb_devices():
     cmd = "lsusb && lsusb -t"
     o, _, _ = run_cmd(cmd)
     return o
+
+
+def get_screenshot():
+    file_path = "/tmp/feedback.png"
+    cmd = "kano-screenshot -w 1024 -p " + file_path
+    _, _, rc = run_cmd(cmd)
+    if rc == 0:
+        # Convert image to string
+        with open(file_path, "rb") as imageFile:
+            str = base64.b64encode(imageFile.read())
+            return str
+    return ""
 
 
 def sanitise_input(text):
