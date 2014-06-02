@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+# kano-help-launcher
+#
+# Copyright (C) 2014 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+#
+# Launcher app for kano help
+#
+
+import os
+import sys
+from kano.webapp import WebApp
+from kano.network import is_internet
+
+app_name = 'kano-help-launcher'
+
+
+class Launcher(WebApp):
+    def __init__(self):
+        self._index = "https://kano.zendesk.com/hc/en-us"
+        self._title = "Kano Help"
+
+        self._decoration = True
+        self._height = 768
+        self._width = 1024
+        self._centered = True
+
+# Check internet status
+if not is_internet():
+    os.system('sudo /usr/bin/kano-settings 4')
+    sys.exit()
+
+launcher = Launcher()
+launcher.run()
