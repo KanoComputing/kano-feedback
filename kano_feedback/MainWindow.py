@@ -97,7 +97,6 @@ class MainWindow(Gtk.Window):
         bottom_background.add(bottom_align)
 
         self._grid.attach(bottom_background, 0, 2, 1, 1)
-        #self._grid.attach(send_button_align, 0, 3, 1, 1)
 
         self._grid.set_row_spacing(0)
         self.add(self._grid)

@@ -23,7 +23,7 @@ class TopBar(Gtk.EventBox):
         box = Gtk.Box()
         box.set_size_request(-1, self._TOP_BAR_HEIGHT)
 
-        self._header = Gtk.Label('Feedback', halign=Gtk.Align.CENTER,
+        self._header = Gtk.Label('Help', halign=Gtk.Align.CENTER,
                                  valign=Gtk.Align.CENTER,
                                  hexpand=True)
         box.pack_start(self._header, True, True, 0)
