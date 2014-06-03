@@ -11,6 +11,7 @@
 import json
 import os
 
+import kano.logging as logging
 from kano.utils import run_cmd
 from kano.world.connection import request_wrapper, content_type_json
 from kano.world.functions import get_email
@@ -34,8 +35,8 @@ def send_data(text, fullInfo):
         meta['wlaniface'] = get_wlaniface()
         meta['kwificache'] = get_kwifi_cache()
         meta['usbdevices'] = get_usb_devices()
-        meta['updater-log'] = get_updater_log()
         meta['screenshot'] = get_screenshot()
+        meta['app-logs'] = get_app_logs()
 
     payload = {
         'text': text,
@@ -50,6 +51,10 @@ def send_data(text, fullInfo):
     if fullInfo:
         # kano-profile stat collection
         increment_app_state_variable_with_dialog('kano-feedback', 'bugs_submitted', 1)
+
+        # logs were sent, clean up
+        logging.cleanup()
+
     return True, None
 
 
@@ -153,13 +158,16 @@ def get_wlaniface():
     return o
 
 
-def get_updater_log():
-    updater_log = "No updates.\n"
-    if os.path.exists("/var/log/kano-updater-log"):
-        with open("/var/log/kano-updater-log", "r") as f:
-            updater_log = f.read()
+def get_app_logs():
+    logs = logging.read_logs()
 
-    return updater_log
+    output = ""
+    for f, data in logs.iteritems():
+        output += "LOGFILE: {}\n".format(os.path.basename(f).split(".")[0])
+        for line in data:
+            output += "    {time} {app} {level}: {message}\n".format(line)
+
+    return output
 
 
 def get_kwifi_cache():
