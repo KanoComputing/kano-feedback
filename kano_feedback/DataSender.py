@@ -163,9 +163,10 @@ def get_app_logs():
 
     output = ""
     for f, data in logs.iteritems():
-        output += "LOGFILE: {}\n".format(os.path.basename(f).split(".")[0])
+        app_name = os.path.basename(f).split(".")[0]
+        output += "LOGFILE: {}\n".format(f)
         for line in data:
-            output += "    {time} {app} {level}: {message}\n".format(line)
+            output += "    {time} {app} {level}: {message}\n".format(app=app_name, **line)
 
     return output
 
