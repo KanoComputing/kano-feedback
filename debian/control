@@ -7,6 +7,6 @@ Build-Depends: debhelper (>= 9)
 
 Package: kano-feedback
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, curl, kano-toolset, kano-profile
+Depends: ${misc:Depends}, curl, kano-toolset (>= 1.0.4-4), kano-profile
 Description: A tool for feedback gathering
  A tool to allow Kanux users to provide feedback
