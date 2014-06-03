@@ -14,8 +14,10 @@ from gi.repository import Gtk, Gdk
 from kano_feedback.UIElements import TopBar
 from DataSender import send_data
 from kano.utils import run_cmd
+from kano.network import is_internet
 from kano_feedback import Media
 from kano.profile.badges import increment_app_state_variable_with_dialog
+from kano.gtk3 import kano_dialog
 
 
 class MainWindow(Gtk.Window):
@@ -98,6 +100,13 @@ class MainWindow(Gtk.Window):
 
         self._grid.attach(bottom_background, 0, 2, 1, 1)
 
+        # FAQ button
+        self._faq_button = Gtk.Button("Check out our FAQ")
+        self._faq_button.set_sensitive(True)
+        self._faq_button.get_style_context().add_class("green_button")
+        self._faq_button.connect("button_press_event", self.open_help)
+        self._grid.attach(self._faq_button, 0, 3, 1, 1)
+
         self._grid.set_row_spacing(0)
         self.add(self._grid)
 
@@ -109,10 +118,17 @@ class MainWindow(Gtk.Window):
         button.set_sensitive(False)
         Gtk.main_iteration()
 
+        if not is_internet():
+            kdialog = kano_dialog.KanoDialog("No internet connection", "Configure your connection")
+            kdialog.run()
+            run_cmd('sudo /usr/bin/kano-settings 4')
+            return
+
         fullinfo = self._bug_check.get_active()
         if fullinfo:
             msg = "You are about to send sensitive data. \nDo you want to continue?"
-            _, _, rc = run_cmd('zenity --question --text "{}"'.format(msg))
+            kdialog = kano_dialog.KanoDialog("Important", str(msg), {"Cancel": 1, "OK": 0})
+            rc = kdialog.run()
             if rc != 0:
                 sys.exit()
         textbuffer = self._text.get_buffer()
@@ -123,8 +139,12 @@ class MainWindow(Gtk.Window):
             msg = "Feedback sent correctly"
         else:
             msg = "Something went wrong, error: {}".format(error)
-        run_cmd('zenity --info --text "{}"'.format(msg))
+        kdialog = kano_dialog.KanoDialog("Info", str(msg))
+        kdialog.run()
         sys.exit()
+
+    def open_help(self, button=None, event=None):
+        run_cmd("/usr/bin/kano-help-launcher")
 
     def clear_buffer(self, textbuffer, textiter, text, length):
         self._text.get_style_context().add_class("active")
