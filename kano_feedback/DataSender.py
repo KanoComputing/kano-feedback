@@ -10,6 +10,7 @@
 
 import json
 import os
+import datetime
 
 import kano.logging as logging
 from kano.utils import run_cmd
@@ -167,7 +168,7 @@ def get_app_logs():
         output += "LOGFILE: {}\n".format(f)
         for line in data:
             line["time"] = datetime.datetime.fromtimestamp(data["time"]).isoformat()
-            output += "    {time} {app} {level}: {message}\n".format(app=app_name, **line)
+            output += "{time} {app} {level}: {message}\n".format(app=app_name, **line)
 
     return output
 
