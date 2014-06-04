@@ -150,7 +150,9 @@ class MainWindow(Gtk.Window):
 
     def clear_buffer(self, textbuffer, textiter, text, length):
         self._text.get_style_context().add_class("active")
-        textbuffer.set_text("")
+
+        start = textbuffer.get_start_iter()
+        textbuffer.delete(start, textiter)
         textbuffer.disconnect(self._clear_buffer_handler_id)
 
         self._send_button.set_sensitive(True)
