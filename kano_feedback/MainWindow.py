@@ -104,7 +104,7 @@ class MainWindow(Gtk.Window):
         # FAQ button
         self._faq_button = Gtk.Button("Check out our FAQ")
         self._faq_button.set_sensitive(True)
-        self._faq_button.get_style_context().add_class("green_button")
+        self._faq_button.get_style_context().add_class("orange_text")
         self._faq_button.connect("button_press_event", self.open_help)
         cursor.attach_cursor_events(self._faq_button)
         self._grid.attach(self._faq_button, 0, 3, 1, 1)
