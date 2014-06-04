@@ -17,7 +17,7 @@ from kano.utils import run_cmd
 from kano.network import is_internet
 from kano_feedback import Media
 from kano.profile.badges import increment_app_state_variable_with_dialog
-from kano.gtk3 import kano_dialog
+from kano.gtk3 import kano_dialog, cursor
 from kano.gtk3.green_button import GreenButton
 
 
@@ -79,6 +79,7 @@ class MainWindow(Gtk.Window):
         check_label = Gtk.Label("Did you see a bug or error?")
         self._bug_check.add(check_label)
         self._bug_check.set_can_focus(False)
+        cursor.attach_cursor_events(self._bug_check)
 
         # Create send button
         self._send_button = GreenButton("SEND")
@@ -105,6 +106,7 @@ class MainWindow(Gtk.Window):
         self._faq_button.set_sensitive(True)
         self._faq_button.get_style_context().add_class("green_button")
         self._faq_button.connect("button_press_event", self.open_help)
+        cursor.attach_cursor_events(self._faq_button)
         self._grid.attach(self._faq_button, 0, 3, 1, 1)
 
         self._grid.set_row_spacing(0)
