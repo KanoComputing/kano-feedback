@@ -18,7 +18,7 @@ from kano.network import is_internet
 from kano_feedback import Media
 from kano.profile.badges import increment_app_state_variable_with_dialog
 from kano.gtk3 import kano_dialog, cursor
-from kano.gtk3.green_button import GreenButton
+from kano.gtk3.buttons import KanoButton, OrangeButton
 
 
 class MainWindow(Gtk.Window):
@@ -82,7 +82,7 @@ class MainWindow(Gtk.Window):
         cursor.attach_cursor_events(self._bug_check)
 
         # Create send button
-        self._send_button = GreenButton("SEND")
+        self._send_button = KanoButton("SEND")
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
 
@@ -102,9 +102,8 @@ class MainWindow(Gtk.Window):
         self._grid.attach(bottom_background, 0, 2, 1, 1)
 
         # FAQ button
-        self._faq_button = Gtk.Button("Check out our FAQ")
+        self._faq_button = OrangeButton("Check out our FAQ")
         self._faq_button.set_sensitive(True)
-        self._faq_button.get_style_context().add_class("orange_text")
         self._faq_button.connect("button_press_event", self.open_help)
         cursor.attach_cursor_events(self._faq_button)
         self._grid.attach(self._faq_button, 0, 3, 1, 1)

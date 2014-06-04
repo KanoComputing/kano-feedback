@@ -124,15 +124,6 @@ GtkTextView.active {
     background: #eeeeee;
 }
 
-.orange_text {
-    background: transparent;
-}
-
-.orange_text GtkLabel {
-    color: @orange;
-    font-weight: bold;
-}
-
 /********************************************************
  * Scrollbars                                           *
  * The design was taken from the UN5 gtk-3.0 theme      *
