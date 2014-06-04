@@ -120,25 +120,6 @@ GtkTextView.active {
     background: #eeeeee;
 }
 
-.green_button {
-    background: @button_color;
-    padding: 10px 20px 10px 20px;
-    border-radius: 3px;
-}
-
-.green_button GtkLabel {
-    color: #ffffff;
-    font: Bariol Bold 14;
-}
-
-.green_button:insensitive {
-    background: #555555;
-}
-
-.green_button GtkLabel:insensitive {
-    color: #999999;
-}
-
 .grey {
     background: #eeeeee;
 }

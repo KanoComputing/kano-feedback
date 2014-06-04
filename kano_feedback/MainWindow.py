@@ -18,6 +18,7 @@ from kano.network import is_internet
 from kano_feedback import Media
 from kano.profile.badges import increment_app_state_variable_with_dialog
 from kano.gtk3 import kano_dialog
+from kano.gtk3.green_button import GreenButton
 
 
 class MainWindow(Gtk.Window):
@@ -80,9 +81,8 @@ class MainWindow(Gtk.Window):
         self._bug_check.set_can_focus(False)
 
         # Create send button
-        self._send_button = Gtk.Button("SEND")
+        self._send_button = GreenButton("SEND")
         self._send_button.set_sensitive(False)
-        self._send_button.get_style_context().add_class("green_button")
         self._send_button.connect("button_press_event", self.send_feedback)
 
         # Create grey box to put checkbox and button in
