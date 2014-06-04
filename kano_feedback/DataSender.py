@@ -166,6 +166,7 @@ def get_app_logs():
         app_name = os.path.basename(f).split(".")[0]
         output += "LOGFILE: {}\n".format(f)
         for line in data:
+            line["time"] = datetime.datetime.fromtimestamp(data["time"]).isoformat()
             output += "    {time} {app} {level}: {message}\n".format(app=app_name, **line)
 
     return output
