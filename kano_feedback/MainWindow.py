@@ -128,10 +128,10 @@ class MainWindow(Gtk.Window):
         fullinfo = self._bug_check.get_active()
         if fullinfo:
             msg = "You are about to send sensitive data. \nDo you want to continue?"
-            kdialog = kano_dialog.KanoDialog("Important", str(msg), {"Cancel": 1, "OK": 0})
-            rc = kdialog.run()
-            if rc != 0:
-                sys.exit()
+        kdialog = kano_dialog.KanoDialog("Important", str(msg), {"Cancel": {"return_value": 1}, "OK": {"return_value": 0}})
+        rc = kdialog.run()
+        if rc != 0:
+            sys.exit()
         textbuffer = self._text.get_buffer()
         startiter, enditer = textbuffer.get_bounds()
         text = textbuffer.get_text(startiter, enditer, True)
