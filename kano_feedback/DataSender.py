@@ -32,7 +32,7 @@ def send_data(text, fullInfo):
         meta['dmesg'] = get_dmesg()
         meta['syslog'] = get_syslog()
         meta['wpalog'] = get_wpalog()
-        meta['ntp-tzupdate'] = get_ntp_tzupdate()
+        meta['cmdline-config'] = get_cmdline_config()
         meta['wlaniface'] = get_wlaniface()
         meta['kwificache'] = get_kwifi_cache()
         meta['usbdevices'] = get_usb_devices()
@@ -146,12 +146,10 @@ def get_wpalog():
     o, _, _ = run_cmd(cmd)
     return o
 
-
-def get_ntp_tzupdate():
-    cmd = "tail -v /var/log/tzupdate.log /var/log/rdate.log"
+def get_cmdline_config():
+    cmd = "cat /boot/cmdline.txt /boot/config.txt"
     o, _, _ = run_cmd(cmd)
     return o
-
 
 def get_wlaniface():
     cmd = "iwconfig wlan0"
