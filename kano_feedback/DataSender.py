@@ -14,9 +14,9 @@ import datetime
 
 import kano.logging as logging
 from kano.utils import run_cmd
-from kano.world.connection import request_wrapper, content_type_json
-from kano.world.functions import get_email
-from kano.profile.badges import increment_app_state_variable_with_dialog
+from kano_world.connection import request_wrapper, content_type_json
+from kano_world.functions import get_email
+from kano_profile.badges import increment_app_state_variable_with_dialog
 import base64
 
 def send_data(text, fullInfo):
