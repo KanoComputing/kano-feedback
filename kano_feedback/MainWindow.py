@@ -11,14 +11,16 @@
 import sys
 from gi.repository import Gtk, Gdk
 
-from kano_feedback.UIElements import TopBar
+from kano.gtk3.top_bar import TopBar
 from DataSender import send_data
 from kano.utils import run_cmd
 from kano.network import is_internet
-from kano_feedback import Media
 from kano_profile.badges import increment_app_state_variable_with_dialog
 from kano.gtk3 import kano_dialog, cursor
 from kano.gtk3.buttons import KanoButton, OrangeButton
+from kano.gtk3.scrolled_window import ScrolledWindow
+from kano.paths import common_css_dir
+from kano_feedback import Media
 
 
 class MainWindow(Gtk.Window):
@@ -38,19 +40,26 @@ class MainWindow(Gtk.Window):
         self.connect('delete-event', Gtk.main_quit)
 
         css_provider = Gtk.CssProvider()
-        css_provider.load_from_path(Media.media_dir() + 'css/style.css')
+        css_provider.load_from_path(common_css_dir + '/common.css')
+        css_provider2 = Gtk.CssProvider()
+        css_provider2.load_from_path(common_css_dir + '/colours.css')
+        specific_provider = Gtk.CssProvider()
+        specific_provider.load_from_path(Media.media_dir() + 'css/style.css')
         style_context = Gtk.StyleContext()
-        style_context.add_provider_for_screen(screen, css_provider,
-                                              Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        style_context.add_provider_for_screen(screen, css_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        style_context.add_provider_for_screen(screen, css_provider2, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        style_context.add_provider_for_screen(screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar()
+        self._top_bar = TopBar(title="Kano-Feedback", window_width=500, has_buttons=False)
+        self._top_bar.set_close_callback(Gtk.main_quit)
+
         self._grid.attach(self._top_bar, 0, 0, 1, 1)
 
         # Create Text view
-        scrolledwindow = Gtk.ScrolledWindow()
+        scrolledwindow = ScrolledWindow()
         scrolledwindow.set_hexpand(True)
         scrolledwindow.set_vexpand(True)
         self._text = Gtk.TextView()
