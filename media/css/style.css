@@ -7,8 +7,6 @@
 
 */
 
-/* Define colours */
-
 GtkTextView {
     color: @inactive_writing;
 }
