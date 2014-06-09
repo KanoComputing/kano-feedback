@@ -14,9 +14,9 @@ import datetime
 
 import kano.logging as logging
 from kano.utils import run_cmd
-from kano.world.connection import request_wrapper, content_type_json
-from kano.world.functions import get_email
-from kano.profile.badges import increment_app_state_variable_with_dialog
+from kano_world.connection import request_wrapper, content_type_json
+from kano_world.functions import get_email
+from kano_profile.badges import increment_app_state_variable_with_dialog
 import base64
 
 def send_data(text, fullInfo):
@@ -32,7 +32,7 @@ def send_data(text, fullInfo):
         meta['dmesg'] = get_dmesg()
         meta['syslog'] = get_syslog()
         meta['wpalog'] = get_wpalog()
-        meta['ntp-tzupdate'] = get_ntp_tzupdate()
+        meta['cmdline-config'] = get_cmdline_config()
         meta['wlaniface'] = get_wlaniface()
         meta['kwificache'] = get_kwifi_cache()
         meta['usbdevices'] = get_usb_devices()
@@ -146,12 +146,10 @@ def get_wpalog():
     o, _, _ = run_cmd(cmd)
     return o
 
-
-def get_ntp_tzupdate():
-    cmd = "tail -v /var/log/tzupdate.log /var/log/rdate.log"
+def get_cmdline_config():
+    cmd = "cat /boot/cmdline.txt /boot/config.txt"
     o, _, _ = run_cmd(cmd)
     return o
-
 
 def get_wlaniface():
     cmd = "iwconfig wlan0"
@@ -167,7 +165,7 @@ def get_app_logs():
         app_name = os.path.basename(f).split(".")[0]
         output += "LOGFILE: {}\n".format(f)
         for line in data:
-            line["time"] = datetime.datetime.fromtimestamp(data["time"]).isoformat()
+            line["time"] = datetime.datetime.fromtimestamp(line["time"]).isoformat()
             output += "{time} {app} {level}: {message}\n".format(app=app_name, **line)
 
     return output

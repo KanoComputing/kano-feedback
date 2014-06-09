@@ -15,7 +15,7 @@ from kano.gtk3.top_bar import TopBar
 from DataSender import send_data
 from kano.utils import run_cmd
 from kano.network import is_internet
-from kano.profile.badges import increment_app_state_variable_with_dialog
+from kano_profile.badges import increment_app_state_variable_with_dialog
 from kano.gtk3 import kano_dialog, cursor
 from kano.gtk3.buttons import KanoButton, OrangeButton
 from kano.gtk3.scrolled_window import ScrolledWindow
