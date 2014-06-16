@@ -26,4 +26,3 @@ def media_dir():
         raise Exception('Neither local nor usr media dir found!')
 
     return media_dir + '/'
-
