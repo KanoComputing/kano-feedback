@@ -19,8 +19,8 @@ from kano_world.functions import get_email
 from kano_profile.badges import increment_app_state_variable_with_dialog
 import base64
 
+
 def send_data(text, fullInfo):
-    send_data_old(text, fullInfo)
 
     meta = {
         'kanux_version': get_version()
@@ -57,58 +57,6 @@ def send_data(text, fullInfo):
         logging.cleanup()
 
     return True, None
-
-
-def send_data_old(text, fullInfo):
-    dataToSend = ''
-    # Email entry
-    dataToSend += 'entry.1110323866'
-    dataToSend += '='
-    dataToSend += sanitise_input(get_email())
-    dataToSend += '&'
-    # Response entry
-    dataToSend += 'entry.162771870'
-    dataToSend += '='
-    dataToSend += sanitise_input(text)
-    dataToSend += '&'
-    # Kanux version entry
-    dataToSend += 'entry.1932769824'
-    dataToSend += '='
-    dataToSend += sanitise_input(get_version())
-    dataToSend += '&'
-    # TODO: remove Category column
-    dataToSend += 'entry.1341620943'
-    dataToSend += '='
-    dataToSend += 'Refactored'
-    if fullInfo:
-        dataToSend += '&'
-        # Running Processes
-        dataToSend += 'entry.868132968'
-        dataToSend += '='
-        dataToSend += sanitise_input(get_process())
-        dataToSend += '&'
-        # Installed Packages
-        dataToSend += 'entry.1747707726'
-        dataToSend += '='
-        dataToSend += sanitise_input(get_packages())
-        dataToSend += '&'
-        # Dmesg
-        dataToSend += 'entry.1892657243'
-        dataToSend += '='
-        dataToSend += sanitise_input(get_dmesg())
-        dataToSend += '&'
-        # Syslog
-        dataToSend += 'entry.355029695'
-        dataToSend += '='
-        dataToSend += sanitise_input(get_syslog())
-
-    # Send data
-    form = 'https://docs.google.com/a/kano.me/forms/d/1PqWb05bQjjuHc41cA0m2f0jFgidUw_c5H53IQeaemgo/formResponse'
-    cmd = 'curl --progress-bar -d \"%s\" %s' % (dataToSend, form)
-    o, e, rc = run_cmd(cmd)
-    if rc != 0:
-        return False
-    return True
 
 
 def get_version():
