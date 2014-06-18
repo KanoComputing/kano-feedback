@@ -140,10 +140,10 @@ def get_screenshot():
     cmd = "kano-screenshot -w 1024 -p " + file_path
     _, _, rc = run_cmd(cmd)
     if rc == 0:
-    file = {
-        'screenshot': open(file_path, 'rb')
-    }
-    return file
+        file = {
+            'screenshot': open(file_path, 'rb')
+        }
+        return file
     return None
 
 
