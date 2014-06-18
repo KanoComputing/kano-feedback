@@ -131,7 +131,7 @@ class MainWindow(Gtk.Window):
 
         fullinfo = self._bug_check.get_active()
         if fullinfo:
-            msg = "You are about to send sensitive data. \nDo you want to continue?"
+            msg = "Your feedback will include debugging information. \nDo you want to continue?"
             kdialog = kano_dialog.KanoDialog("Important", str(msg), {"Cancel": {"return_value": 1}, "OK": {"return_value": 0}})
             rc = kdialog.run()
             if rc != 0:
