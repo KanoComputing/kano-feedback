@@ -16,7 +16,7 @@ if __name__ == '__main__' and __package__ is None:
     if dir_path != '/usr':
         sys.path.insert(1, dir_path)
 
-from kano.utils import run_bg
+from kano.utils import run_bg, is_running
 from kano.gtk3.top_bar import TopBar
 from kano.gtk3.buttons import KanoButton
 from kano.gtk3.scrolled_window import ScrolledWindow
@@ -27,9 +27,13 @@ button_list = [
      'comment': 'Get online help for common problems',
      'cmd': "kano-help-launcher"},
 
-    {'name': 'Kano Feedback',
+    {'name': 'Video help',
+     'comment': 'Get help by video',
+     'special': "video"},
+
+    {'name': 'Feedback',
      'comment': 'Submit bug reports',
-     'cmd': "kano-feedback"}
+     'cmd': "kano-feedback"},
 ]
 
 
@@ -51,6 +55,9 @@ def make_button_list():
         button.set_size_request(200, 30)
         if 'cmd' in entry:
             button.connect('clicked', exec_btn, entry)
+        if 'special' in entry:
+            if entry['special'] == 'video':
+                button.connect('clicked', play_video)
         row_grid.attach(button, 0, 1, 1, 1)
 
         label = Gtk.Label(entry['comment'])
@@ -68,6 +75,15 @@ def make_button_list():
 def exec_btn(_button, entry):
     cmd = entry['cmd']
     run_bg(cmd)
+
+
+def play_video(_button):
+    if is_running('minecraft'):
+        print 'playing minecraft video'
+    elif is_running('pong'):
+        print 'playing pong video'
+    else:
+        print 'playing desktop video'
 
 
 class MainWindow(Gtk.Window):
