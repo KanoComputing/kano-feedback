@@ -21,6 +21,7 @@ from kano.gtk3.top_bar import TopBar
 from kano.gtk3.buttons import KanoButton
 from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.paths import common_css_dir
+from kano_video.logic.player import play_video
 
 button_list = [
     {'name': 'Online help',
@@ -57,7 +58,7 @@ def make_button_list():
             button.connect('clicked', exec_btn, entry)
         if 'special' in entry:
             if entry['special'] == 'video':
-                button.connect('clicked', play_video)
+                button.connect('clicked', play_video_btn)
         row_grid.attach(button, 0, 1, 1, 1)
 
         label = Gtk.Label(entry['comment'])
@@ -77,13 +78,18 @@ def exec_btn(_button, entry):
     run_bg(cmd)
 
 
-def play_video(_button):
+def play_video_btn(_button):
+    video_folder = '/usr/share/kano-media/videos'
+
     if is_running('minecraft'):
-        print 'playing minecraft video'
+        video_file = 'minecraft.mkv'
     elif is_running('pong'):
-        print 'playing pong video'
+        video_file = 'pong.mkv'
     else:
-        print 'playing desktop video'
+        video_file = 'os_intro.mkv'
+
+    video_path = os.path.join(video_folder, video_file)
+    play_video(None, None, video_path, True)
 
 
 class MainWindow(Gtk.Window):
