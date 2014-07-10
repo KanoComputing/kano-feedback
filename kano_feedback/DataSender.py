@@ -36,6 +36,7 @@ def send_data(text, fullInfo):
         meta['kwificache'] = get_kwifi_cache()
         meta['usbdevices'] = get_usb_devices()
         meta['app-logs'] = get_app_logs()
+        meta['hdmi-info'] = get_hdmi_info()
 
     payload = {
         "text": text,
@@ -94,10 +95,12 @@ def get_wpalog():
     o, _, _ = run_cmd(cmd)
     return o
 
+
 def get_cmdline_config():
     cmd = "cat /boot/cmdline.txt /boot/config.txt"
     o, _, _ = run_cmd(cmd)
     return o
+
 
 def get_wlaniface():
     cmd = "iwconfig wlan0"
@@ -145,6 +148,12 @@ def get_screenshot():
         }
         return file
     return None
+
+
+def get_hdmi_info():
+    cmd = "tvservice -d edid.dat && edidparser edid.dat"
+    o, _, _ = run_cmd(cmd)
+    return o
 
 
 def sanitise_input(text):
