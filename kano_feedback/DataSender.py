@@ -151,9 +151,10 @@ def get_screenshot():
 
 
 def get_hdmi_info():
-    cmd = "tvservice -d edid.dat && edidparser edid.dat"
+    data_file_path = "/tmp/edid.dat"
+    cmd = "tvservice -d {} && edidparser {}".format(data_file_path, data_file_path)
     o, _, _ = run_cmd(cmd)
-    delete_file("edid.dat")
+    delete_file(data_file_path)
     return o
 
 
