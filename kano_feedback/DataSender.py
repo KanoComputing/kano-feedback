@@ -13,7 +13,7 @@ import os
 import datetime
 
 import kano.logging as logging
-from kano.utils import run_cmd
+from kano.utils import run_cmd, delete_file
 from kano_world.connection import request_wrapper, content_type_json
 from kano_world.functions import get_email
 from kano_profile.badges import increment_app_state_variable_with_dialog
@@ -153,6 +153,7 @@ def get_screenshot():
 def get_hdmi_info():
     cmd = "tvservice -d edid.dat && edidparser edid.dat"
     o, _, _ = run_cmd(cmd)
+    delete_file("edid.dat")
     return o
 
 
