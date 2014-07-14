@@ -8,46 +8,33 @@
 # Functions related to sending feedback data
 #
 
-import json
 import os
 import datetime
 
 import kano.logging as logging
-from kano.utils import run_cmd, delete_file
-from kano_world.connection import request_wrapper, content_type_json
+from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file
+from kano_world.connection import request_wrapper
 from kano_world.functions import get_email
 from kano_profile.badges import increment_app_state_variable_with_dialog
 
 
+TMP_DIR = '/tmp/kano-feedback/'
+
+
 def send_data(text, fullInfo):
 
-    meta = {
-        'kanux_version': get_version()
-    }
-
     if fullInfo:
-        meta['process'] = get_process()
-        meta['packages'] = get_packages()
-        meta['dmesg'] = get_dmesg()
-        meta['syslog'] = get_syslog()
-        meta['wpalog'] = get_wpalog()
-        meta['cmdline-config'] = get_cmdline_config()
-        meta['wlaniface'] = get_wlaniface()
-        meta['kwificache'] = get_kwifi_cache()
-        meta['usbdevices'] = get_usb_devices()
-        meta['app-logs'] = get_app_logs()
-        meta['hdmi-info'] = get_hdmi_info()
+        archive = get_metadata_archive()
 
     payload = {
         "text": text,
         "email": get_email(),
-        "category": "os",
-        "meta": json.dumps(meta)
+        "category": "os"
     }
 
-    file = get_screenshot()
+    success, error, data = request_wrapper('post', '/feedback', data=payload, files=archive)
+    delete_dir(TMP_DIR)
 
-    success, error, data = request_wrapper('post', '/feedback', data=payload, files=file)
     if not success:
         return False, error
     if fullInfo:
@@ -58,6 +45,35 @@ def send_data(text, fullInfo):
         logging.cleanup()
 
     return True, None
+
+
+def get_metadata_archive():
+    ensure_dir(TMP_DIR)
+    write_file_contents(TMP_DIR + 'kanux_version.txt', get_version())
+    write_file_contents(TMP_DIR + 'process.txt', get_process())
+    write_file_contents(TMP_DIR + 'packages.txt', get_packages())
+    write_file_contents(TMP_DIR + 'dmesg.txt', get_dmesg())
+    write_file_contents(TMP_DIR + 'syslog.txt', get_syslog())
+    write_file_contents(TMP_DIR + 'wpalog.txt', get_wpalog())
+    write_file_contents(TMP_DIR + 'cmdline-config.txt', get_cmdline_config())
+    write_file_contents(TMP_DIR + 'wlaniface.txt', get_wlaniface())
+    write_file_contents(TMP_DIR + 'kwificache.txt', get_kwifi_cache())
+    write_file_contents(TMP_DIR + 'usbdevices.txt', get_usb_devices())
+    write_file_contents(TMP_DIR + 'app-logs.txt', get_app_logs())
+    write_file_contents(TMP_DIR + 'hdmi-info.txt', get_hdmi_info())
+    take_screenshot()
+
+    archive_path = TMP_DIR + 'bug_report.tar.gz'
+    cmd = "tar -zcvf {} {}".format(archive_path, TMP_DIR)
+    _, error, return_code = run_cmd(cmd)
+
+    if not return_code:
+        archive = {
+            'report': open(archive_path, 'rb')
+        }
+        return archive
+    else:
+        return None
 
 
 def get_version():
@@ -138,24 +154,18 @@ def get_usb_devices():
     return o
 
 
-def get_screenshot():
-    file_path = "/tmp/feedback.png"
+def get_hdmi_info():
+    file_path = TMP_DIR + 'edid.dat'
+    cmd = "tvservice -d {} && edidparser {}".format(file_path, file_path)
+    o, _, _ = run_cmd(cmd)
+    delete_file(file_path)
+    return o
+
+
+def take_screenshot():
+    file_path = TMP_DIR + 'feedback.png'
     cmd = "kano-screenshot -w 1024 -p " + file_path
     _, _, rc = run_cmd(cmd)
-    if rc == 0:
-        file = {
-            'screenshot': open(file_path, 'rb')
-        }
-        return file
-    return None
-
-
-def get_hdmi_info():
-    data_file_path = "/tmp/edid.dat"
-    cmd = "tvservice -d {} && edidparser {}".format(data_file_path, data_file_path)
-    o, _, _ = run_cmd(cmd)
-    delete_file(data_file_path)
-    return o
 
 
 def sanitise_input(text):
