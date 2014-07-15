@@ -22,6 +22,7 @@ TMP_DIR = '/tmp/kano-feedback/'
 
 
 def send_data(text, fullInfo):
+    archive = None
 
     if fullInfo:
         archive = get_metadata_archive()
@@ -29,9 +30,11 @@ def send_data(text, fullInfo):
     payload = {
         "text": text,
         "email": get_email(),
-        "category": "os"
+        "category": "os",
+        "meta": ""  # not used
     }
 
+    # send the bug report and remove all the created files
     success, error, data = request_wrapper('post', '/feedback', data=payload, files=archive)
     delete_dir(TMP_DIR)
 
@@ -49,31 +52,37 @@ def send_data(text, fullInfo):
 
 def get_metadata_archive():
     ensure_dir(TMP_DIR)
-    write_file_contents(TMP_DIR + 'kanux_version.txt', get_version())
-    write_file_contents(TMP_DIR + 'process.txt', get_process())
-    write_file_contents(TMP_DIR + 'packages.txt', get_packages())
-    write_file_contents(TMP_DIR + 'dmesg.txt', get_dmesg())
-    write_file_contents(TMP_DIR + 'syslog.txt', get_syslog())
-    write_file_contents(TMP_DIR + 'wpalog.txt', get_wpalog())
-    write_file_contents(TMP_DIR + 'cmdline-config.txt', get_cmdline_config())
-    write_file_contents(TMP_DIR + 'wlaniface.txt', get_wlaniface())
-    write_file_contents(TMP_DIR + 'kwificache.txt', get_kwifi_cache())
-    write_file_contents(TMP_DIR + 'usbdevices.txt', get_usb_devices())
-    write_file_contents(TMP_DIR + 'app-logs.txt', get_app_logs())
-    write_file_contents(TMP_DIR + 'hdmi-info.txt', get_hdmi_info())
+
+    file_list = [
+        {'name': 'kanux_version.txt', 'contents': get_version()},
+        {'name': 'process.txt', 'contents': get_process()},
+        {'name': 'packages.txt', 'contents': get_packages()},
+        {'name': 'dmesg.txt', 'contents': get_dmesg()},
+        {'name': 'syslog.txt', 'contents': get_syslog()},
+        {'name': 'wpalog.txt', 'contents': get_wpalog()},
+        {'name': 'cmdline-config.txt', 'contents': get_cmdline_config()},
+        {'name': 'wlaniface.txt', 'contents': get_wlaniface()},
+        {'name': 'kwificache.txt', 'contents': get_kwifi_cache()},
+        {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
+        {'name': 'app-logs.txt', 'contents': get_app_logs()},
+        {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
+    ]
+
+    # create files for each non empty metadata info
+    for file in file_list:
+        if file['contents']:
+            write_file_contents(TMP_DIR + file['name'], file['contents'])
     take_screenshot()
 
+    # archive all the metadata files
     archive_path = TMP_DIR + 'bug_report.tar.gz'
-    cmd = "tar -zcvf {} {}".format(archive_path, TMP_DIR)
-    _, error, return_code = run_cmd(cmd)
+    run_cmd("tar -zcvf {} {}".format(archive_path, TMP_DIR))
 
-    if not return_code:
-        archive = {
-            'report': open(archive_path, 'rb')
-        }
-        return archive
-    else:
-        return None
+    # open the file and return it
+    archive = {
+        'report': open(archive_path, 'rb')
+    }
+    return archive
 
 
 def get_version():
