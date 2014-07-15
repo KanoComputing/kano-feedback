@@ -13,11 +13,10 @@ import os
 import datetime
 
 import kano.logging as logging
-from kano.utils import run_cmd
+from kano.utils import run_cmd, delete_file
 from kano_world.connection import request_wrapper, content_type_json
 from kano_world.functions import get_email
 from kano_profile.badges import increment_app_state_variable_with_dialog
-import base64
 
 
 def send_data(text, fullInfo):
@@ -36,17 +35,19 @@ def send_data(text, fullInfo):
         meta['wlaniface'] = get_wlaniface()
         meta['kwificache'] = get_kwifi_cache()
         meta['usbdevices'] = get_usb_devices()
-        meta['screenshot'] = get_screenshot()
         meta['app-logs'] = get_app_logs()
+        meta['hdmi-info'] = get_hdmi_info()
 
     payload = {
-        'text': text,
-        'email': get_email(),
-        'category': 'os',
-        'meta': meta
+        "text": text,
+        "email": get_email(),
+        "category": "os",
+        "meta": json.dumps(meta)
     }
 
-    success, error, data = request_wrapper('post', '/feedback', data=json.dumps(payload), headers=content_type_json)
+    file = get_screenshot()
+
+    success, error, data = request_wrapper('post', '/feedback', data=payload, files=file)
     if not success:
         return False, error
     if fullInfo:
@@ -94,10 +95,12 @@ def get_wpalog():
     o, _, _ = run_cmd(cmd)
     return o
 
+
 def get_cmdline_config():
     cmd = "cat /boot/cmdline.txt /boot/config.txt"
     o, _, _ = run_cmd(cmd)
     return o
+
 
 def get_wlaniface():
     cmd = "iwconfig wlan0"
@@ -140,11 +143,19 @@ def get_screenshot():
     cmd = "kano-screenshot -w 1024 -p " + file_path
     _, _, rc = run_cmd(cmd)
     if rc == 0:
-        # Convert image to string
-        with open(file_path, "rb") as imageFile:
-            str = base64.b64encode(imageFile.read())
-            return str
-    return ""
+        file = {
+            'screenshot': open(file_path, 'rb')
+        }
+        return file
+    return None
+
+
+def get_hdmi_info():
+    data_file_path = "/tmp/edid.dat"
+    cmd = "tvservice -d {} && edidparser {}".format(data_file_path, data_file_path)
+    o, _, _ = run_cmd(cmd)
+    delete_file(data_file_path)
+    return o
 
 
 def sanitise_input(text):

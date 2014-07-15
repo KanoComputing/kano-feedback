@@ -15,7 +15,6 @@ from kano.gtk3.top_bar import TopBar
 from DataSender import send_data
 from kano.utils import run_cmd
 from kano.network import is_internet
-from kano_profile.badges import increment_app_state_variable_with_dialog
 from kano.gtk3 import kano_dialog, cursor
 from kano.gtk3.buttons import KanoButton, OrangeButton
 from kano.gtk3.scrolled_window import ScrolledWindow
@@ -116,7 +115,11 @@ class MainWindow(Gtk.Window):
         self.add(self._grid)
 
         # kano-profile stat collection
-        increment_app_state_variable_with_dialog('kano-feedback', 'starts', 1)
+        try:
+            from kano_profile.badges import increment_app_state_variable_with_dialog
+            increment_app_state_variable_with_dialog('kano-feedback', 'starts', 1)
+        except Exception:
+            pass
 
     def send_feedback(self, button=None, event=None):
         # Disable button and refresh
@@ -131,7 +134,7 @@ class MainWindow(Gtk.Window):
 
         fullinfo = self._bug_check.get_active()
         if fullinfo:
-            msg = "You are about to send sensitive data. \nDo you want to continue?"
+            msg = "Your feedback will include debugging information. \nDo you want to continue?"
             kdialog = kano_dialog.KanoDialog("Important", str(msg), {"Cancel": {"return_value": 1}, "OK": {"return_value": 0}})
             rc = kdialog.run()
             if rc != 0:
