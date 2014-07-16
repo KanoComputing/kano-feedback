@@ -8,46 +8,36 @@
 # Functions related to sending feedback data
 #
 
-import json
 import os
 import datetime
 
 import kano.logging as logging
-from kano.utils import run_cmd, delete_file
-from kano_world.connection import request_wrapper, content_type_json
+from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file
+from kano_world.connection import request_wrapper
 from kano_world.functions import get_email
 from kano_profile.badges import increment_app_state_variable_with_dialog
 
 
-def send_data(text, fullInfo):
+TMP_DIR = '/tmp/kano-feedback/'
 
-    meta = {
-        'kanux_version': get_version()
-    }
+
+def send_data(text, fullInfo):
+    archive = None
 
     if fullInfo:
-        meta['process'] = get_process()
-        meta['packages'] = get_packages()
-        meta['dmesg'] = get_dmesg()
-        meta['syslog'] = get_syslog()
-        meta['wpalog'] = get_wpalog()
-        meta['cmdline-config'] = get_cmdline_config()
-        meta['wlaniface'] = get_wlaniface()
-        meta['kwificache'] = get_kwifi_cache()
-        meta['usbdevices'] = get_usb_devices()
-        meta['app-logs'] = get_app_logs()
-        meta['hdmi-info'] = get_hdmi_info()
+        archive = get_metadata_archive()
 
     payload = {
         "text": text,
         "email": get_email(),
         "category": "os",
-        "meta": json.dumps(meta)
+        "meta": ""  # not used
     }
 
-    file = get_screenshot()
+    # send the bug report and remove all the created files
+    success, error, data = request_wrapper('post', '/feedback', data=payload, files=archive)
+    delete_dir(TMP_DIR)
 
-    success, error, data = request_wrapper('post', '/feedback', data=payload, files=file)
     if not success:
         return False, error
     if fullInfo:
@@ -58,6 +48,41 @@ def send_data(text, fullInfo):
         logging.cleanup()
 
     return True, None
+
+
+def get_metadata_archive():
+    ensure_dir(TMP_DIR)
+
+    file_list = [
+        {'name': 'kanux_version.txt', 'contents': get_version()},
+        {'name': 'process.txt', 'contents': get_process()},
+        {'name': 'packages.txt', 'contents': get_packages()},
+        {'name': 'dmesg.txt', 'contents': get_dmesg()},
+        {'name': 'syslog.txt', 'contents': get_syslog()},
+        {'name': 'wpalog.txt', 'contents': get_wpalog()},
+        {'name': 'cmdline-config.txt', 'contents': get_cmdline_config()},
+        {'name': 'wlaniface.txt', 'contents': get_wlaniface()},
+        {'name': 'kwificache.txt', 'contents': get_kwifi_cache()},
+        {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
+        {'name': 'app-logs.txt', 'contents': get_app_logs()},
+        {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
+    ]
+
+    # create files for each non empty metadata info
+    for file in file_list:
+        if file['contents']:
+            write_file_contents(TMP_DIR + file['name'], file['contents'])
+    take_screenshot()
+
+    # archive all the metadata files
+    archive_path = TMP_DIR + 'bug_report.tar.gz'
+    run_cmd("tar -zcvf {} {}".format(archive_path, TMP_DIR))
+
+    # open the file and return it
+    archive = {
+        'report': open(archive_path, 'rb')
+    }
+    return archive
 
 
 def get_version():
@@ -138,24 +163,18 @@ def get_usb_devices():
     return o
 
 
-def get_screenshot():
-    file_path = "/tmp/feedback.png"
+def get_hdmi_info():
+    file_path = TMP_DIR + 'edid.dat'
+    cmd = "tvservice -d {} && edidparser {}".format(file_path, file_path)
+    o, _, _ = run_cmd(cmd)
+    delete_file(file_path)
+    return o
+
+
+def take_screenshot():
+    file_path = TMP_DIR + 'feedback.png'
     cmd = "kano-screenshot -w 1024 -p " + file_path
     _, _, rc = run_cmd(cmd)
-    if rc == 0:
-        file = {
-            'screenshot': open(file_path, 'rb')
-        }
-        return file
-    return None
-
-
-def get_hdmi_info():
-    data_file_path = "/tmp/edid.dat"
-    cmd = "tvservice -d {} && edidparser {}".format(data_file_path, data_file_path)
-    o, _, _ = run_cmd(cmd)
-    delete_file(data_file_path)
-    return o
 
 
 def sanitise_input(text):
