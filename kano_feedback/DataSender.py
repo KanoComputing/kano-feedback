@@ -86,7 +86,7 @@ def get_metadata_archive():
 
 
 def get_version():
-    cmd = "ls -l /etc/kanux_version | awk '{ print $6 \" \" $7 \" \" $8 }'"
+    cmd = "ls -l /etc/kanux_version | awk '{ print $6 \" \" $7 \" \" $8 }' && cat /etc/kanux_version"
     o, _, _ = run_cmd(cmd)
     return o
 
