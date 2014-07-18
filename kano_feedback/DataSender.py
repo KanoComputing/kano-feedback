@@ -35,8 +35,8 @@ def send_data(text, fullInfo):
     }
 
     # send the bug report and remove all the created files
-    #success, error, data = request_wrapper('post', '/feedback', data=payload, files=archive)
-    #delete_dir(TMP_DIR)
+    success, error, data = request_wrapper('post', '/feedback', data=payload, files=archive)
+    delete_dir(TMP_DIR)
 
     if not success:
         return False, error
