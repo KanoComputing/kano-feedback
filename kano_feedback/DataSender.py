@@ -74,9 +74,12 @@ def get_metadata_archive():
             write_file_contents(TMP_DIR + file['name'], file['contents'])
     take_screenshot()
 
-    # archive all the metadata files
-    archive_path = TMP_DIR + 'bug_report.tar.gz'
-    run_cmd("tar -zcvf {} {}".format(archive_path, TMP_DIR))
+    # archive all the metadata files - need to change dir to avoid tar subdirectories
+    archive_path = 'bug_report.tar.gz'
+    current_directory = os.getcwd()
+    os.chdir(TMP_DIR)
+    run_cmd("tar -zcvf {} *".format(archive_path))
+    os.chdir(current_directory)
 
     # open the file and return it
     archive = {
