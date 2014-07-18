@@ -35,8 +35,8 @@ def send_data(text, fullInfo):
     }
 
     # send the bug report and remove all the created files
-    success, error, data = request_wrapper('post', '/feedback', data=payload, files=archive)
-    delete_dir(TMP_DIR)
+    #success, error, data = request_wrapper('post', '/feedback', data=payload, files=archive)
+    #delete_dir(TMP_DIR)
 
     if not success:
         return False, error
@@ -74,9 +74,12 @@ def get_metadata_archive():
             write_file_contents(TMP_DIR + file['name'], file['contents'])
     take_screenshot()
 
-    # archive all the metadata files
-    archive_path = TMP_DIR + 'bug_report.tar.gz'
-    run_cmd("tar -zcvf {} {}".format(archive_path, TMP_DIR))
+    # archive all the metadata files - need to change dir to avoid tar subdirectories
+    archive_path = 'bug_report.tar.gz'
+    current_directory = os.getcwd()
+    os.chdir(TMP_DIR)
+    run_cmd("tar -zcvf {} *".format(archive_path))
+    os.chdir(current_directory)
 
     # open the file and return it
     archive = {
