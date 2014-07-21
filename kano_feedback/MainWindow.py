@@ -19,26 +19,15 @@ from kano.gtk3 import kano_dialog, cursor
 from kano.gtk3.buttons import KanoButton, OrangeButton
 from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.apply_styles import apply_styles
+from kano.gtk3.application_window import ApplicationWindow
 from kano_feedback import Media
 
 
-class MainWindow(Gtk.Window):
+class MainWindow(ApplicationWindow):
     def __init__(self):
-        Gtk.Window.__init__(self, title='Kano Feedback')
+        ApplicationWindow.__init__(self, 'Kano Feedback', 500, 0.35)
 
         screen = Gdk.Screen.get_default()
-        self._win_width = 500
-        self._win_height = int(screen.get_height() * 0.35)
-
-        self.set_decorated(False)
-        self.set_resizable(False)
-        self.set_size_request(self._win_width, self._win_height)
-
-        self.set_position(Gtk.WindowPosition.CENTER)
-
-        self.connect('delete-event', Gtk.main_quit)
-
-        apply_styles()
         specific_provider = Gtk.CssProvider()
         specific_provider.load_from_path(Media.media_dir() + 'css/style.css')
         style_context = Gtk.StyleContext()
@@ -112,7 +101,7 @@ class MainWindow(Gtk.Window):
         self._grid.attach(self._faq_button, 0, 3, 1, 1)
 
         self._grid.set_row_spacing(0)
-        self.add(self._grid)
+        self.set_main_widget(self._grid)
 
         # kano-profile stat collection
         try:
@@ -127,7 +116,7 @@ class MainWindow(Gtk.Window):
         Gtk.main_iteration()
 
         if not is_internet():
-            kdialog = kano_dialog.KanoDialog("No internet connection", "Configure your connection")
+            kdialog = kano_dialog.KanoDialog("No internet connection", "Configure your connection", parent_window=self)
             kdialog.run()
             run_cmd('sudo /usr/bin/kano-settings 4')
             return
@@ -135,7 +124,7 @@ class MainWindow(Gtk.Window):
         fullinfo = self._bug_check.get_active()
         if fullinfo:
             msg = "Your feedback will include debugging information. \nDo you want to continue?"
-            kdialog = kano_dialog.KanoDialog("Important", str(msg), {"Cancel": {"return_value": 1}, "OK": {"return_value": 0}})
+            kdialog = kano_dialog.KanoDialog("Important", str(msg), {"Cancel": {"return_value": 1}, "OK": {"return_value": 0}}, parent_window=self)
             rc = kdialog.run()
             if rc != 0:
                 sys.exit()
@@ -147,7 +136,7 @@ class MainWindow(Gtk.Window):
             msg = "Feedback sent correctly"
         else:
             msg = "Something went wrong, error: {}".format(error)
-        kdialog = kano_dialog.KanoDialog("Info", str(msg))
+        kdialog = kano_dialog.KanoDialog("Info", str(msg), parent_window=self)
         kdialog.run()
         sys.exit()
 
