@@ -43,7 +43,7 @@ class MainWindow(ApplicationWindow):
 
         # Create Text view
         scrolledwindow = ScrolledWindow()
-        scrolledwindow.set_hexpand(True)
+        scrolledwindow.set_hexpand(False)
         scrolledwindow.set_vexpand(True)
         self._text = Gtk.TextView()
         self._text.set_editable(True)
@@ -127,7 +127,11 @@ class MainWindow(ApplicationWindow):
             kdialog = kano_dialog.KanoDialog("Important", str(msg), {"Cancel": {"return_value": 1}, "OK": {"return_value": 0}}, parent_window=self)
             rc = kdialog.run()
             if rc != 0:
-                sys.exit()
+                # Enable button and refresh
+                button.set_sensitive(True)
+                Gtk.main_iteration()
+                return
+
         textbuffer = self._text.get_buffer()
         startiter, enditer = textbuffer.get_bounds()
         text = textbuffer.get_text(startiter, enditer, True)
