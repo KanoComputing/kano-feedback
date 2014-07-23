@@ -104,6 +104,8 @@ class MainWindow(Gtk.Window):
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_resizable(False)
 
+        self._set_icon_name('kano-help')
+
         grid = Gtk.Grid()
         self.add(grid)
 
