@@ -21,6 +21,8 @@ class Launcher(WebApp):
         self._index = "https://kano.zendesk.com/hc/en-us"
         self._title = "Kano Help"
 
+        self._app_icon = "kano-help"
+
         self._decoration = True
         self._height = 768
         self._width = 1024
