@@ -33,6 +33,8 @@ class MainWindow(ApplicationWindow):
         style_context = Gtk.StyleContext()
         style_context.add_provider_for_screen(screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
+        self.set_icon_name("kano-feedback")
+
         self._grid = Gtk.Grid()
 
         # Create top bar
