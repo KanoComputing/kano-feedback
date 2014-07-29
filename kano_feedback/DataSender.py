@@ -79,12 +79,14 @@ def get_metadata_archive():
     current_directory = os.getcwd()
     os.chdir(TMP_DIR)
     run_cmd("tar -zcvf {} *".format(archive_path))
-    os.chdir(current_directory)
 
     # open the file and return it
     archive = {
         'report': open(archive_path, 'rb')
     }
+
+    # restore the current working directory
+    os.chdir(current_directory)
     return archive
 
 
