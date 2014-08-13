@@ -18,14 +18,13 @@ from kano.network import is_internet
 from kano.gtk3 import kano_dialog, cursor
 from kano.gtk3.buttons import KanoButton, OrangeButton
 from kano.gtk3.scrolled_window import ScrolledWindow
-from kano.gtk3.apply_styles import apply_styles
 from kano.gtk3.application_window import ApplicationWindow
 from kano_feedback import Media
 
 
 class MainWindow(ApplicationWindow):
     def __init__(self):
-        ApplicationWindow.__init__(self, 'Kano Feedback', 500, 0.35)
+        ApplicationWindow.__init__(self, 'Feedback', 500, 0.35)
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
@@ -38,7 +37,7 @@ class MainWindow(ApplicationWindow):
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title="Kano-Feedback", window_width=500, has_buttons=False)
+        self._top_bar = TopBar(title="Feedback", window_width=500, has_buttons=False)
         self._top_bar.set_close_callback(Gtk.main_quit)
 
         self._grid.attach(self._top_bar, 0, 0, 1, 1)
