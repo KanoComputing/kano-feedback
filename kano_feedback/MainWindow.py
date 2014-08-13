@@ -9,13 +9,17 @@
 #
 
 import sys
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GObject
+import threading
+
+GObject.threads_init()
 
 from kano.gtk3.top_bar import TopBar
 from DataSender import send_data
 from kano.utils import run_cmd
 from kano.network import is_internet
-from kano.gtk3 import kano_dialog, cursor
+from kano.gtk3.kano_dialog import KanoDialog
+from kano.gtk3 import cursor
 from kano.gtk3.buttons import KanoButton, OrangeButton
 from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.application_window import ApplicationWindow
@@ -112,38 +116,56 @@ class MainWindow(ApplicationWindow):
             pass
 
     def send_feedback(self, button=None, event=None):
-        # Disable button and refresh
-        button.set_sensitive(False)
-        Gtk.main_iteration()
-
-        if not is_internet():
-            kdialog = kano_dialog.KanoDialog("No internet connection", "Configure your connection", parent_window=self)
-            kdialog.run()
-            run_cmd('sudo /usr/bin/kano-settings 4')
-            return
-
-        fullinfo = self._bug_check.get_active()
-        if fullinfo:
-            msg = "Your feedback will include debugging information. \nDo you want to continue?"
-            kdialog = kano_dialog.KanoDialog("Important", str(msg), {"Cancel": {"return_value": 1}, "OK": {"return_value": 0}}, parent_window=self)
-            rc = kdialog.run()
-            if rc != 0:
-                # Enable button and refresh
-                button.set_sensitive(True)
-                Gtk.main_iteration()
+        if not hasattr(event, 'keyval') or event.keyval == 65293:
+            if not is_internet():
+                kdialog = KanoDialog("No internet connection", "Configure your connection", parent_window=self)
+                kdialog.run()
+                run_cmd('sudo /usr/bin/kano-settings 4')
                 return
 
-        textbuffer = self._text.get_buffer()
-        startiter, enditer = textbuffer.get_bounds()
-        text = textbuffer.get_text(startiter, enditer, True)
-        success, error = send_data(text, fullinfo)
-        if success:
-            msg = "Feedback sent correctly"
-        else:
-            msg = "Something went wrong, error: {}".format(error)
-        kdialog = kano_dialog.KanoDialog("Info", str(msg), parent_window=self)
-        kdialog.run()
-        sys.exit()
+            fullinfo = self._bug_check.get_active()
+            if fullinfo:
+                title = "Important"
+                msg = "Your feedback will include debugging information. \nDo you want to continue?"
+                kdialog = KanoDialog(title, str(msg), {"Cancel": {"return_value": 1}, "OK": {"return_value": 0}}, parent_window=self)
+                rc = kdialog.run()
+                if rc != 0:
+                    # Enable button and refresh
+                    button.set_sensitive(True)
+                    Gtk.main_iteration()
+                    return
+
+            watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
+            self.get_window().set_cursor(watch_cursor)
+            self._send_button.set_sensitive(False)
+
+            def lengthy_process():
+
+                textbuffer = self._text.get_buffer()
+                startiter, enditer = textbuffer.get_bounds()
+                text = textbuffer.get_text(startiter, enditer, True)
+                success, error = send_data(text, fullinfo)
+                if success:
+                    msg = "Feedback sent correctly"
+                else:
+                    msg = "Something went wrong, error: {}".format(error)
+                kdialog = KanoDialog("Info", str(msg), parent_window=self)
+                kdialog.run()
+
+                def done():
+                    #response = kdialog.run()
+
+                    #if response == 1:
+                    #    sys.exit(0)
+
+                    self.get_window().set_cursor(None)
+                    self._send_button.set_sensitive(True)
+                    sys.exit()
+
+                GObject.idle_add(done)
+
+            thread = threading.Thread(target=lengthy_process)
+            thread.start()
 
     def open_help(self, button=None, event=None):
         run_cmd("/usr/bin/kano-help-launcher")
