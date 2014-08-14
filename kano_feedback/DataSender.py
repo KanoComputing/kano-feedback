@@ -75,7 +75,6 @@ def get_metadata_archive():
         if file['contents']:
             write_file_contents(TMP_DIR + file['name'], file['contents'])
 
-    # take a screenshot
     take_screenshot()
 
     # archive all the metadata files - need to change dir to avoid tar subdirectories
