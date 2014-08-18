@@ -188,6 +188,7 @@ class MainWindow(ApplicationWindow):
                     response = kdialog.run()
 
                     if response == self.LAUNCH_WIFI:
+                        self.set_keep_above(False)
                         run_cmd('sudo /usr/bin/kano-settings 4')
                     elif response == self.CLOSE_FEEDBACK:
                         sys.exit(0)
