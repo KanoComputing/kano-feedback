@@ -41,6 +41,8 @@ class MainWindow(ApplicationWindow):
         style_context.add_provider_for_screen(screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
         self.set_icon_name("feedback")
+        # Make sure this window is always above
+        self.set_keep_above(True)
 
         self._grid = Gtk.Grid()
 

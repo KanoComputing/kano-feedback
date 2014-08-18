@@ -12,7 +12,8 @@ import os
 import datetime
 
 import kano.logging as logging
-from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file
+from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file, \
+    read_file_contents
 from kano_world.connection import request_wrapper
 from kano_world.functions import get_email
 from kano_profile.badges import increment_app_state_variable_with_dialog
@@ -60,7 +61,8 @@ def get_metadata_archive():
         {'name': 'dmesg.txt', 'contents': get_dmesg()},
         {'name': 'syslog.txt', 'contents': get_syslog()},
         {'name': 'wpalog.txt', 'contents': get_wpalog()},
-        {'name': 'cmdline-config.txt', 'contents': get_cmdline_config()},
+        {'name': 'cmdline.txt', 'contents': read_file_contents('/boot/cmdline.txt')},
+        {'name': 'config.txt', 'contents': read_file_contents('/boot/config.txt')},
         {'name': 'wlaniface.txt', 'contents': get_wlaniface()},
         {'name': 'kwificache.txt', 'contents': get_kwifi_cache()},
         {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
@@ -72,6 +74,7 @@ def get_metadata_archive():
     for file in file_list:
         if file['contents']:
             write_file_contents(TMP_DIR + file['name'], file['contents'])
+
     take_screenshot()
 
     # archive all the metadata files - need to change dir to avoid tar subdirectories
@@ -122,12 +125,6 @@ def get_syslog():
 
 def get_wpalog():
     cmd = "tail -n 80 /var/log/kano_wpa.log"
-    o, _, _ = run_cmd(cmd)
-    return o
-
-
-def get_cmdline_config():
-    cmd = "cat /boot/cmdline.txt /boot/config.txt"
     o, _, _ = run_cmd(cmd)
     return o
 
