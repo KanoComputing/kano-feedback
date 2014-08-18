@@ -27,6 +27,10 @@ from kano_feedback import Media
 
 
 class MainWindow(ApplicationWindow):
+    CLOSE_FEEDBACK = 0
+    KEEP_OPEN = 1
+    LAUNCH_WIFI = 2
+
     def __init__(self):
         ApplicationWindow.__init__(self, 'Feedback', 500, 0.35)
 
@@ -101,7 +105,7 @@ class MainWindow(ApplicationWindow):
         # FAQ button
         self._faq_button = OrangeButton("Check out our FAQ")
         self._faq_button.set_sensitive(True)
-        self._faq_button.connect("button_press_event", self.open_help)
+        self._faq_button.connect("button_release_event", self.open_help)
         cursor.attach_cursor_events(self._faq_button)
         self._grid.attach(self._faq_button, 0, 3, 1, 1)
 
@@ -117,17 +121,12 @@ class MainWindow(ApplicationWindow):
 
     def send_feedback(self, button=None, event=None):
         if not hasattr(event, 'keyval') or event.keyval == 65293:
-            if not is_internet():
-                kdialog = KanoDialog("No internet connection", "Configure your connection", parent_window=self)
-                kdialog.run()
-                run_cmd('sudo /usr/bin/kano-settings 4')
-                return
 
             fullinfo = self._bug_check.get_active()
             if fullinfo:
                 title = "Important"
-                msg = "Your feedback will include debugging information. \nDo you want to continue?"
-                kdialog = KanoDialog(title, str(msg), {"Cancel": {"return_value": 1}, "OK": {"return_value": 0}}, parent_window=self)
+                description = "Your feedback will include debugging information. \nDo you want to continue?"
+                kdialog = KanoDialog(title, description, {"CANCEL": {"return_value": 1}, "OK": {"return_value": 0}}, parent_window=self)
                 rc = kdialog.run()
                 if rc != 0:
                     # Enable button and refresh
@@ -140,32 +139,70 @@ class MainWindow(ApplicationWindow):
             self._send_button.set_sensitive(False)
 
             def lengthy_process():
+                button_dict = {"OK": {"return_value": self.CLOSE_FEEDBACK}}
 
-                textbuffer = self._text.get_buffer()
-                startiter, enditer = textbuffer.get_bounds()
-                text = textbuffer.get_text(startiter, enditer, True)
-                success, error = send_data(text, fullinfo)
-                if success:
-                    msg = "Feedback sent correctly"
+                if not is_internet():
+                    title = "No internet connection"
+                    description = "Configure your connection"
+
+                    button_dict = {"OK": {"return_value": self.LAUNCH_WIFI}}
                 else:
-                    msg = "Something went wrong, error: {}".format(error)
-                kdialog = KanoDialog("Info", str(msg), parent_window=self)
-                kdialog.run()
+                    success, error = self.send_user_info()
 
-                def done():
-                    #response = kdialog.run()
+                    if success:
+                        title = "Info"
+                        description = "Feedback sent correctly"
+                        button_dict = \
+                            {
+                                "OK":
+                                {
+                                    "return_value": self.CLOSE_FEEDBACK
+                                }
+                            }
+                    else:
+                        title = "Info"
+                        description = "Something went wrong, error: {}".format(error)
+                        button_dict = \
+                            {
+                                "CLOSE FEEDBACK":
+                                {
+                                    "return_value": self.CLOSE_FEEDBACK,
+                                    "color": "red"
+                                },
+                                "TRY AGAIN":
+                                {
+                                    "return_value": self.KEEP_OPEN,
+                                    "color": "green"
+                                }
+                            }
 
-                    #if response == 1:
-                    #    sys.exit(0)
+                def done(title, description, button_dict):
 
                     self.get_window().set_cursor(None)
                     self._send_button.set_sensitive(True)
-                    sys.exit()
 
-                GObject.idle_add(done)
+                    kdialog = KanoDialog(title, description, button_dict, parent_window=self)
+                    kdialog.dialog.set_keep_above(False)
+                    response = kdialog.run()
+
+                    if response == self.LAUNCH_WIFI:
+                        run_cmd('sudo /usr/bin/kano-settings 4')
+                    elif response == self.CLOSE_FEEDBACK:
+                        sys.exit(0)
+
+                GObject.idle_add(done, title, description, button_dict)
 
             thread = threading.Thread(target=lengthy_process)
             thread.start()
+
+    def send_user_info(self):
+        textbuffer = self._text.get_buffer()
+        startiter, enditer = textbuffer.get_bounds()
+        text = textbuffer.get_text(startiter, enditer, True)
+        fullinfo = self._bug_check.get_active()
+        success, error = send_data(text, fullinfo)
+
+        return success, error
 
     def open_help(self, button=None, event=None):
         run_cmd("/usr/bin/kano-help-launcher")
