@@ -183,12 +183,15 @@ class MainWindow(ApplicationWindow):
                     self.get_window().set_cursor(None)
                     self._send_button.set_sensitive(True)
 
+                    # If the user decides to launch the wifi config,
+                    #the window needs to be able to go below kano-settings
+                    self.set_keep_above(False)
+
                     kdialog = KanoDialog(title, description, button_dict, parent_window=self)
                     kdialog.dialog.set_keep_above(False)
                     response = kdialog.run()
 
                     if response == self.LAUNCH_WIFI:
-                        self.set_keep_above(False)
                         run_cmd('sudo /usr/bin/kano-settings 4')
                     elif response == self.CLOSE_FEEDBACK:
                         sys.exit(0)
