@@ -25,6 +25,8 @@ from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.application_window import ApplicationWindow
 from kano_feedback import Media
 
+import time
+
 
 class MainWindow(ApplicationWindow):
     CLOSE_FEEDBACK = 0
@@ -138,6 +140,8 @@ class MainWindow(ApplicationWindow):
 
             watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
             self.get_window().set_cursor(watch_cursor)
+            self._text.get_window(Gtk.TextWindowType.TEXT).set_cursor(watch_cursor)
+            self._text.get_window(Gtk.TextWindowType.WIDGET).set_cursor(watch_cursor)
             self._send_button.set_sensitive(False)
 
             def lengthy_process():
@@ -181,6 +185,8 @@ class MainWindow(ApplicationWindow):
                 def done(title, description, button_dict):
 
                     self.get_window().set_cursor(None)
+                    self._text.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
+                    self._text.get_window(Gtk.TextWindowType.WIDGET).set_cursor(None)
                     self._send_button.set_sensitive(True)
 
                     # If the user decides to launch the wifi config,
