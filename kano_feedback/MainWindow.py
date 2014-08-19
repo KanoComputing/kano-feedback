@@ -25,8 +25,6 @@ from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.application_window import ApplicationWindow
 from kano_feedback import Media
 
-import time
-
 
 class MainWindow(ApplicationWindow):
     CLOSE_FEEDBACK = 0
