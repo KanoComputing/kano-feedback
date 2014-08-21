@@ -32,6 +32,7 @@ class MainWindow(ApplicationWindow):
     LAUNCH_WIFI = 2
 
     def __init__(self):
+        print "hello"
         ApplicationWindow.__init__(self, 'Feedback', 500, 0.35)
 
         screen = Gdk.Screen.get_default()
@@ -128,7 +129,20 @@ class MainWindow(ApplicationWindow):
             if fullinfo:
                 title = "Important"
                 description = "Your feedback will include debugging information. \nDo you want to continue?"
-                kdialog = KanoDialog(title, description, {"CANCEL": {"return_value": 1}, "OK": {"return_value": 0}}, parent_window=self)
+                kdialog = KanoDialog(
+                    title, description,
+                    {
+                        "CANCEL":
+                        {
+                            "return_value": 1
+                        },
+                        "OK":
+                        {
+                            "return_value": 0
+                        }
+                    },
+                    parent_window=self
+                )
                 rc = kdialog.run()
                 if rc != 0:
                     # Enable button and refresh
@@ -136,11 +150,9 @@ class MainWindow(ApplicationWindow):
                     Gtk.main_iteration()
                     return
 
-            watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
-            self.get_window().set_cursor(watch_cursor)
-            self._text.get_window(Gtk.TextWindowType.TEXT).set_cursor(watch_cursor)
-            self._text.get_window(Gtk.TextWindowType.WIDGET).set_cursor(watch_cursor)
+            self.set_cursor_to_watch()
             self._send_button.set_sensitive(False)
+            self._text.set_sensitive(False)
 
             def lengthy_process():
                 button_dict = {"OK": {"return_value": self.CLOSE_FEEDBACK}}
@@ -182,10 +194,9 @@ class MainWindow(ApplicationWindow):
 
                 def done(title, description, button_dict):
 
-                    self.get_window().set_cursor(None)
-                    self._text.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
-                    self._text.get_window(Gtk.TextWindowType.WIDGET).set_cursor(None)
+                    self.set_cursor_to_normal()
                     self._send_button.set_sensitive(True)
+                    self._text.set_sensitive(True)
 
                     # If the user decides to launch the wifi config,
                     #the window needs to be able to go below kano-settings
@@ -204,6 +215,17 @@ class MainWindow(ApplicationWindow):
 
             thread = threading.Thread(target=lengthy_process)
             thread.start()
+
+    def set_cursor_to_watch(self):
+        watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
+        self.get_window().set_cursor(watch_cursor)
+        self._text.get_window(Gtk.TextWindowType.TEXT).set_cursor(watch_cursor)
+        self._text.get_window(Gtk.TextWindowType.WIDGET).set_cursor(watch_cursor)
+
+    def set_cursor_to_normal(self):
+        self.get_window().set_cursor(None)
+        self._text.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
+        self._text.get_window(Gtk.TextWindowType.WIDGET).set_cursor(None)
 
     def send_user_info(self):
         textbuffer = self._text.get_buffer()
