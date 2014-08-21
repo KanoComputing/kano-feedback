@@ -12,10 +12,12 @@
 
 GtkTextView {
     color: @inactive_writing;
+    font: Bariol 13;
 }
 
 GtkTextView.active {
     color: @active_writing;
+    font: Bariol 13;
 }
 
 /**
