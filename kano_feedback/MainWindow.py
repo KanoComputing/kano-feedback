@@ -32,7 +32,6 @@ class MainWindow(ApplicationWindow):
     LAUNCH_WIFI = 2
 
     def __init__(self):
-        print "hello"
         ApplicationWindow.__init__(self, 'Feedback', 500, 0.35)
 
         screen = Gdk.Screen.get_default()
