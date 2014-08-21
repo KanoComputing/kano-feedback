@@ -22,7 +22,7 @@ from kano_profile.badges import increment_app_state_variable_with_dialog
 TMP_DIR = '/tmp/kano-feedback/'
 
 
-def send_data(text, fullInfo):
+def send_data(text, fullInfo, subject=""):
     archive = None
 
     if fullInfo:
@@ -32,7 +32,8 @@ def send_data(text, fullInfo):
         "text": text,
         "email": get_email(),
         "category": "os",
-        "meta": ""  # not used
+        "meta": "",  # not used
+        "subject": subject
     }
 
     # send the bug report and remove all the created files

@@ -224,7 +224,7 @@ class MainWindow(ApplicationWindow):
         text = textbuffer.get_text(startiter, enditer, True)
 
         fullinfo = self._bug_check.get_active()
-        success, error = send_data(text, fullinfo)
+        success, error = send_data(text, fullinfo, subject)
 
         return success, error
 
