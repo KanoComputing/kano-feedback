@@ -215,9 +215,14 @@ class MainWindow(ApplicationWindow):
             thread.start()
 
     def send_user_info(self):
+        # Text from Entry - the subject of the email
+        subject = self.entry.get_text()
+
+        # Main body of the text
         textbuffer = self._text.get_buffer()
         startiter, enditer = textbuffer.get_bounds()
         text = textbuffer.get_text(startiter, enditer, True)
+
         fullinfo = self._bug_check.get_active()
         success, error = send_data(text, fullinfo)
 
