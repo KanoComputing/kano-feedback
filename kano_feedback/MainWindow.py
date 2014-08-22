@@ -52,6 +52,14 @@ class MainWindow(ApplicationWindow):
 
         self._grid.attach(self._top_bar, 0, 0, 1, 1)
 
+        self.entry = Gtk.Entry()
+        self.entry.props.placeholder_text = "Add subject (optional)"
+        self.entry.set_margin_left(20)
+        self.entry.set_margin_right(20)
+        self.entry.set_margin_top(20)
+        self.entry.set_margin_bottom(10)
+        self._grid.attach(self.entry, 0, 1, 1, 1)
+
         # Create Text view
         scrolledwindow = ScrolledWindow()
         scrolledwindow.set_hexpand(False)
@@ -61,21 +69,22 @@ class MainWindow(ApplicationWindow):
         self._textbuffer = self._text.get_buffer()
         self._textbuffer.set_text("Type your feedback here!")
         scrolledwindow.add(self._text)
+        scrolledwindow.set_margin_left(2)
+        scrolledwindow.set_margin_right(2)
+        scrolledwindow.set_margin_top(2)
+        scrolledwindow.set_margin_bottom(2)
+
         self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
 
         # Very hacky way to get a border: create a grey event box which is a little bigger than the widget below
-        padding_box = Gtk.Alignment()
-        padding_box.set_padding(3, 3, 3, 3)
-        padding_box.add(scrolledwindow)
         border = Gtk.EventBox()
         border.get_style_context().add_class("grey")
-        border.add(padding_box)
-
-        # This is the "actual" padding
-        padding_box2 = Gtk.Alignment()
-        padding_box2.set_padding(20, 20, 20, 20)
-        padding_box2.add(border)
-        self._grid.attach(padding_box2, 0, 1, 1, 1)
+        border.add(scrolledwindow)
+        self._grid.attach(border, 0, 2, 1, 1)
+        border.set_margin_left(20)
+        border.set_margin_right(20)
+        border.set_margin_top(10)
+        border.set_margin_bottom(20)
 
         # Create check box
         self._bug_check = Gtk.CheckButton()
@@ -102,14 +111,14 @@ class MainWindow(ApplicationWindow):
         bottom_background.get_style_context().add_class("grey")
         bottom_background.add(bottom_align)
 
-        self._grid.attach(bottom_background, 0, 2, 1, 1)
+        self._grid.attach(bottom_background, 0, 3, 1, 1)
 
         # FAQ button
         self._faq_button = OrangeButton("Check out our FAQ")
         self._faq_button.set_sensitive(True)
         self._faq_button.connect("button_release_event", self.open_help)
         cursor.attach_cursor_events(self._faq_button)
-        self._grid.attach(self._faq_button, 0, 3, 1, 1)
+        self._grid.attach(self._faq_button, 0, 4, 1, 1)
 
         self._grid.set_row_spacing(0)
         self.set_main_widget(self._grid)
@@ -122,7 +131,7 @@ class MainWindow(ApplicationWindow):
             pass
 
     def send_feedback(self, button=None, event=None):
-        if not hasattr(event, 'keyval') or event.keyval == 65293:
+        if not hasattr(event, 'keyval') or event.keyval == Gdk.KEY_Return:
 
             fullinfo = self._bug_check.get_active()
             if fullinfo:
@@ -227,11 +236,16 @@ class MainWindow(ApplicationWindow):
         self._text.get_window(Gtk.TextWindowType.WIDGET).set_cursor(None)
 
     def send_user_info(self):
+        # Text from Entry - the subject of the email
+        subject = self.entry.get_text()
+
+        # Main body of the text
         textbuffer = self._text.get_buffer()
         startiter, enditer = textbuffer.get_bounds()
         text = textbuffer.get_text(startiter, enditer, True)
+
         fullinfo = self._bug_check.get_active()
-        success, error = send_data(text, fullinfo)
+        success, error = send_data(text, fullinfo, subject)
 
         return success, error
 

@@ -7,14 +7,41 @@
 
 */
 
+@define-color feedback_grey #eeeeee;
+
+
 GtkTextView {
     color: @inactive_writing;
+    font: Bariol 13;
 }
 
 GtkTextView.active {
     color: @active_writing;
+    font: Bariol 13;
 }
 
+/**
+ * Standard entry
+ */
+GtkEntry {
+    border-color: @feedback_grey;
+    color: @active_writing;
+    border-style: solid;
+    border-width: 2px;
+    border-radius:3px;
+    padding: 10px;
+    font: Bariol 13;
+
+}
+GtkEntry:insensitive {
+    border-color: @feedback_grey;
+    color: @inactive_writing;
+    border-style: solid;
+    border-width: 2px;
+    border-radius:3px;
+}
+
+
 .grey {
-    background: #eeeeee;
+    background: @feedback_grey;
 }
