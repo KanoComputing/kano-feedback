@@ -21,8 +21,8 @@ if __name__ == '__main__' and __package__ is None:
 from kano_feedback.MainWindow import MainWindow
 
 
-def main():
-    win = MainWindow()
+def main(bug_report=False):
+    win = MainWindow(bug_report)
 
     win.show_all()
     Gtk.main()
@@ -44,4 +44,8 @@ if __name__ == '__main__':
             sys.exit(2)
 
     # User is registered, launch app
-    sys.exit(main())
+    if(len(sys.argv) > 1):
+        # If we pass an argument it means bug report
+        sys.exit(main(True))
+    else:
+        sys.exit(main(False))

@@ -20,6 +20,7 @@ from kano_profile.badges import increment_app_state_variable_with_dialog
 
 
 TMP_DIR = '/tmp/kano-feedback/'
+SCREENSHOT_DIR = TMP_DIR + 'feedback.png'
 
 
 def send_data(text, fullInfo, subject=""):
@@ -75,8 +76,6 @@ def get_metadata_archive():
     for file in file_list:
         if file['contents']:
             write_file_contents(TMP_DIR + file['name'], file['contents'])
-
-    take_screenshot()
 
     # archive all the metadata files - need to change dir to avoid tar subdirectories
     archive_path = 'bug_report.tar.gz'
@@ -175,8 +174,8 @@ def get_hdmi_info():
 
 
 def take_screenshot():
-    file_path = TMP_DIR + 'feedback.png'
-    cmd = "kano-screenshot -w 1024 -p " + file_path
+    ensure_dir(TMP_DIR)
+    cmd = "kano-screenshot -w 1024 -p " + SCREENSHOT_DIR
     _, _, rc = run_cmd(cmd)
 
 

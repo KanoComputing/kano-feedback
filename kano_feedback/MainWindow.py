@@ -15,7 +15,7 @@ import threading
 GObject.threads_init()
 
 from kano.gtk3.top_bar import TopBar
-from DataSender import send_data
+from DataSender import send_data, take_screenshot
 from kano.utils import run_cmd
 from kano.network import is_internet
 from kano.gtk3.kano_dialog import KanoDialog
@@ -31,8 +31,15 @@ class MainWindow(ApplicationWindow):
     KEEP_OPEN = 1
     LAUNCH_WIFI = 2
 
-    def __init__(self):
-        ApplicationWindow.__init__(self, 'Feedback', 500, 0.35)
+    def __init__(self, bug_report=False):
+        self.bug_report = bug_report
+        if self.bug_report:
+            self.report_window()
+        else:
+            self.contact_window()
+
+    def contact_window(self):
+        ApplicationWindow.__init__(self, 'Contact Us', 500, 0.35)
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
@@ -47,18 +54,10 @@ class MainWindow(ApplicationWindow):
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title="Feedback", window_width=500, has_buttons=False)
+        self._top_bar = TopBar(title="Contact Us", window_width=500, has_buttons=False)
         self._top_bar.set_close_callback(Gtk.main_quit)
 
         self._grid.attach(self._top_bar, 0, 0, 1, 1)
-
-        self.entry = Gtk.Entry()
-        self.entry.props.placeholder_text = "Add subject (optional)"
-        self.entry.set_margin_left(20)
-        self.entry.set_margin_right(20)
-        self.entry.set_margin_top(20)
-        self.entry.set_margin_bottom(10)
-        self._grid.attach(self.entry, 0, 1, 1, 1)
 
         # Create Text view
         scrolledwindow = ScrolledWindow()
@@ -86,21 +85,106 @@ class MainWindow(ApplicationWindow):
         border.set_margin_top(10)
         border.set_margin_bottom(20)
 
-        # Create check box
-        self._bug_check = Gtk.CheckButton()
-        check_label = Gtk.Label("Did you see a bug or error?")
-        self._bug_check.add(check_label)
-        self._bug_check.set_can_focus(False)
-        cursor.attach_cursor_events(self._bug_check)
+        # Create send button
+        self._send_button = KanoButton("SEND")
+        self._send_button.set_sensitive(False)
+        self._send_button.connect("button_press_event", self.send_feedback)
+
+        bottom_align = Gtk.Alignment(xalign=0.5, yalign=0.5)
+        bottom_align.set_padding(10, 10, 10, 10)
+        bottom_align.add(self._send_button)
+
+        bottom_background = Gtk.EventBox()
+        bottom_background.get_style_context().add_class("grey")
+        bottom_background.add(bottom_align)
+
+        self._grid.attach(bottom_background, 0, 3, 1, 1)
+
+        # FAQ button
+        self._faq_button = OrangeButton("Check out our FAQ")
+        self._faq_button.set_sensitive(True)
+        self._faq_button.connect("button_release_event", self.open_help)
+        cursor.attach_cursor_events(self._faq_button)
+        self._grid.attach(self._faq_button, 0, 4, 1, 1)
+
+        self._grid.set_row_spacing(0)
+        self.set_main_widget(self._grid)
+
+        # kano-profile stat collection
+        try:
+            from kano_profile.badges import increment_app_state_variable_with_dialog
+            increment_app_state_variable_with_dialog('kano-feedback', 'starts', 1)
+        except Exception:
+            pass
+
+    def report_window(self):
+        ApplicationWindow.__init__(self, 'Report a bug', 500, 0.35)
+
+        screen = Gdk.Screen.get_default()
+        specific_provider = Gtk.CssProvider()
+        specific_provider.load_from_path(Media.media_dir() + 'css/style.css')
+        style_context = Gtk.StyleContext()
+        style_context.add_provider_for_screen(screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
+        self.set_icon_name("feedback")
+        # Make sure this window is always above
+        self.set_keep_above(True)
+
+        self._grid = Gtk.Grid()
+
+        # Create top bar
+        self._top_bar = TopBar(title="Report a bug", window_width=500, has_buttons=False)
+        self._top_bar.set_close_callback(Gtk.main_quit)
+
+        self._grid.attach(self._top_bar, 0, 0, 1, 1)
+
+        self.entry = Gtk.Entry()
+        self.entry.props.placeholder_text = "Add subject (optional)"
+        self.entry.set_margin_left(20)
+        self.entry.set_margin_right(20)
+        self.entry.set_margin_top(20)
+        self.entry.set_margin_bottom(10)
+        self._grid.attach(self.entry, 0, 1, 1, 1)
+
+        # Create Text view
+        scrolledwindow = ScrolledWindow()
+        scrolledwindow.set_hexpand(False)
+        scrolledwindow.set_vexpand(True)
+        self._text = Gtk.TextView()
+        self._text.set_editable(True)
+        self._textbuffer = self._text.get_buffer()
+        self._textbuffer.set_text("Type your problem here!")
+        scrolledwindow.add(self._text)
+        scrolledwindow.set_margin_left(2)
+        scrolledwindow.set_margin_right(2)
+        scrolledwindow.set_margin_top(2)
+        scrolledwindow.set_margin_bottom(2)
+
+        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
+
+        # Very hacky way to get a border: create a grey event box which is a little bigger than the widget below
+        border = Gtk.EventBox()
+        border.get_style_context().add_class("grey")
+        border.add(scrolledwindow)
+        self._grid.attach(border, 0, 2, 1, 1)
+        border.set_margin_left(20)
+        border.set_margin_right(20)
+        border.set_margin_top(10)
+        border.set_margin_bottom(20)
+
+        # Create take screenshot button
+        self._screenshot_button = KanoButton("SCREENSHOT")
+        self._screenshot_button.set_sensitive(True)
+        self._screenshot_button.connect("button_press_event", self.screenshot_clicked)
 
         # Create send button
         self._send_button = KanoButton("SEND")
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
 
-        # Create grey box to put checkbox and button in
+        # Create grey box to put the button in
         bottom_box = Gtk.Box()
-        bottom_box.pack_start(self._bug_check, False, False, 10)
+        bottom_box.pack_end(self._screenshot_button, False, False, 10)
         bottom_box.pack_end(self._send_button, False, False, 10)
 
         bottom_align = Gtk.Alignment(xalign=0.5, yalign=0.5)
@@ -133,8 +217,7 @@ class MainWindow(ApplicationWindow):
     def send_feedback(self, button=None, event=None):
         if not hasattr(event, 'keyval') or event.keyval == Gdk.KEY_Return:
 
-            fullinfo = self._bug_check.get_active()
-            if fullinfo:
+            if self.bug_report:
                 title = "Important"
                 description = "Your feedback will include debugging information. \nDo you want to continue?"
                 kdialog = KanoDialog(
@@ -244,8 +327,7 @@ class MainWindow(ApplicationWindow):
         startiter, enditer = textbuffer.get_bounds()
         text = textbuffer.get_text(startiter, enditer, True)
 
-        fullinfo = self._bug_check.get_active()
-        success, error = send_data(text, fullinfo, subject)
+        success, error = send_data(text, self.bug_report, subject)
 
         return success, error
 
@@ -260,3 +342,8 @@ class MainWindow(ApplicationWindow):
         textbuffer.disconnect(self._clear_buffer_handler_id)
 
         self._send_button.set_sensitive(True)
+
+    def screenshot_clicked(self, button=None, event=None):
+        # Minimise
+        take_screenshot()
+        # Maximise
