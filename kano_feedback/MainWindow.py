@@ -15,7 +15,7 @@ import threading
 GObject.threads_init()
 
 from kano.gtk3.top_bar import TopBar
-from DataSender import send_data, take_screenshot
+from DataSender import send_data, take_screenshot, copy_screenshot
 from kano.utils import run_cmd
 from kano.network import is_internet
 from kano.gtk3.kano_dialog import KanoDialog
@@ -173,9 +173,14 @@ class MainWindow(ApplicationWindow):
         border.set_margin_bottom(20)
 
         # Create take screenshot button
-        self._screenshot_button = KanoButton("SCREENSHOT")
+        self._screenshot_button = KanoButton("TAKE SCREENSHOT")
         self._screenshot_button.set_sensitive(True)
         self._screenshot_button.connect("button_press_event", self.screenshot_clicked)
+
+        # Create attach screenshot button
+        self._attach_button = KanoButton("LOAD SCREENSHOT")
+        self._attach_button.set_sensitive(True)
+        self._attach_button.connect("button_press_event", self.attach_clicked)
 
         # Create send button
         self._send_button = KanoButton("SEND")
@@ -184,7 +189,8 @@ class MainWindow(ApplicationWindow):
 
         # Create grey box to put the button in
         bottom_box = Gtk.Box()
-        bottom_box.pack_end(self._screenshot_button, False, False, 10)
+        bottom_box.pack_start(self._screenshot_button, False, False, 10)
+        bottom_box.pack_start(self._attach_button, False, False, 10)
         bottom_box.pack_end(self._send_button, False, False, 10)
 
         bottom_align = Gtk.Alignment(xalign=0.5, yalign=0.5)
@@ -344,6 +350,44 @@ class MainWindow(ApplicationWindow):
         self._send_button.set_sensitive(True)
 
     def screenshot_clicked(self, button=None, event=None):
-        # Minimise
+        # TODO: Minimise with self.iconify()
         take_screenshot()
-        # Maximise
+        # TODO: Minimise with self.deiconify()
+
+    def attach_clicked(self, button=None, event=None):
+        screenshot = None
+        # Open file manager
+        dialog = Gtk.FileChooserDialog("Please choose a file", self, Gtk.FileChooserAction.OPEN,
+                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+
+        self.add_filters(dialog)
+
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            screenshot = dialog.get_filename()
+
+        dialog.destroy()
+        # Copy image file into feedback folder
+        if screenshot is not None:
+            copy_screenshot(screenshot)
+
+    def add_filters(self, dialog):
+        # Image filter
+        filter_images = Gtk.FileFilter()
+        filter_images.set_name("Images")
+        filter_images.add_mime_type("image/png")
+        filter_images.add_mime_type("image/jpeg")
+        filter_images.add_mime_type("image/gif")
+        filter_images.add_pattern("*.png")
+        filter_images.add_pattern("*.jpg")
+        filter_images.add_pattern("*.gif")
+        filter_images.add_pattern("*.tif")
+        filter_images.add_pattern("*.xpm")
+        dialog.add_filter(filter_images)
+
+        # Any file filter
+        filter_any = Gtk.FileFilter()
+        filter_any.set_name("Any files")
+        filter_any.add_pattern("*")
+        dialog.add_filter(filter_any)

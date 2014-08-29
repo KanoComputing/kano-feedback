@@ -179,6 +179,12 @@ def take_screenshot():
     _, _, rc = run_cmd(cmd)
 
 
+def copy_screenshot(filename):
+    ensure_dir(TMP_DIR)
+    if os.path.isfile(filename):
+        run_cmd("cp %s %s" % (filename, SCREENSHOT_DIR))
+
+
 def sanitise_input(text):
     # Replace double quotation mark for singles
     text = text.replace('"', "'")
