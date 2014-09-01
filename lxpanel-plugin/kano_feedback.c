@@ -22,7 +22,6 @@
 #define WIDGET_ICON "/usr/share/kano-feedback/feedback-widget.png"
 #define CONTACT_ICON "/usr/share/kano-feedback/media/Icons/Icon-Contact.png"
 #define SCREENSHOT_ICON "/usr/share/kano-feedback/media/Icons/Icon-Report.png"
-#define FORUM_ICON "/usr/share/kano-feedback/media/Icons/Icon-Forum.png"
 #define KNOWLEDGE_ICON "/usr/share/kano-feedback/media/Icons/Icon-Help.png"
 
 #define PLUGIN_TOOLTIP "Help"
@@ -127,11 +126,6 @@ void screenshot_clicked(GtkWidget* widget)
     launch_cmd(REPORT_CMD);
 }
 
-void forum_clicked(GtkWidget* widget)
-{
-    launch_website("talk.kano.me");
-}
-
 void knowledge_clicked(GtkWidget* widget)
 {
     launch_cmd(HELP_CMD);
@@ -152,29 +146,23 @@ static gboolean show_menu(GtkWidget *widget, GdkEventButton *event)
     gtk_widget_show(header_item);
 
     /* Contact button */
-    GtkWidget* contact_item = gtk_image_menu_item_new_with_label("Contact us");
+    GtkWidget* contact_item = gtk_image_menu_item_new_with_label("Contact Us");
     g_signal_connect(contact_item, "activate", G_CALLBACK(contact_clicked), NULL);
     gtk_menu_append(GTK_MENU(menu), contact_item);
     gtk_widget_show(contact_item);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(contact_item), get_resized_icon(CONTACT_ICON));
-    /* Screenshot button */
-    GtkWidget* screenshot_item = gtk_image_menu_item_new_with_label("Report a bug");
-    g_signal_connect(screenshot_item, "activate", G_CALLBACK(screenshot_clicked), NULL);
-    gtk_menu_append(GTK_MENU(menu), screenshot_item);
-    gtk_widget_show(screenshot_item);
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(screenshot_item), get_resized_icon(SCREENSHOT_ICON));
-    /* Forum button */
-    GtkWidget* forum_item = gtk_image_menu_item_new_with_label("Forum");
-    g_signal_connect(forum_item, "activate", G_CALLBACK(forum_clicked), NULL);
-    gtk_menu_append(GTK_MENU(menu), forum_item);
-    gtk_widget_show(forum_item);
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(forum_item), get_resized_icon(FORUM_ICON));
     /* Knowledge button */
     GtkWidget* knowledge_item = gtk_image_menu_item_new_with_label("Help Center");
     g_signal_connect(knowledge_item, "activate", G_CALLBACK(knowledge_clicked), NULL);
     gtk_menu_append(GTK_MENU(menu), knowledge_item);
     gtk_widget_show(knowledge_item);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(knowledge_item), get_resized_icon(KNOWLEDGE_ICON));
+    /* Screenshot button */
+    GtkWidget* screenshot_item = gtk_image_menu_item_new_with_label("Report a Bug");
+    g_signal_connect(screenshot_item, "activate", G_CALLBACK(screenshot_clicked), NULL);
+    gtk_menu_append(GTK_MENU(menu), screenshot_item);
+    gtk_widget_show(screenshot_item);
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(screenshot_item), get_resized_icon(SCREENSHOT_ICON));
 
     g_signal_connect(menu, "selection-done", G_CALLBACK(selection_done), NULL);
 
