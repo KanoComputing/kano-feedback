@@ -19,8 +19,7 @@ from DataSender import send_data, take_screenshot, copy_screenshot
 from kano.utils import run_cmd
 from kano.network import is_internet
 from kano.gtk3.kano_dialog import KanoDialog
-from kano.gtk3 import cursor
-from kano.gtk3.buttons import KanoButton, OrangeButton
+from kano.gtk3.buttons import KanoButton
 from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.application_window import ApplicationWindow
 from kano_feedback import Media
@@ -100,13 +99,6 @@ class MainWindow(ApplicationWindow):
 
         self._grid.attach(bottom_background, 0, 3, 1, 1)
 
-        # FAQ button
-        self._faq_button = OrangeButton("Check out our FAQ")
-        self._faq_button.set_sensitive(True)
-        self._faq_button.connect("button_release_event", self.open_help)
-        cursor.attach_cursor_events(self._faq_button)
-        self._grid.attach(self._faq_button, 0, 4, 1, 1)
-
         self._grid.set_row_spacing(0)
         self.set_main_widget(self._grid)
 
@@ -182,16 +174,10 @@ class MainWindow(ApplicationWindow):
         self._attach_button.set_sensitive(True)
         self._attach_button.connect("button_press_event", self.attach_clicked)
 
-        # Create send button
-        self._send_button = KanoButton("SEND")
-        self._send_button.set_sensitive(False)
-        self._send_button.connect("button_press_event", self.send_feedback)
-
         # Create grey box to put the button in
         bottom_box = Gtk.Box()
         bottom_box.pack_start(self._screenshot_button, False, False, 10)
-        bottom_box.pack_start(self._attach_button, False, False, 10)
-        bottom_box.pack_end(self._send_button, False, False, 10)
+        bottom_box.pack_end(self._attach_button, False, False, 10)
 
         bottom_align = Gtk.Alignment(xalign=0.5, yalign=0.5)
         bottom_align.set_padding(10, 10, 10, 10)
@@ -203,12 +189,11 @@ class MainWindow(ApplicationWindow):
 
         self._grid.attach(bottom_background, 0, 3, 1, 1)
 
-        # FAQ button
-        self._faq_button = OrangeButton("Check out our FAQ")
-        self._faq_button.set_sensitive(True)
-        self._faq_button.connect("button_release_event", self.open_help)
-        cursor.attach_cursor_events(self._faq_button)
-        self._grid.attach(self._faq_button, 0, 4, 1, 1)
+        # Create send button
+        self._send_button = KanoButton("SEND")
+        self._send_button.set_sensitive(False)
+        self._send_button.connect("button_press_event", self.send_feedback)
+        self._grid.attach(self._send_button, 0, 4, 1, 1)
 
         self._grid.set_row_spacing(0)
         self.set_main_widget(self._grid)
