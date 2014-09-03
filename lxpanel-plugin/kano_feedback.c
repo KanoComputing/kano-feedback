@@ -19,10 +19,10 @@
 #include <ctype.h>
 #include <time.h>
 
-#define WIDGET_ICON "/usr/share/kano-feedback/feedback-widget.png"
-#define CONTACT_ICON "/usr/share/kano-feedback/media/Icons/Icon-Contact.png"
-#define SCREENSHOT_ICON "/usr/share/kano-feedback/media/Icons/Icon-Report.png"
-#define KNOWLEDGE_ICON "/usr/share/kano-feedback/media/Icons/Icon-Help.png"
+#define WIDGET_ICON "/usr/share/kano-feedback/media/icons/feedback-widget.png"
+#define CONTACT_ICON "/usr/share/kano-feedback/media/icons/Icon-Contact.png"
+#define SCREENSHOT_ICON "/usr/share/kano-feedback/media/icons/Icon-Report.png"
+#define KNOWLEDGE_ICON "/usr/share/kano-feedback/media/icons/Icon-Help.png"
 
 #define PLUGIN_TOOLTIP "Help"
 #define CONTACT_CMD "/usr/bin/kano-launcher \"kdesk-blur /usr/bin/kano-feedback\" feedback"
