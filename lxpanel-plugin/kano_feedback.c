@@ -27,7 +27,7 @@
 #define PLUGIN_TOOLTIP "Help"
 #define CONTACT_CMD "/usr/bin/kano-launcher \"kdesk-blur /usr/bin/kano-feedback\" feedback"
 #define REPORT_CMD "kdesk-blur \"/usr/bin/kano-feedback bug\""
-#define HELP_CMD "kdesk-blur /usr/bin/kano-help-launcher"
+#define HELP_CMD "/usr/bin/kano-help-launcher"
 
 Panel *panel;
 
