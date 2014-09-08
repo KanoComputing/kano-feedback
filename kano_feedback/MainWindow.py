@@ -88,14 +88,12 @@ class MainWindow(ApplicationWindow):
         self._send_button = KanoButton("SEND")
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
-
-        bottom_align = Gtk.Alignment(xalign=0.5, yalign=0.5)
-        bottom_align.set_padding(10, 10, 10, 10)
-        bottom_align.add(self._send_button)
+        self._send_button.pack_and_align()
+        self._send_button.align.set_padding(10, 10, 0, 0)
 
         bottom_background = Gtk.EventBox()
         bottom_background.get_style_context().add_class("grey")
-        bottom_background.add(bottom_align)
+        bottom_background.add(self._send_button.align)
 
         self._grid.attach(bottom_background, 0, 3, 1, 1)
 
@@ -174,26 +172,27 @@ class MainWindow(ApplicationWindow):
         self._attach_button.set_sensitive(True)
         self._attach_button.connect("button_press_event", self.attach_clicked)
 
-        # Create grey box to put the button in
-        bottom_box = Gtk.Box()
-        bottom_box.pack_start(self._screenshot_button, False, False, 10)
-        bottom_box.pack_end(self._attach_button, False, False, 10)
-
-        bottom_align = Gtk.Alignment(xalign=0.5, yalign=0.5)
-        bottom_align.set_padding(10, 10, 10, 10)
-        bottom_align.add(bottom_box)
-
-        bottom_background = Gtk.EventBox()
-        bottom_background.get_style_context().add_class("grey")
-        bottom_background.add(bottom_align)
-
-        self._grid.attach(bottom_background, 0, 3, 1, 1)
-
         # Create send button
         self._send_button = KanoButton("SEND")
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
-        self._grid.attach(self._send_button, 0, 4, 1, 1)
+
+        # Create grey box to put the button in
+        bottom_box = Gtk.ButtonBox()
+        bottom_box.set_spacing(20)
+        bottom_box.pack_start(self._screenshot_button, False, False, 0)
+        bottom_box.pack_start(self._attach_button, False, False, 0)
+        bottom_box.pack_start(self._send_button, False, False, 0)
+        bottom_box.set_margin_left(10)
+        bottom_box.set_margin_right(10)
+        bottom_box.set_margin_top(10)
+        bottom_box.set_margin_bottom(10)
+
+        bottom_background = Gtk.EventBox()
+        bottom_background.get_style_context().add_class("grey")
+        bottom_background.add(bottom_box)
+
+        self._grid.attach(bottom_background, 0, 3, 1, 1)
 
         self._grid.set_row_spacing(0)
         self.set_main_widget(self._grid)
