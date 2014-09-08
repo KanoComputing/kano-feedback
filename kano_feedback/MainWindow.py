@@ -311,7 +311,10 @@ class MainWindow(ApplicationWindow):
 
     def send_user_info(self):
         # Text from Entry - the subject of the email
-        subject = self.entry.get_text()
+        if hasattr(self, "entry"):
+            subject = self.entry.get_text()
+        else:
+            subject = "Kano feedback submission"
 
         # Main body of the text
         textbuffer = self._text.get_buffer()
