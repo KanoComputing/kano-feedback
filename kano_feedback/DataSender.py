@@ -20,14 +20,15 @@ from kano_profile.badges import increment_app_state_variable_with_dialog
 
 
 TMP_DIR = '/tmp/kano-feedback/'
-SCREENSHOT_DIR = TMP_DIR + 'feedback.png'
+SCREENSHOT_NAME = 'feedback.png'
+SCREENSHOT_DIR = TMP_DIR + SCREENSHOT_NAME
 
 
 def send_data(text, fullInfo, subject=""):
-    archive = None
+    files = {}
 
     if fullInfo:
-        archive = get_metadata_archive()
+        files['report'] = get_metadata_archive()
 
     payload = {
         "text": text,
@@ -38,7 +39,7 @@ def send_data(text, fullInfo, subject=""):
     }
 
     # send the bug report and remove all the created files
-    success, error, data = request_wrapper('post', '/feedback', data=payload, files=archive)
+    success, error, data = request_wrapper('post', '/feedback', data=payload, files=files)
     delete_dir(TMP_DIR)
 
     if not success:
@@ -72,6 +73,12 @@ def get_metadata_archive():
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
     ]
 
+    if os.path.isfile(SCREENSHOT_DIR):
+        file_list.append({
+                         'name': SCREENSHOT_NAME,
+                         'contents': read_file_contents(SCREENSHOT_DIR)
+                         })
+
     # create files for each non empty metadata info
     for file in file_list:
         if file['contents']:
@@ -84,9 +91,7 @@ def get_metadata_archive():
     run_cmd("tar -zcvf {} *".format(archive_path))
 
     # open the file and return it
-    archive = {
-        'report': open(archive_path, 'rb')
-    }
+    archive = open(archive_path, 'rb')
 
     # restore the current working directory
     os.chdir(current_directory)
