@@ -337,9 +337,9 @@ class MainWindow(ApplicationWindow):
         self._send_button.set_sensitive(True)
 
     def screenshot_clicked(self, button=None, event=None):
-        # TODO: Minimise with self.iconify()
+        self.iconify()
         take_screenshot()
-        # TODO: Minimise with self.deiconify()
+        self.deiconify()
 
     def attach_clicked(self, button=None, event=None):
         screenshot = None
@@ -378,3 +378,9 @@ class MainWindow(ApplicationWindow):
         filter_any.set_name("Any files")
         filter_any.add_pattern("*")
         dialog.add_filter(filter_any)
+
+    def iconify(self):
+        self.hide()
+
+    def deiconify(self):
+        self.show_all()
