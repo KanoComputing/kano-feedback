@@ -9,7 +9,7 @@
 #
 
 import sys
-from gi.repository import Gtk, Gdk, GObject
+from gi.repository import Gtk, Gdk, GObject, GdkPixbuf
 import threading
 
 GObject.threads_init()
@@ -396,6 +396,8 @@ class MainWindow(ApplicationWindow):
     def deiconify(self):
         self.show_all()
 
+    # this is the box containing the filename of the screenshot,
+    # and the option to display it or remove it
     def include_screenshot(self):
         if not hasattr(self, "screenshot"):
             self.screenshot = Gtk.EventBox()
@@ -415,10 +417,9 @@ class MainWindow(ApplicationWindow):
             show_screenshot.connect("button-release-event", self.show_screenshot)
             show_screenshot.get_style_context().add_class("blue_background")
 
-            box = Gtk.Box()
-
             label = Gtk.Label(SCREENSHOT_NAME.upper())
             label.set_padding(10, 0)
+            box = Gtk.Box()
             box.pack_start(label, False, False, 0)
             box.pack_end(remove_screenshot, False, False, 0)
             box.pack_end(show_screenshot, False, False, 0)
@@ -436,8 +437,11 @@ class MainWindow(ApplicationWindow):
         self.show_all()
 
     def show_screenshot(self, widget, event):
-        image = Gtk.Image()
-        image.set_from_file(SCREENSHOT_PATH)
+        height = Gdk.Screen().get_default().get_height()
+        width = Gdk.Screen().get_default().get_width()
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(SCREENSHOT_PATH, width * 0.5, height * 0.5)
+        image = Gtk.Image.new_from_pixbuf(pixbuf)
+
         dialog = KanoDialog("Screenshot", widget=image)
         dialog.run()
 
