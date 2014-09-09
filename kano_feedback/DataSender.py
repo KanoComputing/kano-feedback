@@ -20,8 +20,8 @@ from kano_profile.badges import increment_app_state_variable_with_dialog
 
 
 TMP_DIR = '/tmp/kano-feedback/'
-SCREENSHOT_NAME = 'feedback.png'
-SCREENSHOT_DIR = TMP_DIR + SCREENSHOT_NAME
+SCREENSHOT_NAME = 'screenshot.png'
+SCREENSHOT_PATH = TMP_DIR + SCREENSHOT_NAME
 
 
 def send_data(text, fullInfo, subject=""):
@@ -40,7 +40,7 @@ def send_data(text, fullInfo, subject=""):
 
     # send the bug report and remove all the created files
     success, error, data = request_wrapper('post', '/feedback', data=payload, files=files)
-    delete_dir(TMP_DIR)
+    delete_tmp_dir()
 
     if not success:
         return False, error
@@ -52,6 +52,18 @@ def send_data(text, fullInfo, subject=""):
         logging.cleanup()
 
     return True, None
+
+
+def delete_tmp_dir():
+    delete_dir(TMP_DIR)
+
+
+def create_tmp_dir():
+    ensure_dir(TMP_DIR)
+
+
+def delete_screenshot():
+    delete_file(SCREENSHOT_PATH)
 
 
 def get_metadata_archive():
@@ -73,10 +85,10 @@ def get_metadata_archive():
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
     ]
 
-    if os.path.isfile(SCREENSHOT_DIR):
+    if os.path.isfile(SCREENSHOT_PATH):
         file_list.append({
                          'name': SCREENSHOT_NAME,
-                         'contents': read_file_contents(SCREENSHOT_DIR)
+                         'contents': read_file_contents(SCREENSHOT_PATH)
                          })
 
     # create files for each non empty metadata info
@@ -180,14 +192,14 @@ def get_hdmi_info():
 
 def take_screenshot():
     ensure_dir(TMP_DIR)
-    cmd = "kano-screenshot -w 1024 -p " + SCREENSHOT_DIR
+    cmd = "kano-screenshot -w 1024 -p " + SCREENSHOT_PATH
     _, _, rc = run_cmd(cmd)
 
 
 def copy_screenshot(filename):
     ensure_dir(TMP_DIR)
     if os.path.isfile(filename):
-        run_cmd("cp %s %s" % (filename, SCREENSHOT_DIR))
+        run_cmd("cp %s %s" % (filename, SCREENSHOT_PATH))
 
 
 def sanitise_input(text):

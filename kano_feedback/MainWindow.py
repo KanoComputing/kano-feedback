@@ -15,7 +15,8 @@ import threading
 GObject.threads_init()
 
 from kano.gtk3.top_bar import TopBar
-from DataSender import send_data, take_screenshot, copy_screenshot
+from DataSender import (send_data, take_screenshot, copy_screenshot, delete_tmp_dir,
+                        create_tmp_dir, SCREENSHOT_NAME, SCREENSHOT_PATH, delete_screenshot)
 from kano.utils import run_cmd
 from kano.network import is_internet
 from kano.gtk3.kano_dialog import KanoDialog
@@ -38,6 +39,11 @@ class MainWindow(ApplicationWindow):
             self.contact_window()
 
     def contact_window(self):
+
+        # delete the directory containing all the info we'll send, and recreate
+        delete_tmp_dir()
+        create_tmp_dir()
+
         ApplicationWindow.__init__(self, 'Contact Us', 500, 0.35)
 
         screen = Gdk.Screen.get_default()
@@ -163,12 +169,12 @@ class MainWindow(ApplicationWindow):
         border.set_margin_bottom(20)
 
         # Create take screenshot button
-        self._screenshot_button = KanoButton("TAKE SCREENSHOT")
+        self._screenshot_button = KanoButton("TAKE SCREENSHOT", "blue")
         self._screenshot_button.set_sensitive(True)
         self._screenshot_button.connect("button_press_event", self.screenshot_clicked)
 
         # Create attach screenshot button
-        self._attach_button = KanoButton("LOAD SCREENSHOT")
+        self._attach_button = KanoButton("ADD IMAGE", "blue")
         self._attach_button.set_sensitive(True)
         self._attach_button.connect("button_press_event", self.attach_clicked)
 
@@ -176,23 +182,26 @@ class MainWindow(ApplicationWindow):
         self._send_button = KanoButton("SEND")
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
+        self._send_button.pack_and_align()
+        self._send_button.set_margin(10, 0, 10, 0)
+
+        self.screenshot_box = Gtk.ButtonBox()
+        self.screenshot_box.set_layout(Gtk.ButtonBoxStyle.CENTER)
+        self.screenshot_box.set_spacing(20)
+        self.pack_screenshot_buttons()
+        self.screenshot_box.set_margin_bottom(20)
+
+        self._grid.attach(self.screenshot_box, 0, 3, 1, 1)
 
         # Create grey box to put the button in
-        bottom_box = Gtk.ButtonBox()
-        bottom_box.set_spacing(20)
-        bottom_box.pack_start(self._screenshot_button, False, False, 0)
-        bottom_box.pack_start(self._attach_button, False, False, 0)
-        bottom_box.pack_start(self._send_button, False, False, 0)
-        bottom_box.set_margin_left(10)
-        bottom_box.set_margin_right(10)
-        bottom_box.set_margin_top(10)
-        bottom_box.set_margin_bottom(10)
+        self.bottom_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.bottom_box.pack_start(self._send_button.align, False, False, 0)
 
         bottom_background = Gtk.EventBox()
         bottom_background.get_style_context().add_class("grey")
-        bottom_background.add(bottom_box)
+        bottom_background.add(self.bottom_box)
 
-        self._grid.attach(bottom_background, 0, 3, 1, 1)
+        self._grid.attach(bottom_background, 0, 4, 1, 1)
 
         self._grid.set_row_spacing(0)
         self.set_main_widget(self._grid)
@@ -339,6 +348,7 @@ class MainWindow(ApplicationWindow):
     def screenshot_clicked(self, button=None, event=None):
         self.iconify()
         take_screenshot()
+        self.include_screenshot()
         self.deiconify()
 
     def attach_clicked(self, button=None, event=None):
@@ -358,6 +368,7 @@ class MainWindow(ApplicationWindow):
         # Copy image file into feedback folder
         if screenshot is not None:
             copy_screenshot(screenshot)
+            self.include_screenshot()
 
     def add_filters(self, dialog):
         # Image filter
@@ -384,3 +395,54 @@ class MainWindow(ApplicationWindow):
 
     def deiconify(self):
         self.show_all()
+
+    def include_screenshot(self):
+        if not hasattr(self, "screenshot"):
+            self.screenshot = Gtk.EventBox()
+            self.screenshot.get_style_context().add_class("kano_button")
+            self.screenshot.get_style_context().add_class("blue_background")
+
+            remove_screenshot = Gtk.Button()
+            remove_icon = Gtk.Image.new_from_file("/usr/share/kano-feedback/media/icons/close.png")
+            remove_screenshot.add(remove_icon)
+            remove_screenshot.connect("button-release-event", self.remove_screenshot)
+            remove_screenshot.get_style_context().add_class("blue_background")
+
+            show_screenshot = Gtk.Button()
+            show_icon = Gtk.Image()
+            show_icon.set_from_file("/usr/share/kano-feedback/media/icons/preview.png")
+            show_screenshot.add(show_icon)
+            show_screenshot.connect("button-release-event", self.show_screenshot)
+            show_screenshot.get_style_context().add_class("blue_background")
+
+            box = Gtk.Box()
+
+            label = Gtk.Label(SCREENSHOT_NAME.upper())
+            label.set_padding(10, 0)
+            box.pack_start(label, False, False, 0)
+            box.pack_end(remove_screenshot, False, False, 0)
+            box.pack_end(show_screenshot, False, False, 0)
+
+            self.screenshot.add(box)
+
+        self.screenshot_box.remove(self._screenshot_button)
+        self.screenshot_box.remove(self._attach_button)
+        self.screenshot_box.pack_start(self.screenshot, False, False, 0)
+
+    def remove_screenshot(self, widget, event):
+        delete_screenshot()
+        self.screenshot_box.remove(self.screenshot)
+        self.pack_screenshot_buttons()
+        self.show_all()
+
+    def show_screenshot(self, widget, event):
+        image = Gtk.Image()
+        image.set_from_file(SCREENSHOT_PATH)
+        dialog = KanoDialog("Screenshot", widget=image)
+        dialog.run()
+
+    def pack_screenshot_buttons(self):
+        self.screenshot_box.pack_start(self._screenshot_button, False, False, 0)
+        self.screenshot_box.set_child_non_homogeneous(self._screenshot_button, True)
+        self.screenshot_box.pack_start(self._attach_button, False, False, 0)
+        self.screenshot_box.set_child_non_homogeneous(self._attach_button, True)
