@@ -34,8 +34,8 @@ def send_data(text, fullInfo, subject=""):
         "text": text,
         "email": get_email(),
         "category": "os",
-        "meta": "",  # not used
-        "subject": subject
+        "subject": subject,
+        "app_logs": get_app_logs_dict(),
     }
 
     # send the bug report and remove all the created files
@@ -164,6 +164,22 @@ def get_app_logs():
             output += "{time} {app} {level}: {message}\n".format(app=app_name, **line)
 
     return output
+
+
+def get_app_logs_dict():
+    logs = logging.read_logs()
+
+    logs_dict = dict()
+
+    for f, data in logs.iteritems():
+        if not data:
+            continue
+        app_name = os.path.basename(f).split(".")[0]
+        for line in data:
+            line["time"] = datetime.datetime.fromtimestamp(line["time"]).isoformat()
+        logs_dict[app_name] = data
+
+    return logs_dict
 
 
 def get_kwifi_cache():
