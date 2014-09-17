@@ -65,20 +65,22 @@ class MainWindow(ApplicationWindow):
         self._grid.attach(self._top_bar, 0, 0, 1, 1)
 
         # Create Text view
-        scrolledwindow = ScrolledWindow()
-        scrolledwindow.set_hexpand(False)
-        scrolledwindow.set_vexpand(True)
         self._text = Gtk.TextView()
         self._text.set_editable(True)
+        self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+
         self._textbuffer = self._text.get_buffer()
         self._textbuffer.set_text("Type your feedback here!")
+        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
+
+        scrolledwindow = ScrolledWindow()
+        scrolledwindow.set_vexpand(True)
+        scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scrolledwindow.add(self._text)
         scrolledwindow.set_margin_left(2)
         scrolledwindow.set_margin_right(2)
         scrolledwindow.set_margin_top(2)
         scrolledwindow.set_margin_bottom(2)
-
-        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
 
         # Very hacky way to get a border: create a grey event box which is a little bigger than the widget below
         border = Gtk.EventBox()
@@ -143,20 +145,23 @@ class MainWindow(ApplicationWindow):
         self._grid.attach(self.entry, 0, 1, 1, 1)
 
         # Create Text view
-        scrolledwindow = ScrolledWindow()
-        scrolledwindow.set_hexpand(False)
-        scrolledwindow.set_vexpand(True)
         self._text = Gtk.TextView()
         self._text.set_editable(True)
+        self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+
         self._textbuffer = self._text.get_buffer()
         self._textbuffer.set_text("Type your problem here!")
+
+        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
+
+        scrolledwindow = ScrolledWindow()
+        scrolledwindow.set_vexpand(True)
+        scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scrolledwindow.add(self._text)
         scrolledwindow.set_margin_left(2)
         scrolledwindow.set_margin_right(2)
         scrolledwindow.set_margin_top(2)
         scrolledwindow.set_margin_bottom(2)
-
-        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
 
         # Very hacky way to get a border: create a grey event box which is a little bigger than the widget below
         border = Gtk.EventBox()
