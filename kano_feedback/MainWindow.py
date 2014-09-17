@@ -241,6 +241,7 @@ class MainWindow(ApplicationWindow):
                     return
 
             self.set_cursor_to_watch()
+            self.kano_button.start_spinner()
             self._send_button.set_sensitive(False)
             self._text.set_sensitive(False)
 
@@ -285,11 +286,12 @@ class MainWindow(ApplicationWindow):
                 def done(title, description, button_dict):
 
                     self.set_cursor_to_normal()
+                    self.kano_button.stop_spinner()
                     self._send_button.set_sensitive(True)
                     self._text.set_sensitive(True)
 
                     # If the user decides to launch the wifi config,
-                    #the window needs to be able to go below kano-settings
+                    # the window needs to be able to go below kano-settings
                     self.set_keep_above(False)
 
                     kdialog = KanoDialog(title, description, button_dict, parent_window=self)
