@@ -19,6 +19,7 @@ from DataSender import (send_data, take_screenshot, copy_screenshot, delete_tmp_
                         create_tmp_dir, SCREENSHOT_NAME, SCREENSHOT_PATH, delete_screenshot)
 from kano.utils import run_cmd
 from kano.network import is_internet
+from kano.gtk3.cursor import attach_cursor_events
 from kano.gtk3.kano_dialog import KanoDialog
 from kano.gtk3.buttons import KanoButton
 from kano.gtk3.scrolled_window import ScrolledWindow
@@ -405,12 +406,14 @@ class MainWindow(ApplicationWindow):
             self.screenshot.get_style_context().add_class("blue_background")
 
             remove_screenshot = Gtk.Button()
+            attach_cursor_events(remove_screenshot)
             remove_icon = Gtk.Image.new_from_file("/usr/share/kano-feedback/media/icons/close.png")
             remove_screenshot.add(remove_icon)
             remove_screenshot.connect("button-release-event", self.remove_screenshot)
             remove_screenshot.get_style_context().add_class("blue_background")
 
             show_screenshot = Gtk.Button()
+            attach_cursor_events(show_screenshot)
             show_icon = Gtk.Image()
             show_icon.set_from_file("/usr/share/kano-feedback/media/icons/preview.png")
             show_screenshot.add(show_icon)
