@@ -18,6 +18,7 @@ from kano.gtk3.top_bar import TopBar
 from DataSender import (send_data, take_screenshot, copy_screenshot, delete_tmp_dir,
                         create_tmp_dir, SCREENSHOT_NAME, SCREENSHOT_PATH, delete_screenshot)
 from kano.utils import run_cmd
+from kano_world.functions import is_registered
 from kano.network import is_internet
 from kano.gtk3.cursor import attach_cursor_events
 from kano.gtk3.kano_dialog import KanoDialog
@@ -216,6 +217,10 @@ class MainWindow(ApplicationWindow):
 
     def send_feedback(self, button=None, event=None):
         if not hasattr(event, 'keyval') or event.keyval == Gdk.KEY_Return:
+
+            self.check_login()
+            if not is_registered():
+                return
 
             if self.bug_report:
                 title = "Important"
@@ -455,3 +460,35 @@ class MainWindow(ApplicationWindow):
         self.screenshot_box.set_child_non_homogeneous(self._screenshot_button, True)
         self.screenshot_box.pack_start(self._attach_button, False, False, 0)
         self.screenshot_box.set_child_non_homogeneous(self._attach_button, True)
+
+    def check_login(self):
+        # Check if user is registered
+        if not is_registered():
+            # Show dialogue
+            title = "Kano Login"
+            description = "You need to login to Kano World before sending information. \nDo you want to continue?"
+            kdialog = KanoDialog(
+                title, description,
+                {
+                    "CANCEL":
+                    {
+                        "return_value": 1
+                    },
+                    "OK":
+                    {
+                        "return_value": 0
+                    }
+                },
+                parent_window=self
+            )
+            kdialog.dialog.set_keep_above(False)
+            self.set_keep_above(False)
+            rc = kdialog.run()
+            if rc == 0:
+                Gtk.main_iteration()
+                run_cmd('/usr/bin/kano-login')
+
+            self.set_keep_above(True)
+            del kdialog
+            while Gtk.events_pending():
+                Gtk.main_iteration()
