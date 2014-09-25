@@ -116,7 +116,7 @@ class MainWindow(ApplicationWindow):
             pass
 
     def report_window(self):
-        ApplicationWindow.__init__(self, 'Report a bug', 500, 0.35)
+        ApplicationWindow.__init__(self, 'Report a Problem', 500, 0.35)
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
@@ -131,7 +131,7 @@ class MainWindow(ApplicationWindow):
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title="Report a bug", window_width=500, has_buttons=False)
+        self._top_bar = TopBar(title="Report a Problem", window_width=500, has_buttons=False)
         self._top_bar.set_close_callback(Gtk.main_quit)
 
         self._grid.attach(self._top_bar, 0, 0, 1, 1)

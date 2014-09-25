@@ -24,13 +24,15 @@
 #define SCREENSHOT_ICON "/usr/share/kano-feedback/media/icons/Icon-Report.png"
 #define KNOWLEDGE_ICON "/usr/share/kano-feedback/media/icons/Icon-Help.png"
 
-#define PLUGIN_TOOLTIP "Help"
 #define CONTACT_CMD "/usr/bin/kano-feedback"
 #define REPORT_CMD "/usr/bin/kano-feedback bug"
 #define HELP_CMD "/usr/bin/kano-help-launcher"
+#define SOUND_CMD "/usr/bin/aplay /usr/share/kano-media/sounds/kano_open_app.wav"
+
+#define PLUGIN_TOOLTIP "Help"
+
 
 Panel *panel;
-
 
 static gboolean show_menu(GtkWidget *, GdkEventButton *);
 static GtkWidget* get_resized_icon(const char* filename);
@@ -118,17 +120,26 @@ static void launch_website(const char *url)
 
 void contact_clicked(GtkWidget* widget)
 {
+    /* Launch Contact Us*/
     launch_cmd(CONTACT_CMD);
+    /* Play sound */
+    launch_cmd(SOUND_CMD);
 }
 
 void screenshot_clicked(GtkWidget* widget)
 {
+    /* Launch Report a problem*/
     launch_cmd(REPORT_CMD);
+    /* Play sound */
+    launch_cmd(SOUND_CMD);
 }
 
 void knowledge_clicked(GtkWidget* widget)
 {
+    /* Launch help center */
     launch_cmd(HELP_CMD);
+    /* Play sound */
+    launch_cmd(SOUND_CMD);
 }
 
 static gboolean show_menu(GtkWidget *widget, GdkEventButton *event)
@@ -158,7 +169,7 @@ static gboolean show_menu(GtkWidget *widget, GdkEventButton *event)
     gtk_widget_show(knowledge_item);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(knowledge_item), get_resized_icon(KNOWLEDGE_ICON));
     /* Screenshot button */
-    GtkWidget* screenshot_item = gtk_image_menu_item_new_with_label("Report a Bug");
+    GtkWidget* screenshot_item = gtk_image_menu_item_new_with_label("Report a Problem");
     g_signal_connect(screenshot_item, "activate", G_CALLBACK(screenshot_clicked), NULL);
     gtk_menu_append(GTK_MENU(menu), screenshot_item);
     gtk_widget_show(screenshot_item);
