@@ -19,6 +19,8 @@
 #include <ctype.h>
 #include <time.h>
 
+#include <kdesk-hourglass.h>
+
 #define WIDGET_ICON "/usr/share/kano-feedback/media/icons/feedback-widget.png"
 #define CONTACT_ICON "/usr/share/kano-feedback/media/icons/Icon-Contact.png"
 #define SCREENSHOT_ICON "/usr/share/kano-feedback/media/icons/Icon-Report.png"
@@ -83,7 +85,7 @@ static void plugin_destructor(Plugin *p)
     (void)p;
 }
 
-static void launch_cmd(const char *cmd)
+static void launch_cmd(const char *cmd, const char *appname)
 {
     GAppInfo *appinfo = NULL;
     gboolean ret = FALSE;
@@ -91,8 +93,15 @@ static void launch_cmd(const char *cmd)
     appinfo = g_app_info_create_from_commandline(cmd, NULL,
                 G_APP_INFO_CREATE_NONE, NULL);
 
+    if (appname) {
+        kdesk_hourglass_start((char *) appname);
+    }
+
     if (appinfo == NULL) {
         perror("Command lanuch failed.");
+        if (appname) {
+            kdesk_hourglass_end();
+        }
         return;
     }
 
@@ -103,43 +112,46 @@ static void launch_cmd(const char *cmd)
 
 static void launch_website(const char *url)
 {
-    const char* cmd;
+    const char *cmd=NULL, *cmdname=NULL;
+
     // Execute is_internet command
     int internet = system("/usr/bin/is_internet");
     if (internet == 0) {
         char cmd[100];
         strcpy(cmd, "/usr/bin/chromium ");
         strcat(cmd, url);
+        cmdname="chromium";
     }
     else {
         cmd = "sudo kano-settings 4";
+        cmdname="kano-settings";
     }
 
-    launch_cmd(cmd);
+    launch_cmd(cmd, cmdname);
 }
 
 void contact_clicked(GtkWidget* widget)
 {
     /* Launch Contact Us*/
-    launch_cmd(CONTACT_CMD);
+    launch_cmd(CONTACT_CMD, "kano-feedback");
     /* Play sound */
-    launch_cmd(SOUND_CMD);
+    launch_cmd(SOUND_CMD, NULL);
 }
 
 void screenshot_clicked(GtkWidget* widget)
 {
     /* Launch Report a problem*/
-    launch_cmd(REPORT_CMD);
+    launch_cmd(REPORT_CMD, "kano-feedback");
     /* Play sound */
-    launch_cmd(SOUND_CMD);
+    launch_cmd(SOUND_CMD, NULL);
 }
 
 void knowledge_clicked(GtkWidget* widget)
 {
     /* Launch help center */
-    launch_cmd(HELP_CMD);
+    launch_cmd(HELP_CMD, "kano-help-launcher");
     /* Play sound */
-    launch_cmd(SOUND_CMD);
+    launch_cmd(SOUND_CMD, NULL);
 }
 
 static gboolean show_menu(GtkWidget *widget, GdkEventButton *event)
