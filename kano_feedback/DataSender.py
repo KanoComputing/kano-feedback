@@ -9,6 +9,7 @@
 #
 
 import os
+from os.path import expanduser
 import datetime
 
 import kano.logging as logging
@@ -18,8 +19,7 @@ from kano_world.connection import request_wrapper
 from kano_world.functions import get_email
 from kano_profile.badges import increment_app_state_variable_with_dialog
 
-
-TMP_DIR = '/tmp/kano-feedback/'
+TMP_DIR = os.path.join(expanduser('~'), '.kano-feedback/')
 SCREENSHOT_NAME = 'screenshot.png'
 SCREENSHOT_PATH = TMP_DIR + SCREENSHOT_NAME
 
