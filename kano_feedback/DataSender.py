@@ -71,7 +71,7 @@ def get_metadata_archive():
 
     file_list = [
         {'name': 'kanux_version.txt', 'contents': get_version()},
-        {'name': 'process.txt', 'contents': get_process()},
+        {'name': 'process.txt', 'contents': get_processes()},
         {'name': 'packages.txt', 'contents': get_packages()},
         {'name': 'dmesg.txt', 'contents': get_dmesg()},
         {'name': 'syslog.txt', 'contents': get_syslog()},
@@ -114,7 +114,7 @@ def get_version():
     return o
 
 
-def get_process():
+def get_processes():
     cmd = "ps -aux"
     o, _, _ = run_cmd(cmd)
     return o
