@@ -16,7 +16,7 @@ import kano.logging as logging
 from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file, \
     read_file_contents
 from kano_world.connection import request_wrapper
-from kano_world.functions import get_email
+from kano_world.functions import get_email, get_mixed_username
 from kano_profile.badges import increment_app_state_variable_with_dialog
 
 TMP_DIR = os.path.join(expanduser('~'), '.kano-feedback/')
@@ -71,15 +71,13 @@ def get_metadata_archive():
 
     file_list = [
         {'name': 'kanux_version.txt', 'contents': get_version()},
-        {'name': 'process.txt', 'contents': get_process()},
+        {'name': 'process.txt', 'contents': get_processes()},
         {'name': 'packages.txt', 'contents': get_packages()},
         {'name': 'dmesg.txt', 'contents': get_dmesg()},
         {'name': 'syslog.txt', 'contents': get_syslog()},
-        {'name': 'wpalog.txt', 'contents': get_wpalog()},
         {'name': 'cmdline.txt', 'contents': read_file_contents('/boot/cmdline.txt')},
         {'name': 'config.txt', 'contents': read_file_contents('/boot/config.txt')},
-        {'name': 'wlaniface.txt', 'contents': get_wlaniface()},
-        {'name': 'kwificache.txt', 'contents': get_kwifi_cache()},
+        {'name': 'wifi-info.txt', 'contents': get_wifi_info()},
         {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
         {'name': 'app-logs.txt', 'contents': get_app_logs()},
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
@@ -116,8 +114,8 @@ def get_version():
     return o
 
 
-def get_process():
-    cmd = "ps -e | awk '{ print $4 }'"
+def get_processes():
+    cmd = "ps -aux"
     o, _, _ = run_cmd(cmd)
     return o
 
@@ -141,7 +139,7 @@ def get_syslog():
 
 
 def get_wpalog():
-    cmd = "tail -n 80 /var/log/kano_wpa.log"
+    cmd = "tail -n 300 /var/log/kano_wpa.log"
     o, _, _ = run_cmd(cmd)
     return o
 
@@ -182,12 +180,26 @@ def get_usb_devices():
     return o
 
 
+def get_wifi_info():
+    # Get username here
+    world_username = "Kano World username: {}\n\n".format(get_mixed_username())
+    kwifi_cache = "**kwifi_cache**\n {}\n\n".format(get_kwifi_cache())
+    wlaniface = "**wlaniface**\n {}\n\n".format(get_wlaniface())
+    wpalog = "**wpalog**\n {}\n\n".format(get_wpalog())
+    return world_username + kwifi_cache + wlaniface + wpalog
+
+
 def get_hdmi_info():
+    # Current resolution
+    cmd = "tvservice -s"
+    o, _, _ = run_cmd(cmd)
+    res = 'Current resolution: {}\n\n'.format(o)
+    # edid file
     file_path = TMP_DIR + 'edid.dat'
     cmd = "tvservice -d {} && edidparser {}".format(file_path, file_path)
-    o, _, _ = run_cmd(cmd)
+    edid, _, _ = run_cmd(cmd)
     delete_file(file_path)
-    return o
+    return res + edid
 
 
 def take_screenshot():
