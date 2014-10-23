@@ -10,6 +10,7 @@
 
 import os
 import datetime
+import json
 
 import kano.logging as logging
 from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file, \
@@ -34,8 +35,7 @@ def send_data(text, fullInfo, subject=""):
         "text": text,
         "email": get_email(),
         "category": "os",
-        "subject": subject,
-        "app_logs": get_app_logs_dict(),
+        "subject": subject
     }
 
     # send the bug report and remove all the created files
@@ -81,7 +81,7 @@ def get_metadata_archive():
         {'name': 'wlaniface.txt', 'contents': get_wlaniface()},
         {'name': 'kwificache.txt', 'contents': get_kwifi_cache()},
         {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
-        {'name': 'app-logs.txt', 'contents': get_app_logs()},
+        {'name': 'app-logs.txt', 'contents': get_app_logs_json()},
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
     ]
 
@@ -152,34 +152,13 @@ def get_wlaniface():
     return o
 
 
-def get_app_logs():
-    logs = logging.read_logs()
+def get_app_logs_json():
+    # Fetch the kano logs
+    kano_logs=logging.read_logs()
 
-    output = ""
-    for f, data in logs.iteritems():
-        app_name = os.path.basename(f).split(".")[0]
-        output += "LOGFILE: {}\n".format(f)
-        for line in data:
-            line["time"] = datetime.datetime.fromtimestamp(line["time"]).isoformat()
-            output += "{time} {app} {level}: {message}\n".format(app=app_name, **line)
-
-    return output
-
-
-def get_app_logs_dict():
-    logs = logging.read_logs()
-
-    logs_dict = dict()
-
-    for f, data in logs.iteritems():
-        if not data:
-            continue
-        app_name = os.path.basename(f).split(".")[0]
-        for line in data:
-            line["time"] = datetime.datetime.fromtimestamp(line["time"]).isoformat()
-        logs_dict[app_name] = data
-
-    return logs_dict
+    # Transform them into a sorted, indented json stream
+    kano_logs_json=json.dumps(kano_logs, sort_keys=True, indent=4, separators=(',', ': '))
+    return kano_logs_json
 
 
 def get_kwifi_cache():
