@@ -11,6 +11,7 @@
 import os
 from os.path import expanduser
 import datetime
+import json
 
 import kano.logging as logging
 from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file, \
@@ -34,7 +35,6 @@ def send_data(text, fullInfo, subject=""):
         "text": text,
         "email": get_email(),
         "category": "os",
-        "meta": "",  # not used
         "subject": subject
     }
 
@@ -80,7 +80,11 @@ def get_metadata_archive():
         {'name': 'wifi-info.txt', 'contents': get_wifi_info()},
         {'name': 'ifconfig.txt', 'contents': get_networks_info()},
         {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
-        {'name': 'app-logs.txt', 'contents': get_app_logs()},
+
+        # TODO: Remove raw logs when json ones become stable
+        {'name': 'app-logs.txt', 'contents': get_app_logs_raw()},
+
+        {'name': 'app-logs-json.txt', 'contents': get_app_logs_json()},
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
     ]
 
@@ -151,18 +155,28 @@ def get_wlaniface():
     return o
 
 
-def get_app_logs():
+def get_app_logs_raw():
     logs = logging.read_logs()
 
+    # Extract kano logs in raw format. "LOGFILE: component", one line per component,
+    # followed by entries in the form: "1413300074.49 kano-updater info: Return value: 0"
     output = ""
     for f, data in logs.iteritems():
         app_name = os.path.basename(f).split(".")[0]
         output += "LOGFILE: {}\n".format(f)
         for line in data:
-            line["time"] = datetime.datetime.fromtimestamp(line["time"]).isoformat()
             output += "{time} {app} {level}: {message}\n".format(app=app_name, **line)
 
     return output
+
+
+def get_app_logs_json():
+    # Fetch the kano logs
+    kano_logs=logging.read_logs()
+
+    # Transform them into a sorted, indented json stream
+    kano_logs_json=json.dumps(kano_logs, sort_keys=True, indent=4, separators=(',', ': '))
+    return kano_logs_json
 
 
 def get_kwifi_cache():
