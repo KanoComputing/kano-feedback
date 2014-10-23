@@ -114,26 +114,6 @@ static void launch_cmd(const char *cmd, const char *appname)
     }
 }
 
-static void launch_website(const char *url)
-{
-    const char *cmd=NULL, *cmdname=NULL;
-
-    // Execute is_internet command
-    int internet = system("/usr/bin/is_internet");
-    if (internet == 0) {
-        char cmd[100];
-        strcpy(cmd, "/usr/bin/chromium ");
-        strcat(cmd, url);
-        cmdname="chromium";
-    }
-    else {
-        cmd = "sudo kano-settings 4";
-        cmdname="kano-settings";
-    }
-
-    launch_cmd(cmd, cmdname);
-}
-
 void contact_clicked(GtkWidget* widget)
 {
     /* Launch Contact Us*/
