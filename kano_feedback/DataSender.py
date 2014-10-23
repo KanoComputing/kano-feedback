@@ -81,7 +81,11 @@ def get_metadata_archive():
         {'name': 'wlaniface.txt', 'contents': get_wlaniface()},
         {'name': 'kwificache.txt', 'contents': get_kwifi_cache()},
         {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
-        {'name': 'app-logs.txt', 'contents': get_app_logs_json()},
+
+        # TODO: Remove raw logs when json ones become stable
+        {'name': 'app-logs.txt', 'contents': get_app_logs_raw()},
+
+        {'name': 'app-logs-json.txt', 'contents': get_app_logs_json()},
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
     ]
 
@@ -150,6 +154,21 @@ def get_wlaniface():
     cmd = "iwconfig wlan0"
     o, _, _ = run_cmd(cmd)
     return o
+
+
+def get_app_logs_raw():
+    logs = logging.read_logs()
+
+    # Extract kano logs in raw format. "LOGFILE: component", one line per component,
+    # followed by entries in the form: "1413300074.49 kano-updater info: Return value: 0"
+    output = ""
+    for f, data in logs.iteritems():
+        app_name = os.path.basename(f).split(".")[0]
+        output += "LOGFILE: {}\n".format(f)
+        for line in data:
+            output += "{time} {app} {level}: {message}\n".format(app=app_name, **line)
+
+    return output
 
 
 def get_app_logs_json():
