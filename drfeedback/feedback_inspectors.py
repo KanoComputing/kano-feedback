@@ -65,7 +65,7 @@ class FeedbackInspector:
 #
 # Instantiate your specific Inspector for a new logfile parser below
 #
-class InspectorAppLogs(FeedbackInspector):
+class InspectorAppLogsJson(FeedbackInspector):
     def inspect(self, logfile, logdata):
 
         # Parse each component log entries separately
@@ -78,8 +78,12 @@ class InspectorAppLogs(FeedbackInspector):
                     if component_entry['level'] == 'error':
                         self.add_error ("component <%s> reported errors" % component_name)
         except:
-            self.add_error('Could not read Json application logs. Is this an outdated Kanux version?')
+            self.add_error('Could not read logs in Json format')
+            raise
 
+
+class InspectorAppLogsRaw(FeedbackInspector):
+    def inspect(self, logfile, logdata):
         self.assert_not_exists(logdata, 'rdate FAIL', 'Rdate has failed at least once')
         self.assert_not_exists(logdata, 'make-minecraft error', 'Make Minecraft has reported problems')
 
@@ -209,9 +213,9 @@ class InspectorScreenshot(FeedbackInspector):
 #
 # Add your inspector to the list
 #
-
 inspectors= {
-    'app-logs.txt'      : InspectorAppLogs,
+    'app-logs.txt'      : InspectorAppLogsRaw,
+    'app-logs-json.txt' : InspectorAppLogsJson,
     'cmdline.txt'       : InspectorCmdline,
     'config.txt'        : InspectorConfig,
     'dmesg.txt'         : InspectorDmesg,
