@@ -78,6 +78,7 @@ def get_metadata_archive():
         {'name': 'cmdline.txt', 'contents': read_file_contents('/boot/cmdline.txt')},
         {'name': 'config.txt', 'contents': read_file_contents('/boot/config.txt')},
         {'name': 'wifi-info.txt', 'contents': get_wifi_info()},
+        {'name': 'ifconfig.txt', 'contents': get_networks_info()},
         {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
         {'name': 'app-logs.txt', 'contents': get_app_logs()},
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
@@ -179,6 +180,10 @@ def get_usb_devices():
     o, _, _ = run_cmd(cmd)
     return o
 
+def get_networks_info():
+    cmd = "ifconfig"
+    o, _, _ = run_cmd(cmd)
+    return 0
 
 def get_wifi_info():
     # Get username here
