@@ -26,6 +26,9 @@ if __name__ == '__main__':
     else:
         tarfilename=sys.argv[1]
 
+    if len(sys.argv) > 2 and sys.argv[2] == 'full':
+        full_dump=True
+
     # Open the tar.gz file
     try:
         tar = tarfile.open(tarfilename)
@@ -39,16 +42,17 @@ if __name__ == '__main__':
         try:
             # find out each logfile to determine the inspector
             logfile=member.name
+            print '>>> report for logfile:', logfile
 
             # we extract the logfile contents in-process
-            logdata=tar.extractfile(member).readlines()
+            logdata=tar.extractfile(member).read()
 
             # instantiate the inspector that understands this logfile
-            i=inspectors[member.name]()
+            # remove possibly appended paths in the filename
+            i=inspectors[os.path.basename(member.name)]()
 
             # and print what the inspector has to warn us about
             report = i.inspect(logfile, logdata)
-            print '>>> report for logfile:', logfile
             for l in i.report_info():
                 print 'info:', l
             for l in i.report_warn():
@@ -58,12 +62,10 @@ if __name__ == '__main__':
 
             if full_dump:
                 print '>>> full dump logdata follows:'
-                for l in logdata:
-                    print l,
-                print
+                print logdata
 
         except Exception as e:
-            print 'Could not inspect data for logfile %s' % logfile
+            print 'Warning: Could not inspect data for logfile %s' % logfile
             traceback.print_exc(file=sys.stdout)
             pass
 
