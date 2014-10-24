@@ -177,7 +177,6 @@ class InspectorPackages(FeedbackInspector):
                     pkg_name=None
                 else:
                     pass
-                    #print '>>> found repo package', pkg_name
 
             # Concatenate the version number, found on line that follows (Version)
             if line.startswith('Version: ') and pkg_name:
