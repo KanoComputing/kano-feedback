@@ -5,6 +5,10 @@
 
 import json
 import re
+import gzip
+import urllib2
+import tempfile
+
 #
 # Subclass your inspector from this class below
 #
@@ -138,20 +142,64 @@ class InspectorKwifiCache(FeedbackInspector):
 
 class InspectorPackages(FeedbackInspector):
     def inspect(self, logfile, logdata):
-        pkg_gtk_any_regex='libgtk-(.*):armhf.*'
-        pkg_gtk310='libgtk-3-0:armhf-3.10.2-1+rpi9rpi1'
 
-        # Search for Gtk current installed package
+        # list of all locally installed packages
+        packages=logdata
+
+        # Make sure the unit is using the latest versions of all Kano Software
+        # Fetch the list of all latest debian Packages that we supply at our repository server
+        url_kano='http://repo.kano.me'
+        url_kano_packages=url_kano + '/archive/dists/release/main/binary-armhf/Packages.gz'
+
+        # A temporary file to Kano Release file because gzip needs random access - tell() function
+        html_tmpfile=tempfile.TemporaryFile(mode='w+b')
+
+        # some packages we do not want to match because are meant for internal use
+        internal_packages=('libraspberrypi-bin', 'libraspberrypi-dev', 'libraspberrypi-doc', 'gnome-panel-control', 'openbox-dev')
+
+        # Contact Kano repo to get the Release package file, save to a temporary file
         try:
-            m = re.search(pkg_gtk_any_regex, logdata)
-            current_gtk=m.group(0)
-            if current_gtk == pkg_gtk310:
-                self.add_info('Current Gtk library: %s, looks good!' % (current_gtk))
-            else:
-                self.add_warn('Current Gtk library: %s, does *not* look good!' % (current_gtk))
+            fresponse = urllib2.urlopen(url_kano_packages)
+            html_tmpfile.write(fresponse.read())
+            html_tmpfile.seek(0)
         except:
-            self.add_error('Could not determine the currently installed Gtk library')
+            self.add_error('Could not contact %s to fetch package list' % url_kano)
+            raise
 
+        # loop through the Release file and match against local package log
+        gzpkgs=gzip.GzipFile(mode='r', fileobj=html_tmpfile)
+        for count, line in enumerate(gzpkgs):
+
+            # We search for the package name alone (Package)
+            if line.startswith('Package: '):
+                pkg_name=line[9:].strip()
+                if pkg_name in internal_packages:
+                    pkg_name=None
+                else:
+                    pass
+                    #print '>>> found repo package', pkg_name
+
+            # Concatenate the version number, found on line that follows (Version)
+            if line.startswith('Version: ') and pkg_name:
+                pkg_name_version='%s-%s' % (pkg_name, line[9:].strip())
+
+                # match the package against the Kit's package list
+                try:
+                    m=re.search('.*^(%s)(.*)\n' % pkg_name, packages, re.MULTILINE)
+                    assert(m)
+
+                    # (1) is the package name (2) version number
+                    pkg_name_version_installed=m.group(1) + m.group(2)
+                except:
+                    pkg_name_version_installed=None
+                    self.add_error('Package "%s" is not installed' % pkg_name_version)
+                    pass
+
+                if pkg_name_version_installed:
+                    if pkg_name_version_installed != pkg_name_version:
+                        self.add_error('Package version mismatch, installed: "%s" repo: "%s"' % (pkg_name_version_installed, pkg_name_version))
+
+        html_tmpfile.close()
 
 class InspectorProcess(FeedbackInspector):
     pass
