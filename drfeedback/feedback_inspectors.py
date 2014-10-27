@@ -17,15 +17,16 @@ class FeedbackInspector:
     Each inspector focuses on undrstanding a logfile and provides inspect, a method that parses the log
     The purpose is to fill the object 'report' with info, warn and error data.
     '''
-    def __init__(self):
+    def __init__(self, logfile):
+        self.logfile=logfile
         self.report={ 'info' : [], 'warn' : [], 'error' : [] }
         pass
 
-    def report_info(self):
+    def get_info(self):
         return self.report['info']
-    def report_warn(self):
+    def get_warn(self):
         return self.report['warn']
-    def report_error(self):
+    def get_error(self):
         return self.report['error']
 
     def add_info(self, entry):
@@ -37,7 +38,7 @@ class FeedbackInspector:
 
     def __assert_finder__(self, logdata, expected, message):
         found_it=False
-        for log in logdata.split('\n'):
+        for log in logdata:
             if log.find(expected) != -1:
                 found_it=True
 
@@ -57,7 +58,7 @@ class FeedbackInspector:
 
         return found_it
 
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
         '''
         Parse logdata and add relevant information to the report, for example:
         self.add_error('something went wrong')
@@ -70,7 +71,7 @@ class FeedbackInspector:
 # Instantiate your specific Inspector for a new logfile parser below
 #
 class InspectorAppLogsJson(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
 
         # Parse each component log entries separately
         try:
@@ -87,30 +88,30 @@ class InspectorAppLogsJson(FeedbackInspector):
 
 
 class InspectorAppLogsRaw(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
         self.assert_not_exists(logdata, 'rdate FAIL', 'Rdate has failed at least once')
         self.assert_not_exists(logdata, 'make-minecraft error', 'Make Minecraft has reported problems')
 
 class InspectorCmdline(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
         self.assert_exists(logdata, 'ipv6.disable=1', 'IPv6 is not forcibly disabled through the kernel command line')
 
 class InspectorConfig(FeedbackInspector):
     pass
 
 class InspectorDmesg(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
         self.assert_exists(logdata, 'wlan0: associated', 'This unit has not been wirelessly associated since it last booted')
 
 class InspectorHdmiInfo(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
 
         minimum_display_width=1024
         minimum_display_height=768
 
         # search for the current video mode (CEA / DMT) and the current display resolution
         try:
-            m = re.search('HDMI:EDID found preferred (.*) detail timing format: (.*)x(.*)p.*', logdata)
+            m = re.search('HDMI:EDID found preferred (.*) detail timing format: (.*)x(.*)p.*', ''.join(logdata))
             video_mode = m.group(1)
             display_width = m.group(2)
             display_height = m.group(3)
@@ -128,12 +129,12 @@ class InspectorHdmiInfo(FeedbackInspector):
 
 
 class InspectorKanuxVersion(FeedbackInspector):
-    def inspect(self, logfile, logdata):
-        self.add_info('Current Kanux Version: %s' % logdata.split('\n')[1])
-        self.add_info('Last updated on: %s' % logdata.split('\n')[0])
+    def inspect(self, logdata):
+        self.add_info('Current Kanux Version: %s' % logdata[1])
+        self.add_info('Last updated on: %s' % logdata[0])
 
 class InspectorKwifiCache(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
         if not len(logdata):
             self.add_warn('Looks like there is no wireless credentials cache, unit is connected over Ethernet')
             return
@@ -141,7 +142,7 @@ class InspectorKwifiCache(FeedbackInspector):
         self.assert_exists(logdata, 'encryption": "wpa"', 'There is a non-WPA connection in the cache (WEP or Open)')
 
 class InspectorPackages(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
 
         # list of all locally installed packages
         packages=logdata
@@ -184,7 +185,7 @@ class InspectorPackages(FeedbackInspector):
 
                 # match the package against the Kit's package list
                 try:
-                    m=re.search('.*^(%s)(.*)\n' % pkg_name, packages, re.MULTILINE)
+                    m=re.search('.*^(%s)(.*)\n' % pkg_name, ''.join(packages), re.MULTILINE)
                     assert(m)
 
                     # (1) is the package name (2) version number
@@ -205,7 +206,7 @@ class InspectorProcess(FeedbackInspector):
 
 
 class InspectorUsbDevices(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
         kano_wireless_dongle='Ralink Technology, Corp. RT5370 Wireless Adapter'
         kano_keyboard='ID 1997:2433'
 
@@ -214,13 +215,13 @@ class InspectorUsbDevices(FeedbackInspector):
 
         
 class InspectorWpalog(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
         wpa_authenticated='EAPOL authentication completed successfully'
         self.assert_exists(logdata, wpa_authenticated, 'There is no indication of a successfull WPA wireless association')
 
 
 class InspectorIfconfig(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
 
         # Determine if Ethernet, Wireless, both, or none
         find_ip_regex='%s.*\n.*inet addr:([0-9\.]*) (.*)'
@@ -228,14 +229,14 @@ class InspectorIfconfig(FeedbackInspector):
 
         try:
             # Find if we have an assigned IP address on the Ethernet interface
-            m = re.search(find_ip_regex % 'eth0', logdata, re.MULTILINE)
+            m = re.search(find_ip_regex % 'eth0', ''.join(logdata), re.MULTILINE)
             ip_ethernet=m.group(1)
         except:
             pass
 
         try:
             # Same for the wireless device
-            m = re.search(find_ip_regex % 'wlan0', logdata, re.MULTILINE)
+            m = re.search(find_ip_regex % 'wlan0', ''.join(logdata), re.MULTILINE)
             ip_wireless=m.group(1)
         except:
             pass
@@ -253,7 +254,7 @@ class InspectorIfconfig(FeedbackInspector):
 
 
 class InspectorScreenshot(FeedbackInspector):
-    def inspect(self, logfile, logdata):
+    def inspect(self, logdata):
         self.add_info('This feedback report contains a screenshot')
 
 
