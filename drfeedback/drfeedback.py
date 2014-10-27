@@ -13,6 +13,8 @@ import tarfile
 import traceback
 
 from feedback_inspectors import *
+from feedback_presentation import FeedbackPresentation
+
 
 if __name__ == '__main__':
 
@@ -31,42 +33,39 @@ if __name__ == '__main__':
 
     # Open the tar.gz file
     try:
-        tar = tarfile.open(tarfilename)
+        tar = tarfile.open(tarfilename, mode='r')
     except IOError:
         print 'Error opening feedback tarfile', tarfilename
         sys.exit(1)
 
+    # prepare the report
+    h1_title='Report for Kano Feedback file %s' % (tarfilename)
+    html_report=FeedbackPresentation(filename=tarfilename, title='Doctor Kano Feedback', h1_title=h1_title, footer='Kano Computing 2014')
+
     # inspect the tarfile without actually extracting anything
     for member in tar.getmembers():
-
         try:
             # find out each logfile to determine the inspector
             logfile=member.name
-            print '>>> report for logfile:', logfile
 
             # we extract the logfile contents in-process
-            logdata=tar.extractfile(member).read()
+            logdata=tar.extractfile(member).readlines()
 
             # instantiate the inspector that understands this logfile
             # remove possibly appended paths in the filename
-            i=inspectors[os.path.basename(member.name)]()
+            i=inspectors[os.path.basename(member.name)](logfile)
 
             # and print what the inspector has to warn us about
-            report = i.inspect(logfile, logdata)
-            for l in i.report_info():
-                print 'info:', l
-            for l in i.report_warn():
-                print 'warn:', l
-            for l in i.report_error():
-                print 'error:', l
-
-            if full_dump:
-                print '>>> full dump logdata follows:'
-                print logdata
+            i.inspect(logdata)
+            html_report.add_report(i, logdata)
 
         except Exception as e:
             print 'Warning: Could not inspect data for logfile %s' % logfile
             traceback.print_exc(file=sys.stdout)
             pass
+
+    # complete the report and hand it over
+    html_report.wrap_it_up()
+    print html_report.get_html()
 
     sys.exit(0)
