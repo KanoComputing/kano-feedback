@@ -159,12 +159,13 @@ def get_app_logs_raw():
     logs = logging.read_logs()
 
     # Extract kano logs in raw format. "LOGFILE: component", one line per component,
-    # followed by entries in the form: "1413300074.49 kano-updater info: Return value: 0"
+    # followed by entries in the form: "2014-09-30T10:18:54.532015 kano-updater info: Return value: 0"
     output = ""
     for f, data in logs.iteritems():
         app_name = os.path.basename(f).split(".")[0]
         output += "LOGFILE: {}\n".format(f)
         for line in data:
+            line["time"] = datetime.datetime.fromtimestamp(line["time"]).isoformat()
             output += "{time} {app} {level}: {message}\n".format(app=app_name, **line)
 
     return output
