@@ -13,17 +13,20 @@ import requests
 
 if __name__ == '__main__':
 
+    username=password=None
     payload = {}
     rc = 0
 
-    if len(sys.argv) < 5:
-        print 'Syntax: send_report <hostname> <tar.gz file> <username> <password>'
+    if len(sys.argv) < 3:
+        print 'Syntax: send_report <hostname> <tar.gz file> [username] [passwor]'
         sys.exit(1)
     else:
         hosturl=sys.argv[1]
         tarfilename=sys.argv[2]
-        username=sys.argv[3]
-        password=sys.argv[4]        
+
+        if len(sys.argv) > 3:
+            username=sys.argv[3]
+            password=sys.argv[4]
 
     # open the tar.gz file and pack it in the payload
     ftar=open(tarfilename, 'rb')

@@ -9,6 +9,7 @@
 import feedback_inspectors
 import markup
 import base64
+import time
 
 #
 # Class that implements the HTML document for DrFeeback complete report
@@ -27,6 +28,8 @@ class FeedbackPresentation:
         self.page.init(title=title, css=css, header=header, footer=footer)
         if h1_title:
             self.page.h1(h1_title)
+
+        self.page.h3('Generated %s' % (time.ctime()))
 
     def add_report(self, inspector, logdata):
         '''

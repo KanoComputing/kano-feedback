@@ -7,10 +7,6 @@
 #
 #  $ gunicorn -b 127.0.0.1:9000 wsgi_main
 #
-#  And from another terminal do:
-#
-#  $ python test_send.py <my_tar_gz file>
-#
 
 import os
 import drfeedback
@@ -18,12 +14,14 @@ import tempfile
 from cgi import parse_qs
 from urlparse import urljoin
 
-# The directory on the file system where all HTML reports are stored
-reports_directory='/tmp/feedback_reports'
+# The filesystem directory where all HTML reports are stored
+# And the URL to this directory exposed via the web server
+reports_directory='/var/local/feedback-reports'
+reports_url='http://dev.kano.me/feedback-reports'
 
 def _save_report_(report_id, html_data, directory=reports_directory):
     # Saves the HTML report file on the local filesystem
-    filename='feedback-%s.html' % report_id
+    filename='%s.html' % report_id
 
     try:
         assert (os.path.exists(directory))
@@ -50,12 +48,14 @@ def _get_hosturl_(environment):
 
 def application(environ, start_response):
 
-    debug=False
+    full_dump=True
+    debug=True
 
     # dump the environment to follow possible problems
     # any exceptions raised in this code will be returned as reason 500 to the client
     if debug:
         _dump_environment_(environ)
+        print 'Full host URL:', _get_hosturl_(environ)
 
     # the environment variable CONTENT_LENGTH may be empty or missing
     try:
@@ -80,7 +80,7 @@ def application(environ, start_response):
     html_tmpfile.flush()
 
     # Send the tar.gz file for analysis
-    report_html=drfeedback.analyze(html_tmpfile.name)
+    report_html=drfeedback.analyze(html_tmpfile.name, idname=report_id, full_dump=full_dump)
 
     # closing the tempfile to efectively remove it
     html_tmpfile.close()
@@ -92,7 +92,7 @@ def application(environ, start_response):
     # Send the results to the client
     start_response('200 OK', [('Content-Type', 'text/html')])
     ok_message='Feedback request processed successfully: id=%s url=%s' % \
-                (report_id, urljoin (_get_hosturl_(environ), report_file))
+        (report_id, '%s/%s' % (reports_url, report_file))
 
     print ok_message
     return [ok_message]

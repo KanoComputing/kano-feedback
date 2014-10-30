@@ -15,7 +15,7 @@ import traceback
 from feedback_inspectors import *
 from feedback_presentation import FeedbackPresentation
 
-def analyze(tarfilename, full_dump=False):
+def analyze(tarfilename, idname=None, full_dump=False):
 
     # Open the tar.gz file
     try:
@@ -25,7 +25,10 @@ def analyze(tarfilename, full_dump=False):
         return None
 
     # prepare the report
-    h1_title='Report for Kano Feedback file %s' % (tarfilename)
+    if not idname:
+        idname=tarfilename
+
+    h1_title='Report for Kano Feedback ID %s' % (idname)
     html_report=FeedbackPresentation(filename=tarfilename, title='Doctor Kano Feedback', h1_title=h1_title, footer='Kano Computing 2014')
 
     # inspect the tarfile without actually extracting anything
