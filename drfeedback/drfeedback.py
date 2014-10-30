@@ -15,31 +15,20 @@ import traceback
 from feedback_inspectors import *
 from feedback_presentation import FeedbackPresentation
 
-
-if __name__ == '__main__':
-
-    full_dump=False
-
-    if len(sys.argv) < 2:
-        print 'Doctor Feedback'
-        print 'Syntax : python drfeedback.py <feedback.tar.gz file> [full]'
-        print 'the "full" switch will also emit all the log files in sequence to stdout'
-        sys.exit(1)
-    else:
-        tarfilename=sys.argv[1]
-
-    if len(sys.argv) > 2 and sys.argv[2] == 'full':
-        full_dump=True
+def analyze(tarfilename, idname=None, full_dump=False):
 
     # Open the tar.gz file
     try:
         tar = tarfile.open(tarfilename, mode='r')
     except IOError:
         print 'Error opening feedback tarfile', tarfilename
-        sys.exit(1)
+        return None
 
     # prepare the report
-    h1_title='Report for Kano Feedback file %s' % (tarfilename)
+    if not idname:
+        idname=tarfilename
+
+    h1_title='Report for Kano Feedback ID %s' % (idname)
     html_report=FeedbackPresentation(filename=tarfilename, title='Doctor Kano Feedback', h1_title=h1_title, footer='Kano Computing 2014')
 
     # inspect the tarfile without actually extracting anything
@@ -55,8 +44,13 @@ if __name__ == '__main__':
             # remove possibly appended paths in the filename
             i=inspectors[os.path.basename(member.name)](logfile)
 
-            # and print what the inspector has to warn us about
+            # send data to inpector to analyze
+            # and send results to the presentation layer
             i.inspect(logdata)
+
+            if not full_dump:
+                logdata=None
+
             html_report.add_report(i, logdata)
 
         except Exception as e:
@@ -66,6 +60,24 @@ if __name__ == '__main__':
 
     # complete the report and hand it over
     html_report.wrap_it_up()
-    print html_report.get_html()
+    hmtl_document=html_report.get_html()
+    return hmtl_document()
 
+
+if __name__ == '__main__':
+
+    full_dump=False
+
+    if len(sys.argv) < 2:
+        print 'Doctor Feedback - Analyze feedback tar.gz files from Kano Kits'
+        print 'Syntax : python drfeedback.py <feedback.tar.gz file> [full]'
+        print 'the "full" switch will include the log files along with the summary report.'
+        sys.exit(1)
+    else:
+        tarfilename=sys.argv[1]
+
+    if len(sys.argv) > 2 and sys.argv[2] == 'full':
+        full_dump=True
+
+    print analyze(tarfilename, full_dump)
     sys.exit(0)
