@@ -8,6 +8,7 @@
 #
 
 import sys
+import os
 import requests
 
 if __name__ == '__main__':
@@ -29,7 +30,7 @@ if __name__ == '__main__':
         
     # read the tar.gz file and prepare the payload object
     payload['verb']='report'
-    payload['report_id']='12345'
+    payload['report_id']=os.path.basename(tarfilename)
     payload['data']=ftar.read()
     ftar.close()
 
