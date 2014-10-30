@@ -15,12 +15,14 @@ if __name__ == '__main__':
     payload = {}
     rc = 0
 
-    if len(sys.argv) < 3:
-        print 'Syntax: send_report <hostname> <tar.gz file>'
+    if len(sys.argv) < 5:
+        print 'Syntax: send_report <hostname> <tar.gz file> <username> <password>'
         sys.exit(1)
     else:
         hosturl=sys.argv[1]
         tarfilename=sys.argv[2]
+        username=sys.argv[3]
+        password=sys.argv[4]        
 
     # open the tar.gz file and pack it in the payload
     ftar=open(tarfilename, 'rb')
@@ -33,7 +35,7 @@ if __name__ == '__main__':
 
     # send the request
     print 'sending request to:', hosturl
-    response=requests.post(url=hosturl, data=payload)
+    response=requests.post(url=hosturl, data=payload, auth=(username, password))
 
     print 'STATUS_CODE:', response.status_code
     print 'DATA:', response.text
