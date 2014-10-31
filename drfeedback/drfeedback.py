@@ -79,5 +79,5 @@ if __name__ == '__main__':
     if len(sys.argv) > 2 and sys.argv[2] == 'full':
         full_dump=True
 
-    print analyze(tarfilename, full_dump)
+    print analyze(tarfilename, full_dump=full_dump)
     sys.exit(0)
