@@ -11,7 +11,7 @@
 import os
 import drfeedback
 import tempfile
-from cgi import parse_qs
+import cgi
 from urlparse import urljoin
 
 # The filesystem directory where all HTML reports are stored
@@ -49,7 +49,7 @@ def _get_hosturl_(environment):
 def application(environ, start_response):
 
     full_dump=True
-    debug=True
+    debug=False
 
     # dump the environment to follow possible problems
     # any exceptions raised in this code will be returned as reason 500 to the client
@@ -62,21 +62,26 @@ def application(environ, start_response):
         request_body_size = int(environ.get('CONTENT_LENGTH', 0))
     except (ValueError):
         raise
- 
-    # fetch the body from the POST request
-    request_body = environ['wsgi.input'].read(request_body_size)
 
-    # extract parameters from the body
-    qs = parse_qs(request_body)
-    verb=qs['verb'][0]
-    report_id=qs['report_id'][0]
-    targz=qs['data'][0]
+    # Fetch the post data into a CGI FieldStorage object
+    # And do some minimal fields validation
+    fs = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
+
+    verb = fs.getfirst('verb')
+    assert(verb=='report')
+
+    report_id = fs.getfirst('report_id')
+    assert(len(report_id) > 0)
+
+    targz=fs.getfirst('tarfiles')
+    assert(len(targz) > 0)
+
     print 'Received request with verb: %s, report_id: %s, data (tar.gz): %d bytes.' % \
           (verb, report_id, len(targz))
 
     # Save the targz data in a temporary file
     html_tmpfile=tempfile.NamedTemporaryFile(mode='w+b')
-    html_tmpfile.write(qs['data'][0])
+    html_tmpfile.write(targz)
     html_tmpfile.flush()
 
     # Send the tar.gz file for analysis
