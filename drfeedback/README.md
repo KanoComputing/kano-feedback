@@ -16,9 +16,34 @@ To deploy the web service, on the server you do:
 
  $ sudo apt-get install gunicorn
 
-Place the "drfeeback" directory somewhere on your server, then edit /etc/gunicorn/*
+Place the "drfeeback" directory somewhere on your server, then edit /etc/gunicorn/drfeedback (any name will do),
+with settings similar to this:
 
-TODO: complete this part
+```
+CONFIG = {
+       'mode': 'wsgi',
+
+       'environment': {
+          'PYTHONPATH': '/home/kanux/kano-feedback/drfeedback',
+       },
+
+       'working_dir': '/home/kanux/kano-feedback/drfeedback',
+       'user': 'kanux',
+       'group': 'kanux',
+
+       'python': '/usr/bin/python',
+          'args': (
+          '--bind=127.0.0.1:9000',
+          '--workers=16',
+          '--timeout=60',
+          '--log-file=/home/kanux/kano-feedback/drfeedback/wsgi_main.log',
+          'wsgi_main',
+    ),
+}
+```
+
+Change the nginx settings to proxy against localhost:9000, and expose an additional
+URL to the target_dir defined in wsgi_main.py module.
 
 === Local web service testing
 
