@@ -78,6 +78,7 @@ class MainWindow(ApplicationWindow):
         scrolledwindow = ScrolledWindow()
         scrolledwindow.set_vexpand(True)
         scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scrolledwindow.apply_styling_to_widget()
         scrolledwindow.add(self._text)
         scrolledwindow.set_margin_left(2)
         scrolledwindow.set_margin_right(2)
