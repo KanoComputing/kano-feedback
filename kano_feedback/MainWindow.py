@@ -32,6 +32,7 @@ class MainWindow(ApplicationWindow):
     CLOSE_FEEDBACK = 0
     KEEP_OPEN = 1
     LAUNCH_WIFI = 2
+    WIDTH = 400
 
     def __init__(self, bug_report=False):
         self.bug_report = bug_report
@@ -46,7 +47,7 @@ class MainWindow(ApplicationWindow):
         delete_tmp_dir()
         create_tmp_dir()
 
-        ApplicationWindow.__init__(self, 'Contact Us', 500, 0.35)
+        ApplicationWindow.__init__(self, 'Contact Us', self.WIDTH, 0.35)
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
@@ -61,15 +62,16 @@ class MainWindow(ApplicationWindow):
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title="Contact Us", window_width=500, has_buttons=False)
+        self._top_bar = TopBar(title="Contact Us", window_width=self.WIDTH, has_buttons=False)
         self._top_bar.set_close_callback(Gtk.main_quit)
-
-        self._grid.attach(self._top_bar, 0, 0, 1, 1)
+        self.set_decorated(True)
+        self.set_titlebar(self._top_bar)
 
         # Create Text view
         self._text = Gtk.TextView()
         self._text.set_editable(True)
         self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        self._text.set_size_request(self.WIDTH, -1)
 
         self._textbuffer = self._text.get_buffer()
         self._textbuffer.set_text("Type your feedback here!")
@@ -89,7 +91,7 @@ class MainWindow(ApplicationWindow):
         border = Gtk.EventBox()
         border.get_style_context().add_class("grey")
         border.add(scrolledwindow)
-        self._grid.attach(border, 0, 2, 1, 1)
+        self._grid.attach(border, 0, 0, 1, 1)
         border.set_margin_left(20)
         border.set_margin_right(20)
         border.set_margin_top(10)
@@ -106,7 +108,7 @@ class MainWindow(ApplicationWindow):
         bottom_background.get_style_context().add_class("grey")
         bottom_background.add(self._send_button.align)
 
-        self._grid.attach(bottom_background, 0, 3, 1, 1)
+        self._grid.attach(bottom_background, 0, 1, 1, 1)
 
         self._grid.set_row_spacing(0)
         self.set_main_widget(self._grid)
@@ -119,7 +121,7 @@ class MainWindow(ApplicationWindow):
             pass
 
     def report_window(self):
-        ApplicationWindow.__init__(self, 'Report a Problem', 500, 0.35)
+        ApplicationWindow.__init__(self, 'Report a Problem', self.WIDTH, 0.35)
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
@@ -134,10 +136,10 @@ class MainWindow(ApplicationWindow):
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title="Report a Problem", window_width=500, has_buttons=False)
+        self._top_bar = TopBar(title="Report a Problem", window_width=self.WIDTH, has_buttons=False)
         self._top_bar.set_close_callback(Gtk.main_quit)
-
-        self._grid.attach(self._top_bar, 0, 0, 1, 1)
+        self.set_decorated(True)
+        self.set_titlebar(self._top_bar)
 
         self.entry = Gtk.Entry()
         self.entry.props.placeholder_text = "Add subject (optional)"
@@ -145,12 +147,13 @@ class MainWindow(ApplicationWindow):
         self.entry.set_margin_right(20)
         self.entry.set_margin_top(20)
         self.entry.set_margin_bottom(10)
-        self._grid.attach(self.entry, 0, 1, 1, 1)
+        self._grid.attach(self.entry, 0, 0, 1, 1)
 
         # Create Text view
         self._text = Gtk.TextView()
         self._text.set_editable(True)
         self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        self._text.set_size_request(self.WIDTH, -1)
 
         self._textbuffer = self._text.get_buffer()
         self._textbuffer.set_text("Type your problem here!")
@@ -170,7 +173,7 @@ class MainWindow(ApplicationWindow):
         border = Gtk.EventBox()
         border.get_style_context().add_class("grey")
         border.add(scrolledwindow)
-        self._grid.attach(border, 0, 2, 1, 1)
+        self._grid.attach(border, 0, 1, 1, 1)
         border.set_margin_left(20)
         border.set_margin_right(20)
         border.set_margin_top(10)
@@ -199,7 +202,7 @@ class MainWindow(ApplicationWindow):
         self.pack_screenshot_buttons()
         self.screenshot_box.set_margin_bottom(20)
 
-        self._grid.attach(self.screenshot_box, 0, 3, 1, 1)
+        self._grid.attach(self.screenshot_box, 0, 2, 1, 1)
 
         # Create grey box to put the button in
         self.bottom_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -209,7 +212,7 @@ class MainWindow(ApplicationWindow):
         bottom_background.get_style_context().add_class("grey")
         bottom_background.add(self.bottom_box)
 
-        self._grid.attach(bottom_background, 0, 4, 1, 1)
+        self._grid.attach(bottom_background, 0, 3, 1, 1)
 
         self._grid.set_row_spacing(0)
         self.set_main_widget(self._grid)
