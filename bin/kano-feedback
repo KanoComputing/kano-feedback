@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     # Check internet status
     if not is_internet():
-        run_cmd('sudo /usr/bin/kano-settings 4')
+        run_cmd('sudo /usr/bin/kano-settings 12')
         if not is_internet():
             sys.exit(1)
 

@@ -30,7 +30,7 @@ class Launcher(WebApp):
 
 # Check internet status
 if not is_internet():
-    os.system('sudo /usr/bin/kano-settings 4')
+    os.system('sudo /usr/bin/kano-settings 12')
     sys.exit()
 
 launcher = Launcher()
