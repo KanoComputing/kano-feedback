@@ -5,7 +5,7 @@
 # Copyright (C) 2014 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
 #
-# Provides a simple UI interface to quickly send feedback to Kano from the Desktop
+# Provides a simple UI interface to quickly send feedback to Kano
 #
 
 import os
@@ -17,7 +17,7 @@ if __name__ == '__main__' and __package__ is None:
     if dir_path != '/usr':
         sys.path.insert(0, dir_path)
 
-from desktop_feedback_widget import MainWindow
+from kano_feedback.WidgetWindow import MainWindow
 
 def position_widget(window):
     screen = Gdk.Screen.get_default()
