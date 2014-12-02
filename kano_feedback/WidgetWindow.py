@@ -25,6 +25,7 @@ from kano_world.functions import is_registered
 from kano.network import is_internet
 from kano.gtk3.kano_dialog import KanoDialog
 from kano.gtk3.buttons import KanoButton
+from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.application_window import ApplicationWindow
 
 from kano_feedback import Media
@@ -63,6 +64,8 @@ class MainWindow(ApplicationWindow):
         self.set_keep_above(False)
 
         self._grid = Gtk.Grid()
+        self._grid.set_vexpand(False)
+        self._grid.set_hexpand(False)
 
         # The rotating prompt goes here
         self.rotating_text = Gtk.Label()
@@ -106,16 +109,31 @@ class MainWindow(ApplicationWindow):
         self.rotating_mode=False
         self.rotating_text.set_text ('Talk to the Kano Team')
 
+        # Wrap the multiline text into a scrollable
+        self.scrolledwindow = ScrolledWindow()
+        self.scrolledwindow.set_vexpand(False)
+        # FIXME: Scrollable window needs to have a fixed width
+        self.scrolledwindow.set_hexpand(False)
+        self.scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.scrolledwindow.apply_styling_to_widget()
+        self.scrolledwindow.set_margin_left(2)
+        self.scrolledwindow.set_margin_right(2)
+        self.scrolledwindow.set_margin_top(2)
+        self.scrolledwindow.set_margin_bottom(2)
+        self.scrolledwindow.set_size_request(self.WIDTH, self.HEIGHT_EXPANDED)
+
         # The text input area: The message to send to Kano
-        self.entry = Gtk.Entry()
-        self.entry.props.placeholder_text = "Add subject (optional)"
+        self.entry = Gtk.TextView()
+        self.entry.set_vexpand(False)
+        self.entry.set_hexpand(False)
         self.entry.set_margin_left(20)
         self.entry.set_margin_right(20)
         self.entry.set_margin_top(20)
         self.entry.set_margin_bottom(20)
         self.entry.set_size_request(self.WIDTH, self.HEIGHT_EXPANDED)
-        
-        self._grid.attach(self.entry, 0, 1, 1, 1)
+
+        self.scrolledwindow.add(self.entry)
+        self._grid.attach(self.scrolledwindow, 0, 1, 1, 1)
 
         # Create a Submit button
         # TODO: If there is no internet do not enable the button, display a message instead
@@ -148,7 +166,7 @@ class MainWindow(ApplicationWindow):
         self._grid.set_size_request(self.WIDTH, self.HEIGHT_COMPACT)
 
         # Remove unnecessary widgets from the grid and display current prompt
-        self._grid.remove(self.entry)
+        self._grid.remove(self.scrolledwindow)
         self._grid.remove(self.submit_box)
         self.rotating_text.set_text (self.current_prompt_text)
         self._grid.show_all()
@@ -240,22 +258,24 @@ class MainWindow(ApplicationWindow):
     def set_cursor_to_watch(self):
         watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
         self.get_window().set_cursor(watch_cursor)
-        self.entry.get_window().set_cursor(watch_cursor)
+        self.scrolledwindow.get_window().set_cursor(watch_cursor)
         
     def set_cursor_to_normal(self):
         self.get_window().set_cursor(None)
         if self.in_submit:
-            self.entry.get_window().set_cursor(None)
+            self.scrolledwindow.get_window().set_cursor(None)
         
     def send_user_info(self):
         # Text from Entry - the subject of the email
         subject = "Kano Desktop Feedback Widget"
 
         # Main body of the text
-        textbuffer = self.entry.get_text()
+        textbuffer = self.entry.get_buffer()
+        startiter, enditer = textbuffer.get_bounds()
+        text = textbuffer.get_text(startiter, enditer, True)
 
         # Delegate the network transaction
-        success, error = send_data(textbuffer, None, subject)
+        success, error = send_data(text, None, subject)
         return success, error
 
     def check_login(self):
