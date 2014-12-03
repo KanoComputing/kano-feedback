@@ -1,0 +1,14 @@
+[
+    {
+        "priority": 1,
+        "text": "First local prompt"
+    },
+    {
+        "priority": 2,
+        "text": "Second local prompt"
+    },
+    {
+        "priority": 3,
+        "text": "Third local prompt"
+    }
+]

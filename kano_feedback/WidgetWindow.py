@@ -11,6 +11,8 @@
 import sys
 from gi.repository import Gtk, Gdk, GObject, GdkPixbuf
 import threading
+import requests
+import json
 
 GObject.threads_init()
 
@@ -41,10 +43,48 @@ class MainWindow(ApplicationWindow):
 
     def __init__(self, width=WIDTH, height=HEIGHT_COMPACT):
         # TODO: Fetch rotating prompts dynamically from an external source
-        self.current_prompt_text = 'Click me to send feedback to the Kano Team'
+
+        self.prompts_file='/usr/share/kano-feedback/media/widget/prompts.json'
+        self.prompts_url='http://dev.kano.me/temp/widget-prompts.json'
+        self.prompts=None
+        self.current_prompt = 0
+
         self.rotating_mode=True
         self.in_submit=False
+        self.load_prompts()
         self.rotating_prompt_window()
+
+    def load_prompts(self):
+        # Periodically fetch a list of prompts from the network, or a local file if not available
+        if self.check_internet():
+            try:
+                r = requests.get(self.prompts_url)
+                if r.status_code == 200:
+                    prompts = json.loads(r.text)
+                self.prompts = sorted(prompts, key=lambda k: k['priority']) 
+            except:
+                pass
+
+        if not self.prompts:
+            try:
+                with open (self.prompts_file, 'r') as f:
+                    prompts=json.loads(f.read())
+                self.prompts = sorted(prompts, key=lambda k: k['priority']) 
+            except:
+                pass
+
+    def get_next_prompt(self):
+        text = 'Click here to send feedback to Kano'
+        try:
+            text = self.prompts[self.current_prompt]['text']
+            if self.current_prompt == len(self.prompts) - 1:
+                self.current_prompt = 0
+            else:
+                self.current_prompt += 1
+        except:
+            pass
+
+        return text
 
     def rotating_prompt_window(self):
         ApplicationWindow.__init__(self, 'Report a Problem', self.WIDTH, self.HEIGHT_COMPACT)
@@ -62,6 +102,7 @@ class MainWindow(ApplicationWindow):
         self.set_decorated(False)
         self.set_resizable(False)
         self.set_keep_above(False)
+        self.set_property('skip-taskbar-hint', True)
 
         self._grid = Gtk.Grid()
         self._grid.set_vexpand(False)
@@ -76,7 +117,7 @@ class MainWindow(ApplicationWindow):
         
         # FIXME: how to center the text in the label
         self.rotating_text.set_halign(Gtk.Align.CENTER)
-        self.rotating_text.set_text (self.current_prompt_text)
+        self.rotating_text.set_text (self.get_next_prompt())
 
         # When the widget is clicked, it will be expanded or compacted
         self.connect("button_press_event", self.window_clicked)
@@ -102,17 +143,22 @@ class MainWindow(ApplicationWindow):
         if not self.in_submit:
             self.shrink_window()
             
-    def check_internet(self, a):
-        print 'timer'
+    def check_internet(self):
+        _, _, rc = run_cmd('/usr/bin/is_internet')
+        return (rc == 0)
 
     def expand_window(self):
         self.rotating_mode=False
-        self.rotating_text.set_text ('Talk to the Kano Team')
+        is_internet=self.check_internet()
+
+        if is_internet:
+            self.rotating_text.set_text ('Talk to the Kano Team')
+        else:
+            self.rotating_text.set_text('Please check your internet connection')
 
         # Wrap the multiline text into a scrollable
         self.scrolledwindow = ScrolledWindow()
         self.scrolledwindow.set_vexpand(False)
-        # FIXME: Scrollable window needs to have a fixed width
         self.scrolledwindow.set_hexpand(False)
         self.scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.scrolledwindow.apply_styling_to_widget()
@@ -138,8 +184,10 @@ class MainWindow(ApplicationWindow):
         # Create a Submit button
         # TODO: If there is no internet do not enable the button, display a message instead
         self._submit_button = KanoButton("Submit", "blue")
-        self._submit_button.set_sensitive(True)
         self._submit_button.connect("button_press_event", self.submit_clicked)
+
+        # Disable submit if no network connectivity
+        self._submit_button.set_sensitive(is_internet)
 
         # Create a box that will hold the button
         self.submit_box = Gtk.ButtonBox()
@@ -168,11 +216,10 @@ class MainWindow(ApplicationWindow):
         # Remove unnecessary widgets from the grid and display current prompt
         self._grid.remove(self.scrolledwindow)
         self._grid.remove(self.submit_box)
-        self.rotating_text.set_text (self.current_prompt_text)
+        self.rotating_text.set_text (self.get_next_prompt())
         self._grid.show_all()
 
     def submit_clicked(self, window, event):
-        print 'submit clicked'
         self.in_submit=True
         dialog_buttons = { 'CANCEL' : { 'return value' : 1 }, 'OK' : { 'return_value' : 0 } }
         kdialog = KanoDialog ('Notice', 'This will send feedback to Kano now, are you sure?', dialog_buttons, parent_window=self)
