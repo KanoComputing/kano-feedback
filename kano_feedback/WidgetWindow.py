@@ -8,32 +8,11 @@
 # The MainWindow for the Desktop Feedback Widget
 #
 
-import sys
-from gi.repository import Gtk, Gdk, GObject, GdkPixbuf
-import threading
-import requests
+from kano_feedback.MainWindow import *
 import json
+import requests
 
-GObject.threads_init()
-
-from kano.gtk3.top_bar import TopBar
-
-from kano_feedback.DataSender import (send_data, take_screenshot, copy_screenshot, delete_tmp_dir,
-                        create_tmp_dir, SCREENSHOT_NAME, SCREENSHOT_PATH, delete_screenshot)
-
-from kano.utils import run_cmd
-
-from kano_world.functions import is_registered
-from kano.network import is_internet
-from kano.gtk3.kano_dialog import KanoDialog
-from kano.gtk3.buttons import KanoButton
-from kano.gtk3.scrolled_window import ScrolledWindow
-from kano.gtk3.application_window import ApplicationWindow
-
-from kano_feedback import Media
-
-
-class MainWindow(ApplicationWindow):
+class WidgetWindow(MainWindow):
     CLOSE_FEEDBACK = 0
     KEEP_OPEN = 1
     LAUNCH_WIFI = 2
@@ -41,8 +20,8 @@ class MainWindow(ApplicationWindow):
     HEIGHT_COMPACT = 50
     HEIGHT_EXPANDED = 200
 
-    def __init__(self, width=WIDTH, height=HEIGHT_COMPACT):
-        # TODO: Fetch rotating prompts dynamically from an external source
+    def __init__(self):
+        MainWindow.__init__(self, subject='Kano Desktop Feedback Widget')
 
         self.prompts_file='/usr/share/kano-feedback/media/widget/prompts.json'
         self.prompts_url='http://dev.kano.me/temp/widget-prompts.json'
@@ -56,7 +35,7 @@ class MainWindow(ApplicationWindow):
 
     def load_prompts(self):
         # Periodically fetch a list of prompts from the network, or a local file if not available
-        if self.check_internet():
+        if is_internet():
             try:
                 r = requests.get(self.prompts_url)
                 if r.status_code == 200:
@@ -143,15 +122,9 @@ class MainWindow(ApplicationWindow):
         if not self.in_submit:
             self.shrink_window()
             
-    def check_internet(self):
-        _, _, rc = run_cmd('/usr/bin/is_internet')
-        return (rc == 0)
-
     def expand_window(self):
         self.rotating_mode=False
-        is_internet=self.check_internet()
-
-        if is_internet:
+        if is_internet():
             self.rotating_text.set_text ('Talk to the Kano Team')
         else:
             self.rotating_text.set_text('Please check your internet connection')
@@ -169,25 +142,25 @@ class MainWindow(ApplicationWindow):
         self.scrolledwindow.set_size_request(self.WIDTH, self.HEIGHT_EXPANDED)
 
         # The text input area: The message to send to Kano
-        self.entry = Gtk.TextView()
-        self.entry.set_vexpand(False)
-        self.entry.set_hexpand(False)
-        self.entry.set_margin_left(20)
-        self.entry.set_margin_right(20)
-        self.entry.set_margin_top(20)
-        self.entry.set_margin_bottom(20)
-        self.entry.set_size_request(self.WIDTH, self.HEIGHT_EXPANDED)
+        self._text = Gtk.TextView()
+        self._text.set_vexpand(False)
+        self._text.set_hexpand(False)
+        self._text.set_margin_left(20)
+        self._text.set_margin_right(20)
+        self._text.set_margin_top(20)
+        self._text.set_margin_bottom(20)
+        self._text.set_size_request(self.WIDTH, self.HEIGHT_EXPANDED)
 
-        self.scrolledwindow.add(self.entry)
+        self.scrolledwindow.add(self._text)
         self._grid.attach(self.scrolledwindow, 0, 1, 1, 1)
 
         # Create a Submit button
         # TODO: If there is no internet do not enable the button, display a message instead
-        self._submit_button = KanoButton("Submit", "blue")
-        self._submit_button.connect("button_press_event", self.submit_clicked)
-
+        self._send_button = KanoButton("Submit", "blue")
+        self._send_button.connect("button_press_event", self.submit_clicked)
+        
         # Disable submit if no network connectivity
-        self._submit_button.set_sensitive(is_internet)
+        self._send_button.set_sensitive(is_internet())
 
         # Create a box that will hold the button
         self.submit_box = Gtk.ButtonBox()
@@ -195,8 +168,8 @@ class MainWindow(ApplicationWindow):
         self.submit_box.set_spacing(20)
 
         # Put the submit button inside the box
-        self.submit_box.pack_start(self._submit_button, False, False, 0)
-        self.submit_box.set_child_non_homogeneous(self._submit_button, True)
+        self.submit_box.pack_start(self._send_button, False, False, 0)
+        self.submit_box.set_child_non_homogeneous(self._send_button, True)
         self.submit_box.set_margin_bottom(20)
 
         # Add the button box inside the grid
@@ -219,6 +192,10 @@ class MainWindow(ApplicationWindow):
         self.rotating_text.set_text (self.get_next_prompt())
         self._grid.show_all()
 
+    def after_feedback_sent(self):
+        self.in_submit=False
+        self.shrink_window()
+
     def submit_clicked(self, window, event):
         self.in_submit=True
         dialog_buttons = { 'CANCEL' : { 'return value' : 1 }, 'OK' : { 'return_value' : 0 } }
@@ -227,132 +204,3 @@ class MainWindow(ApplicationWindow):
         if rc == 0:
             # We are good to go, send network transaction
             self.send_feedback()
-
-    def send_feedback(self, button=None, event=None):
-        if not hasattr(event, 'keyval') or event.keyval == Gdk.KEY_Return:
-
-            self.check_login()
-            if not is_registered():
-                return
-
-            self.set_cursor_to_watch()
-            self._submit_button.start_spinner()
-            self._submit_button.set_sensitive(False)
-            self.entry.set_sensitive(False)
-
-            def lengthy_process():
-                button_dict = {"OK": {"return_value": self.CLOSE_FEEDBACK}}
-
-                if not is_internet():
-                    title = "No internet connection"
-                    description = "Configure your connection"
-
-                    button_dict = {"OK": {"return_value": self.LAUNCH_WIFI}}
-                else:
-                    success, error = self.send_user_info()
-
-                    if success:
-                        title = "Info"
-                        description = "Feedback sent correctly"
-                        button_dict = \
-                            {
-                                "OK":
-                                {
-                                    "return_value": self.CLOSE_FEEDBACK
-                                }
-                            }
-                    else:
-                        title = "Info"
-                        description = "Something went wrong, error: {}".format(error)
-                        button_dict = \
-                            {
-                                "CLOSE FEEDBACK":
-                                {
-                                    "return_value": self.CLOSE_FEEDBACK,
-                                    "color": "red"
-                                },
-                                "TRY AGAIN":
-                                {
-                                    "return_value": self.KEEP_OPEN,
-                                    "color": "green"
-                                }
-                            }
-
-                def done(title, description, button_dict):
-
-                    self.set_cursor_to_normal()
-                    self._submit_button.stop_spinner()
-                    
-                    title='Sent!'
-                    description='Your feedback has been sumitted to Kano - Thank you!'
-                    kdialog = KanoDialog(title, description, button_dict, parent_window=self)
-                    kdialog.dialog.set_keep_above(False)
-                    response = kdialog.run()
-
-                    self._submit_button.set_sensitive(True)
-                    self.entry.set_sensitive(True)
-
-                    # Allow for interactive mouse events when transaction is complete
-                    # and shrink the widget back to compact mode
-                    self.in_submit=False
-                    self.shrink_window()
-
-                GObject.idle_add(done, title, description, button_dict)
-
-            thread = threading.Thread(target=lengthy_process)
-            thread.start()
-
-    def set_cursor_to_watch(self):
-        watch_cursor = Gdk.Cursor(Gdk.CursorType.WATCH)
-        self.get_window().set_cursor(watch_cursor)
-        self.scrolledwindow.get_window().set_cursor(watch_cursor)
-        
-    def set_cursor_to_normal(self):
-        self.get_window().set_cursor(None)
-        if self.in_submit:
-            self.scrolledwindow.get_window().set_cursor(None)
-        
-    def send_user_info(self):
-        # Text from Entry - the subject of the email
-        subject = "Kano Desktop Feedback Widget"
-
-        # Main body of the text
-        textbuffer = self.entry.get_buffer()
-        startiter, enditer = textbuffer.get_bounds()
-        text = textbuffer.get_text(startiter, enditer, True)
-
-        # Delegate the network transaction
-        success, error = send_data(text, None, subject)
-        return success, error
-
-    def check_login(self):
-        # Check if user is registered
-        if not is_registered():
-            # Show dialogue
-            title = "Kano Login"
-            description = "You need to login to Kano World before sending information. \nDo you want to continue?"
-            kdialog = KanoDialog(
-                title, description,
-                {
-                    "CANCEL":
-                    {
-                        "return_value": 1
-                    },
-                    "OK":
-                    {
-                        "return_value": 0
-                    }
-                },
-                parent_window=self
-            )
-            kdialog.dialog.set_keep_above(False)
-            self.set_keep_above(False)
-            rc = kdialog.run()
-            if rc == 0:
-                Gtk.main_iteration()
-                run_cmd('/usr/bin/kano-login')
-
-            self.set_keep_above(True)
-            del kdialog
-            while Gtk.events_pending():
-                Gtk.main_iteration()
