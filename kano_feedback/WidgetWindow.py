@@ -116,14 +116,11 @@ class WidgetWindow(MainWindow):
 
     def window_clicked(self, a, b):
         if self.in_submit:
-            print 'ups'            
             return
         
         if self.rotating_mode:
-            print 'expanding'
             self.expand_window()
         else:
-            print 'shrinking'
             self.shrink_window()
 
     def focus_out(self, a, b):
