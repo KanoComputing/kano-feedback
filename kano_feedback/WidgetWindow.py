@@ -29,6 +29,7 @@ class WidgetWindow(MainWindow):
         self.prompts=None
         self.current_prompt =''
         self.current_prompt_idx = 0
+        self.last_click = 0
 
         self.rotating_mode=True
         self.in_submit=False
@@ -114,16 +115,24 @@ class WidgetWindow(MainWindow):
         self._grid.set_row_spacing(0)
         self.set_main_widget(self._grid)
 
-    def window_clicked(self, a, b):
-        if self.in_submit:
-            return
-        
+    def window_clicked(self, window, event):
+        # Protect against fast repeated mouse clicks (time expressed in ms)
+        min_time_between_clicks=1000
+        if not self.last_click:
+            self.last_click=event.get_time()
+        else:
+            if (event.get_time() - self.last_click) < min_time_between_clicks or self.in_submit:
+                self.last_click=event.get_time()
+                return
+            else:
+                self.last_click=event.get_time()
+
         if self.rotating_mode:
             self.expand_window()
         else:
             self.shrink_window()
 
-    def focus_out(self, a, b):
+    def focus_out(self, window, event):
         if not self.in_submit:
             self.shrink_window()
             
