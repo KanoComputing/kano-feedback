@@ -11,6 +11,8 @@
 import os
 import sys
 from gi.repository import Gtk, Gdk
+import signal
+
 
 if __name__ == '__main__' and __package__ is None:
     dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -30,6 +32,9 @@ def main():
     win.show_all()
 
     position_widget(win)
+
+    # Ignore all SIGTERM signals, app can be closed via a "kill -9".
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
     
     Gtk.main()
     return 0
