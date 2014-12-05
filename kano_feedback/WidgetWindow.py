@@ -194,10 +194,6 @@ class WidgetWindow(MainWindow):
         self.shrink_window()
 
     def submit_clicked(self, window, event):
-        if not is_internet():
-            # Open the internet connection settings
-            _, _, rc = run_cmd('sudo kano-settings 12')
-
         self.in_submit=True
         dialog_buttons = { 'CANCEL' : { 'return value' : 1 }, 'OK' : { 'return_value' : 0 } }
         kdialog = KanoDialog ('Notice', 'This will send feedback to Kano now, are you sure?', dialog_buttons, parent_window=self)

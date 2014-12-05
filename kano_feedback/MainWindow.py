@@ -186,31 +186,5 @@ class MainWindow(ApplicationWindow):
     def check_login(self):
         # Check if user is registered
         if not is_registered():
-            # Show dialogue
-            title = "Kano Login"
-            description = "You need to login to Kano World before sending information. \nDo you want to continue?"
-            kdialog = KanoDialog(
-                title, description,
-                {
-                    "CANCEL":
-                    {
-                        "return_value": 1
-                    },
-                    "OK":
-                    {
-                        "return_value": 0
-                    }
-                },
-                parent_window=self
-            )
-            kdialog.dialog.set_keep_above(False)
-            self.set_keep_above(False)
-            rc = kdialog.run()
-            if rc == 0:
-                Gtk.main_iteration()
-                run_cmd('/usr/bin/kano-login')
+            _, _, rc = run_cmd('kano-login 3')
 
-            self.set_keep_above(True)
-            del kdialog
-            while Gtk.events_pending():
-                Gtk.main_iteration()
