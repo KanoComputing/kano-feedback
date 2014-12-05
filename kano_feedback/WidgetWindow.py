@@ -19,14 +19,16 @@ class WidgetWindow(MainWindow):
     WIDTH = 400
     HEIGHT_COMPACT = 50
     HEIGHT_EXPANDED = 200
+    SUBJECT = 'Kano Desktop Feedback Widget'
 
     def __init__(self):
-        MainWindow.__init__(self, subject='Kano Desktop Feedback Widget')
+        MainWindow.__init__(self, subject=self.SUBJECT)
 
         self.prompts_file='/usr/share/kano-feedback/media/widget/prompts.json'
         self.prompts_url='http://dev.kano.me/temp/widget-prompts.json'
         self.prompts=None
-        self.current_prompt = 0
+        self.current_prompt =''
+        self.current_prompt_idx = 0
 
         self.rotating_mode=True
         self.in_submit=False
@@ -52,14 +54,17 @@ class WidgetWindow(MainWindow):
             except:
                 pass
 
+    def get_current_prompt(self):
+        return self.current_prompt
+
     def get_next_prompt(self):
         text = 'Click here to send feedback to Kano'
         try:
-            text = self.prompts[self.current_prompt]['text']
-            if self.current_prompt == len(self.prompts) - 1:
-                self.current_prompt = 0
+            text = self.prompts[self.current_prompt_idx]['text']
+            if self.current_prompt_idx == len(self.prompts) - 1:
+                self.current_prompt_idx = 0
             else:
-                self.current_prompt += 1
+                self.current_prompt_idx += 1
         except:
             pass
 
@@ -111,11 +116,14 @@ class WidgetWindow(MainWindow):
 
     def window_clicked(self, a, b):
         if self.in_submit:
+            print 'ups'            
             return
         
         if self.rotating_mode:
+            print 'expanding'
             self.expand_window()
         else:
+            print 'shrinking'
             self.shrink_window()
 
     def focus_out(self, a, b):
@@ -124,10 +132,6 @@ class WidgetWindow(MainWindow):
             
     def expand_window(self):
         self.rotating_mode=False
-        if is_internet():
-            self.rotating_text.set_text ('Talk to the Kano Team')
-        else:
-            self.rotating_text.set_text('Please check your internet connection')
 
         # Wrap the multiline text into a scrollable
         self.scrolledwindow = ScrolledWindow()
@@ -159,9 +163,6 @@ class WidgetWindow(MainWindow):
         self._send_button = KanoButton("Submit", "blue")
         self._send_button.connect("button_press_event", self.submit_clicked)
         
-        # Disable submit if no network connectivity
-        self._send_button.set_sensitive(is_internet())
-
         # Create a box that will hold the button
         self.submit_box = Gtk.ButtonBox()
         self.submit_box.set_layout(Gtk.ButtonBoxStyle.CENTER)
@@ -193,14 +194,21 @@ class WidgetWindow(MainWindow):
         self._grid.show_all()
 
     def after_feedback_sent(self):
-        self.in_submit=False
         self.shrink_window()
 
     def submit_clicked(self, window, event):
+        if not is_internet():
+            # Open the internet connection settings
+            _, _, rc = run_cmd('sudo kano-settings 12')
+
         self.in_submit=True
         dialog_buttons = { 'CANCEL' : { 'return value' : 1 }, 'OK' : { 'return_value' : 0 } }
         kdialog = KanoDialog ('Notice', 'This will send feedback to Kano now, are you sure?', dialog_buttons, parent_window=self)
         rc = kdialog.run()
         if rc == 0:
-            # We are good to go, send network transaction
+            # We are good to go, send the feedback email
             self.send_feedback()
+        else:
+            self.shrink_window()
+
+        self.in_submit=False
