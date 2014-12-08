@@ -12,6 +12,8 @@ from kano_feedback.MainWindow import *
 import json
 import requests
 
+from kano_profile.tracker import add_runtime_to_app
+
 class WidgetWindow(MainWindow):
     CLOSE_FEEDBACK = 0
     KEEP_OPEN = 1
@@ -30,6 +32,9 @@ class WidgetWindow(MainWindow):
         self.current_prompt = ''
         self.current_prompt_idx = 0
         self.last_click = 0
+
+        self.app_name_opened = 'feedback-widget-opened'
+        self.app_name_submitted = 'feedback-widget-submitted'
 
         self.rotating_mode=True
         self.in_submit=False
@@ -142,6 +147,9 @@ class WidgetWindow(MainWindow):
     def expand_window(self):
         self.rotating_mode=False
 
+        # Add metrics to kano tracker
+        add_runtime_to_app(self.app_name_opened, 0)
+
         # Wrap the multiline text into a scrollable
         self.scrolledwindow = ScrolledWindow()
         self.scrolledwindow.set_vexpand(False)
@@ -210,6 +218,9 @@ class WidgetWindow(MainWindow):
     def after_feedback_sent(self):
         self.shrink_window()
         self.in_submit=False
+        
+        # Add metrics to kano tracker
+        add_runtime_to_app(self.app_name_submitted, 0)
 
     def submit_clicked(self, window, event):
         self.in_submit=True
