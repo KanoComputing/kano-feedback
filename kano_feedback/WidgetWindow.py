@@ -255,5 +255,5 @@ class WidgetWindow(MainWindow):
         add_runtime_to_app(self.app_name_submitted, 0)
 
     def submit_clicked(self, window, event):
-        self.in_submit=True
-        self.send_feedback()
+        self.in_submit=True        
+        self.send_feedback(body_title=self.get_current_prompt())

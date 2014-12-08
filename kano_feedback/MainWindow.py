@@ -39,7 +39,7 @@ class MainWindow(ApplicationWindow):
         self.subject=subject
         self.bug_report=None
 
-    def send_feedback(self, button=None, event=None):
+    def send_feedback(self, button=None, event=None, body_title=None):
         if not hasattr(event, 'keyval') or event.keyval == Gdk.KEY_Return:
 
             self.check_login()
@@ -83,7 +83,7 @@ class MainWindow(ApplicationWindow):
                     description = "Configure your connection"
                     button_dict = {"OK": {"return_value": self.LAUNCH_WIFI}}
                 else:
-                    success, error = self.send_user_info()
+                    success, error = self.send_user_info(body_title=body_title)
                     if success:
                         title = "Info"
                         description = "Feedback sent correctly"
@@ -151,7 +151,7 @@ class MainWindow(ApplicationWindow):
         self._text.get_window(Gtk.TextWindowType.TEXT).set_cursor(None)
         self._text.get_window(Gtk.TextWindowType.WIDGET).set_cursor(None)
 
-    def send_user_info(self):
+    def send_user_info(self, body_title=None):
         # Text from Entry - the subject of the email
         if hasattr(self, "entry"):
             subject = self.entry.get_text()
@@ -163,6 +163,10 @@ class MainWindow(ApplicationWindow):
         startiter, enditer = textbuffer.get_bounds()
         text = textbuffer.get_text(startiter, enditer, True)
 
+        # Body title is used for desktop feedback to contain the Prompt suggestion text
+        if body_title:
+            text = 'Body Title: %s\n\n%s' % (body_title, text)
+        
         success, error = send_data(text, self.bug_report, subject)
         return success, error
 
