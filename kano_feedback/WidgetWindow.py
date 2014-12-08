@@ -27,7 +27,7 @@ class WidgetWindow(MainWindow):
         self.prompts_file='/usr/share/kano-feedback/media/widget/prompts.json'
         self.prompts_url='http://dev.kano.me/temp/widget-prompts.json'
         self.prompts=None
-        self.current_prompt =''
+        self.current_prompt = ''
         self.current_prompt_idx = 0
         self.last_click = 0
 
@@ -100,8 +100,11 @@ class WidgetWindow(MainWindow):
         self.rotating_text.set_margin_top(10)
         self.rotating_text.set_margin_bottom(10)
         
-        # FIXME: how to center the text in the label
-        self.rotating_text.set_halign(Gtk.Align.CENTER)
+        # FIXME: none of these methods are centering the label text
+        #self.rotating_text.set_halign(Gtk.Align.CENTER)
+        #self.rotating_text.set_justify(Gtk.Justification.CENTER)
+        #self.rotating_text.set_alignment(0.5, 0.5)
+
         self.rotating_text.set_text (self.get_next_prompt())
 
         # When the widget is clicked, it will be expanded or compacted
@@ -153,13 +156,18 @@ class WidgetWindow(MainWindow):
 
         # The text input area: The message to send to Kano
         self._text = Gtk.TextView()
-        self._text.set_vexpand(False)
-        self._text.set_hexpand(False)
         self._text.set_margin_left(20)
         self._text.set_margin_right(20)
         self._text.set_margin_top(20)
         self._text.set_margin_bottom(20)
-        self._text.set_size_request(self.WIDTH, self.HEIGHT_EXPANDED)
+
+        self._text.set_editable(True)
+        self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        self._text.set_size_request(self.WIDTH, -1)
+
+        self._textbuffer = self._text.get_buffer()
+        self._textbuffer.set_text("Type your feedback here man!")
+        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
 
         self.scrolledwindow.add(self._text)
         self._grid.attach(self.scrolledwindow, 0, 1, 1, 1)
@@ -201,16 +209,8 @@ class WidgetWindow(MainWindow):
 
     def after_feedback_sent(self):
         self.shrink_window()
+        self.in_submit=False
 
     def submit_clicked(self, window, event):
         self.in_submit=True
-        dialog_buttons = { 'CANCEL' : { 'return value' : 1 }, 'OK' : { 'return_value' : 0 } }
-        kdialog = KanoDialog ('Notice', 'This will send feedback to Kano now, are you sure?', dialog_buttons, parent_window=self)
-        rc = kdialog.run()
-        if rc == 0:
-            # We are good to go, send the feedback email
-            self.send_feedback()
-        else:
-            self.shrink_window()
-
-        self.in_submit=False
+        self.send_feedback()
