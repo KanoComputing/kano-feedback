@@ -44,6 +44,7 @@ class MainWindow(ApplicationWindow):
 
             self.check_login()
             if not is_registered():
+                self.after_feedback_sent(completed=False)
                 return
 
             if self.bug_report:
@@ -127,7 +128,7 @@ class MainWindow(ApplicationWindow):
 
                     if response == self.LAUNCH_WIFI:
                         run_cmd('sudo /usr/bin/kano-settings 12')
-                        self.after_feedback_sent(completed=False)                        
+                        self.after_feedback_sent(completed=False)
                     elif response == self.CLOSE_FEEDBACK:
                         self.after_feedback_sent(completed=True)
 
