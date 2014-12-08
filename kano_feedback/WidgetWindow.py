@@ -36,6 +36,9 @@ class WidgetWindow(MainWindow):
         self.app_name_opened = 'feedback-widget-opened'
         self.app_name_submitted = 'feedback-widget-submitted'
 
+        self.typeahead = None
+        self.help_tip_message = 'Type your feedback here!'
+
         self.rotating_mode=True
         self.in_submit=False
         self.load_prompts()
@@ -141,13 +144,13 @@ class WidgetWindow(MainWindow):
         if self.rotating_mode:
             self.expand_window()
         else:
-            self.shrink_window()
+            self.shrink_window(True)
 
     def shrink_button_clicked(self, window, event):
-        self.shrink_window()
+        self.shrink_window(True)
 
     def focus_out(self, window, event):
-        self.shrink_window()
+        self.shrink_window(True)
 
     def expand_window(self):
         self.rotating_mode=False
@@ -182,18 +185,26 @@ class WidgetWindow(MainWindow):
         self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self._text.set_size_request(self.WIDTH, -1)
 
+        # Prepare the edition area and provide either the previous typeahead or a short help message
         self._textbuffer = self._text.get_buffer()
-        self._textbuffer.set_text("Type your feedback here man!")
-        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
+        if self.typeahead:
+            self._textbuffer.set_text(self.typeahead)
+            self._text.get_style_context().add_class("active")
+        else:
+            self._textbuffer.set_text(self.help_tip_message)
+            self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
 
         self.scrolledwindow.add(self._text)
         self._grid.attach(self.scrolledwindow, 0, 1, 1, 1)
 
         # Create a Submit button
-        # TODO: If there is no internet do not enable the button, display a message instead
         self._send_button = KanoButton("Submit", "blue")
         self._send_button.connect("button_press_event", self.submit_clicked)
-        
+        if self.typeahead:
+            self._send_button.set_sensitive(True)
+        else:
+            self._send_button.set_sensitive(False)
+
         # Create a box that will hold the button
         self.submit_box = Gtk.ButtonBox()
         self.submit_box.set_layout(Gtk.ButtonBoxStyle.CENTER)
@@ -210,11 +221,19 @@ class WidgetWindow(MainWindow):
 
         self._grid.show_all()
 
-    def shrink_window(self):
+    def shrink_window(self, save_typeahead):
         if self.rotating_mode or self.in_submit:
             return
         else:
             self.rotating_mode=True
+
+        # Save the feedback text currently typed in the widget
+        if save_typeahead:
+            textbuffer = self._text.get_buffer()
+            startiter, enditer = textbuffer.get_bounds()
+            self.typeahead = textbuffer.get_text(startiter, enditer, True)
+        else:
+            self.typeahead = None
 
         # Resize the window
         self._grid.set_size_request(self.WIDTH, self.HEIGHT_COMPACT)
@@ -230,7 +249,7 @@ class WidgetWindow(MainWindow):
         self.in_submit=False
         if completed:
             self.current_prompt=self.get_next_prompt()
-            self.shrink_window()
+            self.shrink_window(False)
 
         # Add metrics to kano tracker
         add_runtime_to_app(self.app_name_submitted, 0)
