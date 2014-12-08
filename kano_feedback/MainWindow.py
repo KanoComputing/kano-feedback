@@ -127,15 +127,16 @@ class MainWindow(ApplicationWindow):
 
                     if response == self.LAUNCH_WIFI:
                         run_cmd('sudo /usr/bin/kano-settings 12')
+                        self.after_feedback_sent(completed=False)                        
                     elif response == self.CLOSE_FEEDBACK:
-                        self.after_feedback_sent()
+                        self.after_feedback_sent(completed=True)
 
                 GObject.idle_add(done, title, description, button_dict)
 
             thread = threading.Thread(target=lengthy_process)
             thread.start()
 
-    def after_feedback_sent(self):
+    def after_feedback_sent(self, completed):
         # By default we exit the window when Feedback has been sent
         sys.exit(0)
 
