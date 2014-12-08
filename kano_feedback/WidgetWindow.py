@@ -29,7 +29,7 @@ class WidgetWindow(MainWindow):
         self.prompts_file='/usr/share/kano-feedback/media/widget/prompts.json'
         self.prompts_url='http://dev.kano.me/temp/widget-prompts.json'
         self.prompts=None
-        self.current_prompt = ''
+        self.current_prompt = None
         self.current_prompt_idx = 0
         self.last_click = 0
 
@@ -61,6 +61,9 @@ class WidgetWindow(MainWindow):
                 pass
 
     def get_current_prompt(self):
+        if not self.current_prompt:
+            self.current_prompt=self.get_next_prompt()
+
         return self.current_prompt
 
     def get_next_prompt(self):
