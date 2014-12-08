@@ -113,7 +113,7 @@ class WidgetWindow(MainWindow):
         #self.rotating_text.set_justify(Gtk.Justification.CENTER)
         #self.rotating_text.set_alignment(0.5, 0.5)
 
-        self.rotating_text.set_text (self.get_next_prompt())
+        self.rotating_text.set_text (self.get_current_prompt())
 
         # When the widget is clicked, it will be expanded or compacted
         self.connect("button_press_event", self.window_clicked)
@@ -143,15 +143,21 @@ class WidgetWindow(MainWindow):
         else:
             self.shrink_window()
 
+    def shrink_button_clicked(self, window, event):
+        self.shrink_window()
+
     def focus_out(self, window, event):
-        if not self.in_submit:
-            self.shrink_window()
-            
+        self.shrink_window()
+
     def expand_window(self):
         self.rotating_mode=False
 
         # Add metrics to kano tracker
         add_runtime_to_app(self.app_name_opened, 0)
+
+        # Add a shrink widget button
+        self._shrink_button = Gtk.Button(label="X")
+        self._shrink_button.connect("button_press_event", self.shrink_button_clicked)
 
         # Wrap the multiline text into a scrollable
         self.scrolledwindow = ScrolledWindow()
@@ -200,11 +206,12 @@ class WidgetWindow(MainWindow):
 
         # Add the button box inside the grid
         self._grid.attach(self.submit_box, 0, 2, 1, 1)
-        
+        self._grid.attach_next_to(self._shrink_button, self.rotating_text, Gtk.PositionType.RIGHT, 2, 1)
+
         self._grid.show_all()
 
     def shrink_window(self):
-        if self.rotating_mode:
+        if self.rotating_mode or self.in_submit:
             return
         else:
             self.rotating_mode=True
@@ -215,7 +222,8 @@ class WidgetWindow(MainWindow):
         # Remove unnecessary widgets from the grid and display current prompt
         self._grid.remove(self.scrolledwindow)
         self._grid.remove(self.submit_box)
-        self.rotating_text.set_text (self.get_next_prompt())
+        self._grid.remove(self._shrink_button)
+        self.rotating_text.set_text (self.get_current_prompt())
         self._grid.show_all()
 
     def after_feedback_sent(self):
@@ -224,6 +232,8 @@ class WidgetWindow(MainWindow):
         
         # Add metrics to kano tracker
         add_runtime_to_app(self.app_name_submitted, 0)
+
+        self.current_prompt=self.get_next_prompt()
 
     def submit_clicked(self, window, event):
         self.in_submit=True
