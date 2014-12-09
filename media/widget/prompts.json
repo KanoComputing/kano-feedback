@@ -1,14 +1,18 @@
 [
     {
         "priority": 1,
-        "text": "First local prompt"
+        "text": "What’s your favorite part of Kano?"
     },
     {
         "priority": 2,
-        "text": "Second local prompt"
+        "text": "What’s your least favorite part of Kano?"
     },
     {
         "priority": 3,
-        "text": "Third local prompt"
+        "text": "What should Kano make next?""
+    },
+    {
+        "priority": 4,
+        "text": "Did you find something confusing on Kano?"
     }
 ]

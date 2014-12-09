@@ -26,7 +26,6 @@ class WidgetWindow(MainWindow):
         MainWindow.__init__(self, subject=self.SUBJECT)
 
         self.prompts_file='/usr/share/kano-feedback/media/widget/prompts.json'
-        self.prompts_url='http://dev.kano.me/temp/widget-prompts.json'
         self.prompts=None
         self.current_prompt = None
         self.current_prompt_idx = 0
@@ -60,7 +59,7 @@ class WidgetWindow(MainWindow):
         return self.current_prompt
 
     def get_next_prompt(self):
-        text = 'Click here to send feedback to Kano'
+        text = "What's your favorite part of Kano?"
         try:
             text = self.prompts[self.current_prompt_idx]['text']
             if self.current_prompt_idx == len(self.prompts) - 1:
