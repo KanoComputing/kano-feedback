@@ -10,7 +10,6 @@
 
 from kano_feedback.MainWindow import *
 import json
-import requests
 
 from kano_profile.tracker import add_runtime_to_app
 
@@ -45,16 +44,7 @@ class WidgetWindow(MainWindow):
         self.rotating_prompt_window()
 
     def load_prompts(self):
-        # Periodically fetch a list of prompts from the network, or a local file if not available
-        if is_internet():
-            try:
-                r = requests.get(self.prompts_url)
-                if r.status_code == 200:
-                    prompts = json.loads(r.text)
-                self.prompts = sorted(prompts, key=lambda k: k['priority']) 
-            except:
-                pass
-
+        # Fetch prompts from a local file
         if not self.prompts:
             try:
                 with open (self.prompts_file, 'r') as f:
