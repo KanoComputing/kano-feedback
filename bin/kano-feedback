@@ -17,11 +17,11 @@ if __name__ == '__main__' and __package__ is None:
     if dir_path != '/usr':
         sys.path.insert(0, dir_path)
 
-from kano_feedback.MainWindow import MainWindow
+from kano_feedback.FeedbackWindow import FeedbackWindow
 
 
 def main(bug_report=False):
-    win = MainWindow(bug_report)
+    win = FeedbackWindow(bug_report)
 
     win.show_all()
     Gtk.main()

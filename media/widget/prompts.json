@@ -1,0 +1,18 @@
+[
+    {
+        "priority": 1,
+        "text": "What’s your favorite part of Kano?"
+    },
+    {
+        "priority": 2,
+        "text": "What’s your least favorite part of Kano?"
+    },
+    {
+        "priority": 3,
+        "text": "What should Kano make next?""
+    },
+    {
+        "priority": 4,
+        "text": "Did you find something confusing on Kano?"
+    }
+]
