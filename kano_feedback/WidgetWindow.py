@@ -152,18 +152,6 @@ class WidgetWindow(MainWindow):
         self._shrink_button = Gtk.Button(label="X")
         self._shrink_button.connect("button_press_event", self.shrink_button_clicked)
 
-        # Wrap the multiline text into a scrollable
-        self.scrolledwindow = ScrolledWindow()
-        self.scrolledwindow.set_vexpand(False)
-        self.scrolledwindow.set_hexpand(False)
-        self.scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        self.scrolledwindow.apply_styling_to_widget()
-        self.scrolledwindow.set_margin_left(2)
-        self.scrolledwindow.set_margin_right(2)
-        self.scrolledwindow.set_margin_top(2)
-        self.scrolledwindow.set_margin_bottom(2)
-        self.scrolledwindow.set_size_request(self.WIDTH, self.HEIGHT_EXPANDED)
-
         # The text input area: The message to send to Kano
         self._text = Gtk.TextView()
         self._text.set_margin_left(20)
@@ -174,6 +162,19 @@ class WidgetWindow(MainWindow):
         self._text.set_editable(True)
         self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self._text.set_size_request(self.WIDTH, -1)
+
+        # Wrap the multiline text into a scrollable
+        self.scrolledwindow = ScrolledWindow()
+        self.scrolledwindow.set_vexpand(False)
+        self.scrolledwindow.set_hexpand(False)
+        self.scrolledwindow.add(self._text)
+        self.scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.scrolledwindow.apply_styling_to_widget()
+        self.scrolledwindow.set_margin_left(2)
+        self.scrolledwindow.set_margin_right(2)
+        self.scrolledwindow.set_margin_top(2)
+        self.scrolledwindow.set_margin_bottom(2)
+        self.scrolledwindow.set_size_request(self.WIDTH, self.HEIGHT_EXPANDED)
 
         # Prepare the edition area and provide either the previous typeahead or a short help message
         self._textbuffer = self._text.get_buffer()
