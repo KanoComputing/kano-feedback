@@ -99,12 +99,12 @@ class WidgetWindow(MainWindow):
         self.rotating_text.set_margin_right(10)
         self.rotating_text.set_margin_top(10)
         self.rotating_text.set_margin_bottom(10)
-        
-        # FIXME: none of these methods are centering the label text
-        #self.rotating_text.set_halign(Gtk.Align.CENTER)
-        #self.rotating_text.set_justify(Gtk.Justification.CENTER)
-        #self.rotating_text.set_alignment(0.5, 0.5)
 
+        # Make the label fit the grid horizontally so that text will be centered
+        self.rotating_text.set_size_request(self.WIDTH, -1)
+
+        self.rotating_text.set_justify(Gtk.Justification.CENTER)
+        self.rotating_text.set_line_wrap_mode(Gtk.WrapMode.CHAR)
         self.rotating_text.set_text (self.get_current_prompt())
 
         # When the widget is clicked, it will be expanded or compacted
