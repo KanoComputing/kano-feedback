@@ -74,9 +74,6 @@ class WidgetWindow(MainWindow):
     def rotating_prompt_window(self):
         ApplicationWindow.__init__(self, 'Report a Problem', self.WIDTH, self.HEIGHT_COMPACT)
 
-        # FIXME: Initially invisible until we position the widget centered on the screen
-        self.visible=False
-
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
         specific_provider.load_from_path(Media.media_dir() + 'css/style.css')
@@ -84,27 +81,34 @@ class WidgetWindow(MainWindow):
         style_context.add_provider_for_screen(screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
         # The widget window has no frame or title bar or borders, and it always sits behind all top level windows
+        self.visible=False
+        self.set_hexpand(False)
         self.set_decorated(False)
         self.set_resizable(False)
         self.set_keep_above(False)
         self.set_property('skip-taskbar-hint', True)
 
         self._grid = Gtk.Grid()
-        self._grid.set_vexpand(False)
+        self._grid.set_size_request(self.WIDTH, self.HEIGHT_COMPACT)
         self._grid.set_hexpand(False)
 
         # The rotating prompt goes here
-        self.rotating_text = Gtk.Label()
+        self.rotating_text = Gtk.Label(expand=False)
+        self.rotating_text.set_hexpand(False)
         self.rotating_text.set_margin_left(10)
         self.rotating_text.set_margin_right(10)
         self.rotating_text.set_margin_top(10)
         self.rotating_text.set_margin_bottom(10)
 
-        # Make the label fit the grid horizontally so that text will be centered
+        # Limit the maximum length the label can occupy horizontally
+        self.rotating_text.set_max_width_chars(30)
+
+        # Tell the label to wrap the text if it doesn't fit
+        self.rotating_text.set_justify(Gtk.Justification.CENTER)
+        self.rotating_text.set_line_wrap(True)
+        self.rotating_text.set_line_wrap_mode(Gtk.WrapMode.WORD)
         self.rotating_text.set_size_request(self.WIDTH, -1)
 
-        self.rotating_text.set_justify(Gtk.Justification.CENTER)
-        self.rotating_text.set_line_wrap_mode(Gtk.WrapMode.CHAR)
         self.rotating_text.set_text (self.get_current_prompt())
 
         # When the widget is clicked, it will be expanded or compacted
