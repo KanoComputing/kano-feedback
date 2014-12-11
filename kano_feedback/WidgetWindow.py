@@ -74,6 +74,8 @@ class WidgetWindow(MainWindow):
     def rotating_prompt_window(self):
         ApplicationWindow.__init__(self, 'Report a Problem', self.WIDTH, self.HEIGHT_COMPACT)
 
+        self.props.name='prompts_window'
+
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
         specific_provider.load_from_path(Media.media_dir() + 'css/style.css')
@@ -92,6 +94,13 @@ class WidgetWindow(MainWindow):
         self._grid.set_size_request(self.WIDTH, self.HEIGHT_COMPACT)
         self._grid.set_hexpand(False)
 
+        # The question mark image to the left
+        self.question_mark = Gtk.Label(expand=False)
+        self.question_mark.props.name='question_mark'
+        self.question_mark.set_text('?')
+        self.question_mark.set_size_request(35, -1)
+        self.question_mark.set_hexpand(True)
+
         # The rotating prompt goes here
         self.rotating_text = Gtk.Label(expand=False)
         self.rotating_text.set_hexpand(False)
@@ -99,6 +108,7 @@ class WidgetWindow(MainWindow):
         self.rotating_text.set_margin_right(10)
         self.rotating_text.set_margin_top(10)
         self.rotating_text.set_margin_bottom(10)
+        self.rotating_text.props.name="prompt_label"
 
         # Limit the maximum length the label can occupy horizontally
         self.rotating_text.set_max_width_chars(30)
@@ -114,7 +124,8 @@ class WidgetWindow(MainWindow):
         # When the widget is clicked, it will be expanded or compacted
         self.connect("button_press_event", self.window_clicked)
 
-        self._grid.attach(self.rotating_text, 0, 0, 1, 1)
+        self._grid.attach(self.question_mark, 0, 0, 1, 1)
+        self._grid.attach_next_to(self.rotating_text, self.question_mark, Gtk.PositionType.RIGHT, 2, 1)
 
         # And when the widget loses interactive focus it will shrink back again
         self.connect("focus-out-event", self.focus_out)
