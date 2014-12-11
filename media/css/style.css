@@ -8,21 +8,7 @@
 */
 
 
-#question_mark
-{
-    color: white;
-    background-color: gray;
-    font: Bariol 13 Bold;
-}
-
-#prompt_label
-{
-    color: gray;
-    border-width: 1px;
-}
-
 @define-color feedback_grey #eeeeee;
-
 
 GtkTextView {
     color: @inactive_writing;
