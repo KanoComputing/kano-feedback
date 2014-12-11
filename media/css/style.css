@@ -7,8 +7,8 @@
 
 */
 
-@define-color feedback_grey #eeeeee;
 
+@define-color feedback_grey #eeeeee;
 
 GtkTextView {
     color: @inactive_writing;

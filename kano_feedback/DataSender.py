@@ -12,6 +12,7 @@ import os
 from os.path import expanduser
 import datetime
 import json
+from gi.repository import Gtk
 
 import kano.logging as logging
 from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file, \
@@ -19,6 +20,10 @@ from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, del
 from kano_world.connection import request_wrapper
 from kano_world.functions import get_email, get_mixed_username
 from kano_profile.badges import increment_app_state_variable_with_dialog
+from kano.logging import logger
+from kano.gtk3.kano_dialog import KanoDialog
+from kano_world.functions import is_registered
+from kano.network import is_internet
 
 TMP_DIR = os.path.join(expanduser('~'), '.kano-feedback/')
 SCREENSHOT_NAME = 'screenshot.png'
@@ -195,10 +200,12 @@ def get_usb_devices():
     o, _, _ = run_cmd(cmd)
     return o
 
+
 def get_networks_info():
     cmd = "ifconfig"
     o, _, _ = run_cmd(cmd)
     return 0
+
 
 def get_wifi_info():
     # Get username here
@@ -241,3 +248,62 @@ def sanitise_input(text):
     if text[:1] == '"' or text[:1] == "'":
         text = " " + text
     return text
+
+
+def try_login():
+    # Check if user is registered
+    if not is_registered():
+        _, _, rc = run_cmd('kano-login 3')
+
+    return is_registered()
+
+
+def try_connect():
+    if is_internet():
+        return True
+
+    run_cmd('sudo /usr/bin/kano-settings 12')
+
+    return is_internet()
+
+
+def send_feedback(title, body, attachment=None):
+    if not try_connect() or not try_login():
+        KanoDialog('Unable to send',
+                   'Please check that you have internet and ' +
+                   'are logged into Kano World.').run()
+        return False
+
+    success, error = send_data(body, attachment, title)
+
+    if not success:
+        logger.error('Error while sending feedback: {}'.format(error))
+        retry = KanoDialog(
+            'Unable to send',
+            'Error while sending your feedback. Do you want to retry?',
+            button_dict={
+                'CLOSE FEEDBACK':
+                    {
+                        'return_value': False,
+                        'color': 'red'
+                    },
+                'RETRY':
+                    {
+                        'return_value': True,
+                        'color': 'green'
+                    }
+            }
+        )
+
+        if retry.run():
+            # Try again until they say no
+            send_feedback(title, body, attachment)
+
+        return False
+
+    thank_you = KanoDialog('Thank You',
+                           'Your feedback is very important to us.')
+    thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+    thank_you.run()
+
+    return True

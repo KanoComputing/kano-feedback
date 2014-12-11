@@ -1,0 +1,72 @@
+/*
+
+# Copyright (C) 2014 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+#
+# This controls the styles
+
+*/
+
+
+@define-color dark_grey #cacaca;
+@define-color light_grey #dbdbdb;
+@define-color active_writing #666666;
+@define-color inactive_writing #cacaca;
+
+.qmark
+{
+    color: #fff;
+    font: Bariol 15;
+}
+
+.qmark_box {
+    background-color: @dark_grey;
+}
+
+.prompt {
+    color: #bebebe;
+    font: Bariol 13;
+}
+
+.gray_box {
+    background-color: @light_grey;
+}
+
+.x_button {
+    border-radius: 12.5px;
+    background-color: @dark_grey;
+    padding: 0px;
+}
+
+.x_button:hover {
+    background-color: @light_grey;
+}
+
+.x_button GtkLabel {
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.scrolled_win {
+    border: 1px solid red;
+}
+
+.small_orange_button GtkLabel:insensitive {
+    color: @inactive_writing;
+    background: transparent;
+}
+
+GtkTextView {
+    color: @inactive_writing;
+    font: Bariol 13;
+}
+
+GtkTextView:selected {
+    background-color: #ff842a;
+}
+
+GtkTextView.active {
+    color: @active_writing;
+    font: Bariol 13;
+}
