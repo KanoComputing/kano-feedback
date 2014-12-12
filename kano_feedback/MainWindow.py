@@ -192,5 +192,11 @@ class MainWindow(ApplicationWindow):
     def check_login(self):
         # Check if user is registered
         if not is_registered():
+            # Make sure the login dialog goes on top
+            self.set_keep_above(False)
+            self.set_keep_below(True)
+            self.show_all()
             _, _, rc = run_cmd('kano-login 3')
-
+            self.set_keep_below(False)
+            self.set_keep_above(True)
+            self.show_all()

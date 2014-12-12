@@ -38,8 +38,8 @@ class FeedbackWindow(MainWindow):
         style_context = Gtk.StyleContext()
         style_context.add_provider_for_screen(screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
-        # Make sure this window is always above
-        self.set_keep_above(True)
+        # Make sure this window has no icon in the task bar so it plays nice with kdesk-blur
+        self.set_property('skip-taskbar-hint', True)
 
         self._grid = Gtk.Grid()
 
@@ -112,8 +112,6 @@ class FeedbackWindow(MainWindow):
         style_context.add_provider_for_screen(screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
         self.set_icon_name("feedback")
-        # Make sure this window is always above
-        self.set_keep_above(True)
 
         self._grid = Gtk.Grid()
 
