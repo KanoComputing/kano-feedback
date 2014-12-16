@@ -267,17 +267,42 @@ def try_connect():
     return is_internet()
 
 
-def send_feedback(title, body, attachment=None):
+def send_form(title, body):
     if not try_connect() or not try_login():
         KanoDialog('Unable to send',
                    'Please check that you have internet and ' +
                    'are logged into Kano World.').run()
         return False
 
-    success, error = send_data(body, attachment, title)
+    # Send Google Form
+    dataToSend = ''
+    # Question entry
+    dataToSend += 'entry.55383705'
+    dataToSend += '='
+    dataToSend += sanitise_input(title)
+    dataToSend += '&'
+    # User entry
+    dataToSend += 'entry.226915453'
+    dataToSend += '='
+    dataToSend += sanitise_input(get_mixed_username())
+    dataToSend += '&'
+    # Reply entry
+    dataToSend += 'entry.2017124825'
+    dataToSend += '='
+    dataToSend += sanitise_input(body)
+    dataToSend += '&'
+    # Email entry
+    dataToSend += 'entry.31617144'
+    dataToSend += '='
+    dataToSend += sanitise_input(get_email())
+    dataToSend += '&'
+    # Send data
+    form = 'https://docs.google.com/a/kano.me/forms/d/1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
+    cmd = 'curl --progress-bar -d \"%s\" %s' % (dataToSend, form)
+    o, e, rc = run_cmd(cmd)
 
-    if not success:
-        logger.error('Error while sending feedback: {}'.format(error))
+    if rc != 0:
+        logger.error('Error while sending feedback: {}'.format(e))
         retry = KanoDialog(
             'Unable to send',
             'Error while sending your feedback. Do you want to retry?',
@@ -297,7 +322,7 @@ def send_feedback(title, body, attachment=None):
 
         if retry.run():
             # Try again until they say no
-            send_feedback(title, body, attachment)
+            send_form(title, body)
 
         return False
 
