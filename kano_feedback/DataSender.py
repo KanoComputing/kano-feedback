@@ -284,11 +284,10 @@ def send_form(title, body):
     }
     # Send data
     form = 'https://docs.google.com/a/kano.me/forms/d/1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
-    cmd = 'curl --progress-bar -d \"%s\" %s' % (dataToSend, form)
     req = requests.post(form, data=dataToSend)
 
-    if req.status_code != 0:
-        logger.error('Error while sending feedback: {}'.format(e))
+    if not req.ok:
+        logger.error('Error while sending feedback: {}'.format(req.reason))
         retry = KanoDialog(
             'Unable to send',
             'Error while sending your feedback. Do you want to retry?',
