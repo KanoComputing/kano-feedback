@@ -12,6 +12,7 @@ import os
 from os.path import expanduser
 import datetime
 import json
+import requests
 from gi.repository import Gtk
 
 import kano.logging as logging
@@ -275,33 +276,18 @@ def send_form(title, body):
         return False
 
     # Send Google Form
-    dataToSend = ''
-    # Question entry
-    dataToSend += 'entry.55383705'
-    dataToSend += '='
-    dataToSend += sanitise_input(title)
-    dataToSend += '&'
-    # User entry
-    dataToSend += 'entry.226915453'
-    dataToSend += '='
-    dataToSend += sanitise_input(get_mixed_username())
-    dataToSend += '&'
-    # Reply entry
-    dataToSend += 'entry.2017124825'
-    dataToSend += '='
-    dataToSend += sanitise_input(body)
-    dataToSend += '&'
-    # Email entry
-    dataToSend += 'entry.31617144'
-    dataToSend += '='
-    dataToSend += sanitise_input(get_email())
-    dataToSend += '&'
+    dataToSend = {
+        'entry.55383705': title,                 # Question entry
+        'entry.226915453': get_mixed_username(), # User entry
+        'entry.2017124825': body,                # Reply entry
+        'entry.31617144': get_email()            # Email entry
+    }
     # Send data
     form = 'https://docs.google.com/a/kano.me/forms/d/1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
     cmd = 'curl --progress-bar -d \"%s\" %s' % (dataToSend, form)
-    o, e, rc = run_cmd(cmd)
+    req = requests.post(form, data=dataToSend)
 
-    if rc != 0:
+    if req.status_code != 0:
         logger.error('Error while sending feedback: {}'.format(e))
         retry = KanoDialog(
             'Unable to send',
