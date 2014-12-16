@@ -17,7 +17,7 @@ from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.buttons import OrangeButton
 from kano.gtk3.apply_styles import apply_styling_to_screen, \
     apply_styling_to_widget
-from DataSender import send_feedback
+from DataSender import send_form
 
 from kano_profile.tracker import add_runtime_to_app
 
@@ -205,7 +205,7 @@ class WidgetWindow(ApplicationWindow):
             Gtk.main_iteration()
 
         text = self._get_text_from_textbuffer(self._text.get_buffer())
-        if send_feedback(self.get_current_prompt(), text):
+        if send_form(self.get_current_prompt(), text):
             self._set_next_prompt()
             self._text.get_buffer().set_text('')
             self._shrink()

@@ -12,6 +12,7 @@ import os
 from os.path import expanduser
 import datetime
 import json
+import requests
 from gi.repository import Gtk
 
 import kano.logging as logging
@@ -267,17 +268,26 @@ def try_connect():
     return is_internet()
 
 
-def send_feedback(title, body, attachment=None):
+def send_form(title, body):
     if not try_connect() or not try_login():
         KanoDialog('Unable to send',
                    'Please check that you have internet and ' +
                    'are logged into Kano World.').run()
         return False
 
-    success, error = send_data(body, attachment, title)
+    # Send Google Form
+    dataToSend = {
+        'entry.55383705': title,                 # Question entry
+        'entry.226915453': get_mixed_username(), # User entry
+        'entry.2017124825': body,                # Reply entry
+        'entry.31617144': get_email()            # Email entry
+    }
+    # Send data
+    form = 'https://docs.google.com/a/kano.me/forms/d/1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
+    req = requests.post(form, data=dataToSend)
 
-    if not success:
-        logger.error('Error while sending feedback: {}'.format(error))
+    if not req.ok:
+        logger.error('Error while sending feedback: {}'.format(req.reason))
         retry = KanoDialog(
             'Unable to send',
             'Error while sending your feedback. Do you want to retry?',
@@ -297,7 +307,7 @@ def send_feedback(title, body, attachment=None):
 
         if retry.run():
             # Try again until they say no
-            send_feedback(title, body, attachment)
+            send_form(title, body)
 
         return False
 
