@@ -155,7 +155,7 @@ def get_wpalog():
 
 
 def get_wlaniface():
-    cmd = "iwconfig wlan0"
+    cmd = "/sbin/iwconfig wlan0"
     o, _, _ = run_cmd(cmd)
     return o
 
@@ -202,9 +202,9 @@ def get_usb_devices():
 
 
 def get_networks_info():
-    cmd = "ifconfig"
+    cmd = "/sbin/ifconfig"
     o, _, _ = run_cmd(cmd)
-    return 0
+    return o
 
 
 def get_wifi_info():
