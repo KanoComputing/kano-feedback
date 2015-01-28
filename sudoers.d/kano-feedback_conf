@@ -1,0 +1,3 @@
+%sudo   ALL=(root) NOPASSWD: /usr/bin/lsof
+%sudo   ALL=(root) NOPASSWD: /sbin/ifconfig
+%sudo   ALL=(root) NOPASSWD: /sbin/iwconfig

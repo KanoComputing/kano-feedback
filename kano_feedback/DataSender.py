@@ -13,7 +13,10 @@ from os.path import expanduser
 import datetime
 import json
 import requests
-from gi.repository import Gtk
+
+# Do not Import Gtk if we are not bound to an X Display
+if os.environ.has_key('DISPLAY'):
+    from gi.repository import Gtk
 
 import kano.logging as logging
 from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file, \
@@ -22,16 +25,21 @@ from kano_world.connection import request_wrapper
 from kano_world.functions import get_email, get_mixed_username
 from kano_profile.badges import increment_app_state_variable_with_dialog
 from kano.logging import logger
-from kano.gtk3.kano_dialog import KanoDialog
+
+# Do not Import Gtk if we are not bound to an X Display
+if os.environ.has_key('DISPLAY'):
+    from kano.gtk3.kano_dialog import KanoDialog
+
 from kano_world.functions import is_registered
 from kano.network import is_internet
 
 TMP_DIR = os.path.join(expanduser('~'), '.kano-feedback/')
 SCREENSHOT_NAME = 'screenshot.png'
 SCREENSHOT_PATH = TMP_DIR + SCREENSHOT_NAME
+ARCHIVE_NAME = 'bug_report.tar.gz'
 
 
-def send_data(text, fullInfo, subject=""):
+def send_data(text, fullInfo, subject="", network_send=True):
     files = {}
 
     if fullInfo:
@@ -43,6 +51,9 @@ def send_data(text, fullInfo, subject=""):
         "category": "os",
         "subject": subject
     }
+
+    if not network_send:
+        return True, None
 
     # send the bug report and remove all the created files
     success, error, data = request_wrapper('post', '/feedback', data=payload, files=files)
@@ -91,7 +102,10 @@ def get_metadata_archive():
         {'name': 'app-logs.txt', 'contents': get_app_logs_raw()},
 
         {'name': 'app-logs-json.txt', 'contents': get_app_logs_json()},
-        {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()}
+        {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()},
+        {'name': 'xorg-log.txt', 'contents': get_xorg_log()},
+        {'name': 'cpu-info.txt', 'contents': get_cpu_info()},
+        {'name': 'lsof.txt', 'contents': get_lsof()}
     ]
 
     if os.path.isfile(SCREENSHOT_PATH):
@@ -106,13 +120,12 @@ def get_metadata_archive():
             write_file_contents(TMP_DIR + file['name'], file['contents'])
 
     # archive all the metadata files - need to change dir to avoid tar subdirectories
-    archive_path = 'bug_report.tar.gz'
     current_directory = os.getcwd()
     os.chdir(TMP_DIR)
-    run_cmd("tar -zcvf {} *".format(archive_path))
+    run_cmd("tar -zcvf {} *".format(ARCHIVE_NAME))
 
     # open the file and return it
-    archive = open(archive_path, 'rb')
+    archive = open(ARCHIVE_NAME, 'rb')
 
     # restore the current working directory
     os.chdir(current_directory)
@@ -138,9 +151,14 @@ def get_packages():
 
 
 def get_dmesg():
-    cmd = "dmesg"
-    o, _, _ = run_cmd(cmd)
-    return o
+    cmd_dmesg = "dmesg"
+    cmd_uptime = "uptime"
+
+    d, _, _ = run_cmd(cmd_dmesg)
+    t, _, _ = run_cmd(cmd_uptime)
+    t = 'system uptime: %s' % t
+
+    return '%s\n%s' % (d, t)
 
 
 def get_syslog():
@@ -157,6 +175,24 @@ def get_wpalog():
 
 def get_wlaniface():
     cmd = "/sbin/iwconfig wlan0"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_xorg_log():
+    cmd = "cat /var/log/Xorg.0.log"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_cpu_info():
+    cmd = "/usr/bin/rpi-info"
+    o, _, _ = run_cmd(cmd)
+    return o
+
+
+def get_lsof():
+    cmd = "sudo /usr/bin/lsof"
     o, _, _ = run_cmd(cmd)
     return o
 
@@ -207,7 +243,6 @@ def get_networks_info():
     o, _, _ = run_cmd(cmd)
     return o
 
-
 def get_wifi_info():
     # Get username here
     world_username = "Kano World username: {}\n\n".format(get_mixed_username())
@@ -240,6 +275,16 @@ def copy_screenshot(filename):
     ensure_dir(TMP_DIR)
     if os.path.isfile(filename):
         run_cmd("cp %s %s" % (filename, SCREENSHOT_PATH))
+
+
+def copy_archive_report(target_archive):
+    ensure_dir(TMP_DIR)
+    source_archive = os.path.join(TMP_DIR, ARCHIVE_NAME)
+    if os.path.isfile(source_archive):
+        _,_,rc = run_cmd("cp %s %s" % (source_archive, target_archive))
+        return (rc==0)
+    else:
+        return False
 
 
 def sanitise_input(text):
