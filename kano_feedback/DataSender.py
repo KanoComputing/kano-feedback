@@ -40,6 +40,7 @@ def send_data(text, fullInfo, subject=""):
     payload = {
         "text": text,
         "email": get_email(),
+        "username": get_mixed_username(),
         "category": "os",
         "subject": subject
     }
