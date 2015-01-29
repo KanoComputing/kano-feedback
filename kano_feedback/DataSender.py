@@ -25,6 +25,7 @@ from kano_world.connection import request_wrapper
 from kano_world.functions import get_email, get_mixed_username
 from kano_profile.badges import increment_app_state_variable_with_dialog
 from kano.logging import logger
+from kano.utils import is_model_b_plus
 
 # Do not Import Gtk if we are not bound to an X Display
 if os.environ.has_key('DISPLAY'):
@@ -95,7 +96,6 @@ def get_metadata_archive():
         {'name': 'cmdline.txt', 'contents': read_file_contents('/boot/cmdline.txt')},
         {'name': 'config.txt', 'contents': read_file_contents('/boot/config.txt')},
         {'name': 'wifi-info.txt', 'contents': get_wifi_info()},
-        {'name': 'ifconfig.txt', 'contents': get_networks_info()},
         {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
 
         # TODO: Remove raw logs when json ones become stable
@@ -188,6 +188,7 @@ def get_xorg_log():
 def get_cpu_info():
     cmd = "/usr/bin/rpi-info"
     o, _, _ = run_cmd(cmd)
+    o += 'Model B+ : %s' % (is_model_b_plus())
     return o
 
 
@@ -248,8 +249,9 @@ def get_wifi_info():
     world_username = "Kano World username: {}\n\n".format(get_mixed_username())
     kwifi_cache = "**kwifi_cache**\n {}\n\n".format(get_kwifi_cache())
     wlaniface = "**wlaniface**\n {}\n\n".format(get_wlaniface())
+    ifconfig = "**ifconfig**\n {}\n\n".format(get_networks_info())
     wpalog = "**wpalog**\n {}\n\n".format(get_wpalog())
-    return world_username + kwifi_cache + wlaniface + wpalog
+    return world_username + kwifi_cache + wlaniface + ifconfig + wpalog
 
 
 def get_hdmi_info():
