@@ -4,6 +4,9 @@ media usr/share/kano-feedback/
 
 sudoers.d/* /etc/sudoers.d
 
+etc/sysctl.d/* /etc/sysctl.d
+etc/security/limits.d/* /etc/security/limits.d/
+
 icon/feedback.app /usr/share/applications/
 icon/feedback.png /usr/share/icons/Kano/66x66/apps/
 icon/kano-help.png /usr/share/icons/Kano/88x88/apps/
