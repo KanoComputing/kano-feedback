@@ -120,6 +120,14 @@ def get_metadata_archive():
         if file['contents']:
             write_file_contents(TMP_DIR + file['name'], file['contents'])
 
+    # Collect all coredumps, for applications that terminated unexpectedly
+    for f in os.listdir('/var/tmp/'):
+        if f.startswith('core-'):
+            file_list.append({
+                    'name': f,
+                    'contents': read_file_contents(os.path.join('/var/tmp', f))
+                    })
+
     # archive all the metadata files - need to change dir to avoid tar subdirectories
     current_directory = os.getcwd()
     os.chdir(TMP_DIR)
