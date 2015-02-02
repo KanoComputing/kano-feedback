@@ -5,8 +5,8 @@
 #
 
 CC=gcc
-CFLAGS=`pkg-config --cflags lxpanel gtk+-2.0` -I/usr/include/libfm
-LIBS=`pkg-config --libs lxpanel gtk+-2.0` -lfm-gtk -lkdesk-hourglass
+CFLAGS=`pkg-config --cflags lxpanel gtk+-2.0`
+LIBS=`pkg-config --libs lxpanel gtk+-2.0` -lkdesk-hourglass
 SRC=kano_feedback.c
 BIN=kano_feedback.so
 INSTALL_PATH=/usr/lib/arm-linux-gnueabihf/lxpanel/plugins/
