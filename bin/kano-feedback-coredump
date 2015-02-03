@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# kano-feedback-coredump
+#
+# Copyright (C) 2014, 2015 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+#
+# This script is called everytime a program segfaults
+# It is setup via sysctl kernel.core_pattern by using a pipe symbol
+#
+
+procname=$1
+killsig=$2
+uid=$3
+gid=$4
+unixtime=$5
+
+core_dump_dir="/var/tmp"
+core_dump_file="$core_dump_dir/core-$procname-$killsig-$uid-$gid-$unixtime.dump"
+
+function save_core_dump()
+{
+    # save the coredump coming through stdin to a gzipped file
+    cat < /dev/stdin | gzip -c - > $1.gz
+}
+
+function remove_old_dumps()
+{
+    # remove core dump files older than 5 days
+    find $core_dump_dir/* -mtime +5 -exec rm {} \;
+}
+
+save_core_dump $core_dump_file
+remove_old_dumps
+exit 0
