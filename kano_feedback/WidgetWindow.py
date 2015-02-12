@@ -21,6 +21,7 @@ from DataSender import send_form
 
 from kano_profile.tracker import add_runtime_to_app
 
+from kano_feedback.WidgetQuestions import WidgetPrompts
 
 class WidgetWindow(ApplicationWindow):
     CLOSE_FEEDBACK = 0
@@ -35,10 +36,9 @@ class WidgetWindow(ApplicationWindow):
         ApplicationWindow.__init__(self, 'Report a Problem', self.WIDTH,
                                    self.HEIGHT_COMPACT)
 
-        self.prompts_file = '/usr/share/kano-feedback/media/widget/prompts.json'
-        self.prompts = None
-        self.current_prompt = None
-        self.current_prompt_idx = 0
+        self.wprompts = WidgetPrompts()
+        self.wprompts.load_prompts()
+
         self.last_click = 0
 
         self.app_name_opened = 'feedback-widget-opened'
@@ -49,7 +49,6 @@ class WidgetWindow(ApplicationWindow):
 
         self.rotating_mode = True
         self.in_submit = False
-        self.load_prompts()
 
         apply_styling_to_screen(media_dir() + 'css/widget.css')
 
@@ -80,7 +79,7 @@ class WidgetWindow(ApplicationWindow):
 
         grid.attach(qmark_box, 0, 0, 1, 1)
 
-        self._prompt = prompt = Gtk.Label(self.get_current_prompt(),
+        self._prompt = prompt = Gtk.Label(self.wprompts.get_current_prompt(),
                                           hexpand=True)
         prompt.get_style_context().add_class('prompt')
         prompt.set_justify(Gtk.Justification.FILL)
@@ -205,17 +204,16 @@ class WidgetWindow(ApplicationWindow):
             Gtk.main_iteration()
 
         text = self._get_text_from_textbuffer(self._text.get_buffer())
-        if send_form(self.get_current_prompt(), text):
-            self._set_next_prompt()
+        if send_form(self.wprompts.get_current_prompt(), text):
+
+            # TODO: save this question as answered, so we don't ask this one again
+            self.wprompts.mark_current_prompt_and_rotate()
+            self._prompt.set_text(self.wprompts.get_current_prompt())
             self._text.get_buffer().set_text('')
             self._shrink()
 
         self.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.ARROW))
         self.unblur()
-
-    def _set_next_prompt(self):
-        self.current_prompt = self.get_next_prompt()
-        self._prompt.set_text(self.get_current_prompt())
 
     def _text_changed(self, text_buffer):
         buff_text = self._get_text_from_textbuffer(text_buffer)
@@ -223,34 +221,4 @@ class WidgetWindow(ApplicationWindow):
 
     def _get_text_from_textbuffer(self, text_buffer):
         startiter, enditer = text_buffer.get_bounds()
-
         return text_buffer.get_text(startiter, enditer, True)
-
-    def load_prompts(self):
-        # Fetch prompts from a local file
-        if not self.prompts:
-            try:
-                with open(self.prompts_file, 'r') as f:
-                    prompts = json.loads(f.read())
-                self.prompts = sorted(prompts, key=lambda k: k['priority'])
-            except:
-                pass
-
-    def get_current_prompt(self):
-        if not self.current_prompt:
-            self.current_prompt = self.get_next_prompt()
-
-        return self.current_prompt
-
-    def get_next_prompt(self):
-        text = "What's your favorite part of Kano?"
-        try:
-            text = self.prompts[self.current_prompt_idx]['text']
-            if self.current_prompt_idx == len(self.prompts) - 1:
-                self.current_prompt_idx = 0
-            else:
-                self.current_prompt_idx += 1
-        except:
-            pass
-
-        return text
