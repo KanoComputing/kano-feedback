@@ -13,7 +13,7 @@ import os
 import json
 import csv
 from kano.network import is_internet
-
+from kano_profile.tracker import track_data
 
 #
 # TODO : This is fake test data, it should come from Kano networked API
@@ -68,6 +68,9 @@ class WidgetPrompts:
     def mark_current_prompt_and_rotate(self):
         # the current prompt has been responded, flag it accordingly so we do not use it again
         self._cache_mark_responded(self.current_prompt)
+
+        # add the question to the tracker
+        track_data("feedback-widget", {"question": self.current_prompt, "response": "y"})
 
         # And moves to the next available one
         self.current_prompt = self._get_next_prompt()
