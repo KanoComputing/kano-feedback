@@ -49,8 +49,7 @@ class WidgetWindow(ApplicationWindow):
 
     def hide_until_more_questions(self):
         # Hide the widget and set a timer to get new questions
-        #delay=15*60*1000
-        delay=3*000
+        delay=15*60*1000
         self.hide()
         GObject.timeout_add(delay, self.timer_fetch_questions)
         return
@@ -58,7 +57,7 @@ class WidgetWindow(ApplicationWindow):
     def timer_fetch_questions(self):
         # This function will periodically call the Questions API
         # Until we get questions for the user, then show the widget again
-        self.wprompts.load_prompts(test=True)
+        self.wprompts.load_prompts()
         nextp=self.wprompts.get_current_prompt()
         if nextp:
             self.show()
@@ -255,7 +254,7 @@ class WidgetWindow(ApplicationWindow):
                 # hide the widget until they arrive over the API
                 self.hide_until_more_questions()
         else:
-            # TODO: save this answer locally so we can send it when back online
+            # TODO: could not send, save it locally so we can send it when back online
             pass
 
         self.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.ARROW))

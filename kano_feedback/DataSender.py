@@ -326,13 +326,6 @@ def try_connect():
 
 def send_form(title, body, question_id):
 
-    # TODO: Remove me - this is for testing!
-    print 'TEST: Feedback Widget Data Sent'
-    print 'Question:', title
-    print 'QuestionID:', question_id
-
-    return True
-
     if not try_connect() or not try_login():
         KanoDialog('Unable to send',
                    'Please check that you have internet and ' +

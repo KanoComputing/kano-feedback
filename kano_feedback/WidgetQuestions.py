@@ -16,36 +16,6 @@ import requests
 from kano.network import is_internet
 from kano_profile.tracker import track_data
 
-#
-# TODO: Below are sample responses to test the Kano Questions API
-#
-test_questions = '''
-{  
-    "questions": [
-        {  
-            "id": "54de0072f448cb0800041190",
-            "text": "Test question one.",
-            "date_created": "2015-02-13T13:47:30.045Z"
-        },
-        {  
-            "id": "54de0072f448cb0800041191",
-            "text": "Test question two.",
-            "date_created": "2015-01-13T13:47:30.045Z"
-        },
-        {  
-            "id": "54de0072f448cb0800041192",
-            "text": "Test question three.",
-            "date_created": "2015-03-13T13:47:30.045Z"
-        }
-    ]
-}
-'''
-
-test_empty_questions = '''
-{"questions":[]}
-'''
-
-
 
 class WidgetPrompts:
     '''
@@ -62,10 +32,10 @@ class WidgetPrompts:
         self.current_prompt = None
         self.current_prompt_idx = -1
 
-    def load_prompts(self, test=False):
+    def load_prompts(self):
         # Try to get the questions from Kano Network
         if is_internet():
-            if self._load_remote_prompts(test=test):
+            if self._load_remote_prompts():
                 self.current_prompt = self._get_next_prompt()
 
     def get_current_prompt(self):
@@ -80,21 +50,17 @@ class WidgetPrompts:
         self._cache_mark_responded(self.current_prompt)
 
         # add the question to the tracker
-        track_data("feedback-widget", {"question": self.current_prompt, "response": "y"})
+        track_data("feedback-widget", { "question": self.current_prompt, "response": "y", \
+                                            "question_id" : self.get_current_prompt_id() })
 
         # And moves to the next available one
         self.current_prompt = self._get_next_prompt()
         return self.current_prompt
 
-    def _load_remote_prompts(self, test=False):
+    def _load_remote_prompts(self):
         try:
-            # TODO: Remove test mode when API is confirmed to work
-            if test:
-                #questions=test_empty_questions
-                questions=test_questions
-            else:
-                questions=requests.get(self.kano_questions_api).text
-
+            # Contact Kano questions API
+            questions=requests.get(self.kano_questions_api).text
             preloaded=json.loads(questions)
             prompts = sorted(preloaded['questions'], key=lambda k: k['date_created'])
             if len(prompts):
