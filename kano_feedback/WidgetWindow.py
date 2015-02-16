@@ -49,8 +49,10 @@ class WidgetWindow(ApplicationWindow):
 
     def hide_until_more_questions(self):
         # Hide the widget and set a timer to get new questions
+        #delay=15*60*1000
+        delay=3*000
         self.hide()
-        GObject.timeout_add(15*60*1000, self.timer_fetch_questions)
+        GObject.timeout_add(delay, self.timer_fetch_questions)
         return
 
     def timer_fetch_questions(self):
@@ -240,7 +242,8 @@ class WidgetWindow(ApplicationWindow):
             Gtk.main_iteration()
 
         text = self._get_text_from_textbuffer(self._text.get_buffer())
-        if send_form(self.wprompts.get_current_prompt(), text):
+        text_id = self.wprompts.get_current_prompt_id()
+        if send_form(self.wprompts.get_current_prompt(), text, text_id):
             self.wprompts.mark_current_prompt_and_rotate()
             nextp = self.wprompts.get_current_prompt()
             if nextp:

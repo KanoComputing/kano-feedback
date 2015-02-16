@@ -324,10 +324,13 @@ def try_connect():
     return is_internet()
 
 
-def send_form(title, body):
+def send_form(title, body, question_id):
 
     # TODO: Remove me - this is for testing!
-    print 'fake test: Feedback Widget Data Sent'
+    print 'TEST: Feedback Widget Data Sent'
+    print 'Question:', title
+    print 'QuestionID:', question_id
+
     return True
 
     if not try_connect() or not try_login():
@@ -341,7 +344,8 @@ def send_form(title, body):
         'entry.55383705': title,                 # Question entry
         'entry.226915453': get_mixed_username(), # User entry
         'entry.2017124825': body,                # Reply entry
-        'entry.31617144': get_email()            # Email entry
+        'entry.31617144': get_email(),           # Email entry
+        'entry.2038035421': question_id          # Question ID
     }
     # Send data
     form = 'https://docs.google.com/a/kano.me/forms/d/1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'

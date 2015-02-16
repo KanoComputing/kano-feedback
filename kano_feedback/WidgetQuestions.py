@@ -72,6 +72,9 @@ class WidgetPrompts:
         # call this method to obtain the current question to display to the user
         return self.current_prompt
 
+    def get_current_prompt_id(self):
+        return self.prompts[self.current_prompt_idx]['id']
+
     def mark_current_prompt_and_rotate(self):
         # the current prompt has been responded, flag it accordingly so we do not use it again
         self._cache_mark_responded(self.current_prompt)
@@ -130,12 +133,14 @@ class WidgetPrompts:
 
         return next_prompt
 
-    def _cache_mark_responded(self, prompt):
+    def _cache_mark_responded(self, prompt, postpone=False):
+        # Will mark a question as being answered. If postpone is True
+        # A false will be set meaning it will be sent next time we are online
         try:
             # A cached CSV file to remember what has been responded
             with open(self.cached_response_file, 'ab') as f:
                 writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
-                writer.writerow([prompt])
+                writer.writerow([ prompt, 'yes' ])
             return True
         except:
             return False
