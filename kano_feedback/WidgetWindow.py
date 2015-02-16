@@ -9,7 +9,7 @@
 #
 
 import json
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GObject
 
 from kano_feedback.Media import media_dir
 from kano.gtk3.application_window import ApplicationWindow
@@ -39,6 +39,45 @@ class WidgetWindow(ApplicationWindow):
         self.wprompts = WidgetPrompts()
         self.wprompts.load_prompts()
 
+        self._initialise_window()
+
+        if not self.wprompts.get_current_prompt():
+            self.hide_until_more_questions()
+            return
+
+        self.position_widget()
+
+    def hide_until_more_questions(self):
+        # Hide the widget and set a timer to get new questions
+        self.hide()
+        GObject.timeout_add(15*60*1000, self.timer_fetch_questions)
+        return
+
+    def timer_fetch_questions(self):
+        # This function will periodically call the Questions API
+        # Until we get questions for the user, then show the widget again
+        self.wprompts.load_prompts(test=True)
+        nextp=self.wprompts.get_current_prompt()
+        if nextp:
+            self.show()
+            self.position_widget()
+            self._shrink()
+
+            self._prompt.set_text(nextp)
+            self._text.get_buffer().set_text('')
+            return False
+        else:
+            return True
+
+    def position_widget(window):
+        # Position the widget window at the top center of the screen
+        screen = Gdk.Screen.get_default()
+        widget_x = (screen.get_width() - window.WIDTH) / 2
+        widget_y = 20
+        window.move(widget_x, widget_y)
+
+    def _initialise_window(self):
+
         self.last_click = 0
 
         self.app_name_opened = 'feedback-widget-opened'
@@ -54,9 +93,6 @@ class WidgetWindow(ApplicationWindow):
 
         ScrolledWindow.apply_styling_to_screen(wide=False)
 
-        self._initialise_window()
-
-    def _initialise_window(self):
         self.visible = False
         self.set_hexpand(False)
         self.set_decorated(False)
@@ -205,12 +241,19 @@ class WidgetWindow(ApplicationWindow):
 
         text = self._get_text_from_textbuffer(self._text.get_buffer())
         if send_form(self.wprompts.get_current_prompt(), text):
-
-            # TODO: save this question as answered, so we don't ask this one again
             self.wprompts.mark_current_prompt_and_rotate()
-            self._prompt.set_text(self.wprompts.get_current_prompt())
-            self._text.get_buffer().set_text('')
-            self._shrink()
+            nextp = self.wprompts.get_current_prompt()
+            if nextp:
+                self._prompt.set_text(nextp)
+                self._text.get_buffer().set_text('')
+                self._shrink()
+            else:
+                # There are no more questions available,
+                # hide the widget until they arrive over the API
+                self.hide_until_more_questions()
+        else:
+            # TODO: save this answer locally so we can send it when back online
+            pass
 
         self.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.ARROW))
         self.unblur()
