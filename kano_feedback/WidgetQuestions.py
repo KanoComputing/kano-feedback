@@ -50,8 +50,8 @@ class WidgetPrompts:
         self._cache_mark_responded(self.current_prompt)
 
         # add the question to the tracker
-        track_data("feedback_widget_response", { "question": self.current_prompt, \
-                                                     "question_id" : self.get_current_prompt_id() })
+        track_data("feedback_widget_response_sent", {"question": self.current_prompt, \
+                                                     "question_id" : self.get_current_prompt_id()})
 
         # And moves to the next available one
         self.current_prompt = self._get_next_prompt()
