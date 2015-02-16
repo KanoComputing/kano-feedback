@@ -324,7 +324,8 @@ def try_connect():
     return is_internet()
 
 
-def send_form(title, body):
+def send_form(title, body, question_id):
+
     if not try_connect() or not try_login():
         KanoDialog('Unable to send',
                    'Please check that you have internet and ' +
@@ -336,7 +337,8 @@ def send_form(title, body):
         'entry.55383705': title,                 # Question entry
         'entry.226915453': get_mixed_username(), # User entry
         'entry.2017124825': body,                # Reply entry
-        'entry.31617144': get_email()            # Email entry
+        'entry.31617144': get_email(),           # Email entry
+        'entry.2038035421': question_id          # Question ID
     }
     # Send data
     form = 'https://docs.google.com/a/kano.me/forms/d/1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'

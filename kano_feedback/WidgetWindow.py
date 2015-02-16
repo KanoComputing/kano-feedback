@@ -9,7 +9,7 @@
 #
 
 import json
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GObject
 
 from kano_feedback.Media import media_dir
 from kano.gtk3.application_window import ApplicationWindow
@@ -21,6 +21,7 @@ from DataSender import send_form
 
 from kano_profile.tracker import add_runtime_to_app
 
+from kano_feedback.WidgetQuestions import WidgetPrompts
 
 class WidgetWindow(ApplicationWindow):
     CLOSE_FEEDBACK = 0
@@ -35,10 +36,49 @@ class WidgetWindow(ApplicationWindow):
         ApplicationWindow.__init__(self, 'Report a Problem', self.WIDTH,
                                    self.HEIGHT_COMPACT)
 
-        self.prompts_file = '/usr/share/kano-feedback/media/widget/prompts.json'
-        self.prompts = None
-        self.current_prompt = None
-        self.current_prompt_idx = 0
+        self.wprompts = WidgetPrompts()
+        self.wprompts.load_prompts()
+
+        self._initialise_window()
+
+        if not self.wprompts.get_current_prompt():
+            self.hide_until_more_questions()
+            return
+
+        self.position_widget()
+
+    def hide_until_more_questions(self):
+        # Hide the widget and set a timer to get new questions
+        delay=15*60*1000
+        self.hide()
+        GObject.timeout_add(delay, self.timer_fetch_questions)
+        return
+
+    def timer_fetch_questions(self):
+        # This function will periodically call the Questions API
+        # Until we get questions for the user, then show the widget again
+        self.wprompts.load_prompts()
+        nextp=self.wprompts.get_current_prompt()
+        if nextp:
+            self.show()
+            self.position_widget()
+            self._shrink()
+
+            self._prompt.set_text(nextp)
+            self._text.get_buffer().set_text('')
+            return False
+        else:
+            return True
+
+    def position_widget(window):
+        # Position the widget window at the top center of the screen
+        screen = Gdk.Screen.get_default()
+        widget_x = (screen.get_width() - window.WIDTH) / 2
+        widget_y = 20
+        window.move(widget_x, widget_y)
+
+    def _initialise_window(self):
+
         self.last_click = 0
 
         self.app_name_opened = 'feedback-widget-opened'
@@ -49,15 +89,11 @@ class WidgetWindow(ApplicationWindow):
 
         self.rotating_mode = True
         self.in_submit = False
-        self.load_prompts()
 
         apply_styling_to_screen(media_dir() + 'css/widget.css')
 
         ScrolledWindow.apply_styling_to_screen(wide=False)
 
-        self._initialise_window()
-
-    def _initialise_window(self):
         self.visible = False
         self.set_hexpand(False)
         self.set_decorated(False)
@@ -80,7 +116,7 @@ class WidgetWindow(ApplicationWindow):
 
         grid.attach(qmark_box, 0, 0, 1, 1)
 
-        self._prompt = prompt = Gtk.Label(self.get_current_prompt(),
+        self._prompt = prompt = Gtk.Label(self.wprompts.get_current_prompt(),
                                           hexpand=True)
         prompt.get_style_context().add_class('prompt')
         prompt.set_justify(Gtk.Justification.FILL)
@@ -205,17 +241,24 @@ class WidgetWindow(ApplicationWindow):
             Gtk.main_iteration()
 
         text = self._get_text_from_textbuffer(self._text.get_buffer())
-        if send_form(self.get_current_prompt(), text):
-            self._set_next_prompt()
-            self._text.get_buffer().set_text('')
-            self._shrink()
+        text_id = self.wprompts.get_current_prompt_id()
+        if send_form(self.wprompts.get_current_prompt(), text, text_id):
+            self.wprompts.mark_current_prompt_and_rotate()
+            nextp = self.wprompts.get_current_prompt()
+            if nextp:
+                self._prompt.set_text(nextp)
+                self._text.get_buffer().set_text('')
+                self._shrink()
+            else:
+                # There are no more questions available,
+                # hide the widget until they arrive over the API
+                self.hide_until_more_questions()
+        else:
+            # TODO: could not send, save it locally so we can send it when back online
+            pass
 
         self.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.ARROW))
         self.unblur()
-
-    def _set_next_prompt(self):
-        self.current_prompt = self.get_next_prompt()
-        self._prompt.set_text(self.get_current_prompt())
 
     def _text_changed(self, text_buffer):
         buff_text = self._get_text_from_textbuffer(text_buffer)
@@ -223,34 +266,4 @@ class WidgetWindow(ApplicationWindow):
 
     def _get_text_from_textbuffer(self, text_buffer):
         startiter, enditer = text_buffer.get_bounds()
-
         return text_buffer.get_text(startiter, enditer, True)
-
-    def load_prompts(self):
-        # Fetch prompts from a local file
-        if not self.prompts:
-            try:
-                with open(self.prompts_file, 'r') as f:
-                    prompts = json.loads(f.read())
-                self.prompts = sorted(prompts, key=lambda k: k['priority'])
-            except:
-                pass
-
-    def get_current_prompt(self):
-        if not self.current_prompt:
-            self.current_prompt = self.get_next_prompt()
-
-        return self.current_prompt
-
-    def get_next_prompt(self):
-        text = "What's your favorite part of Kano?"
-        try:
-            text = self.prompts[self.current_prompt_idx]['text']
-            if self.current_prompt_idx == len(self.prompts) - 1:
-                self.current_prompt_idx = 0
-            else:
-                self.current_prompt_idx += 1
-        except:
-            pass
-
-        return text
