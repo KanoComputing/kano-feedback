@@ -60,6 +60,7 @@ class WidgetWindow(ApplicationWindow):
         self.wprompts.load_prompts()
         nextp=self.wprompts.get_current_prompt()
         if nextp:
+            self.set_keep_below(True)
             self.show()
             self.position_widget()
             self._shrink()
