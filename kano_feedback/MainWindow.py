@@ -16,11 +16,17 @@ GObject.threads_init()
 
 from kano.gtk3.application_window import ApplicationWindow
 
-from DataSender import send_data
 from kano.utils import run_cmd
 from kano_world.functions import is_registered
 from kano.network import is_internet
 from kano.gtk3.kano_dialog import KanoDialog
+# implicit imports
+from kano.gtk3.top_bar import TopBar
+from DataSender import (send_data, take_screenshot, copy_screenshot, delete_tmp_dir,
+                        create_tmp_dir, SCREENSHOT_NAME, SCREENSHOT_PATH, delete_screenshot)
+from kano.gtk3.buttons import KanoButton
+from kano.gtk3.scrolled_window import ScrolledWindow
+from kano_feedback import Media
 
 
 class MainWindow(ApplicationWindow):

@@ -159,8 +159,7 @@ def get_version():
     Return a string with the current version of the OS.
     Uses the command kanux_version
     '''
-    cmd = "ls -l /etc/kanux_version | \
-           awk '{ print $6 \" \" $7 \" \" $8 }' && cat /etc/kanux_version"
+    cmd = "ls -l /etc/kanux_version | awk '{ print $6 \" \" $7 \" \" $8 }' && cat /etc/kanux_version"
     o, _, _ = run_cmd(cmd)
 
     return o
