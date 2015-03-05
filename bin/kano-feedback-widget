@@ -23,7 +23,8 @@ from kano_feedback.WidgetWindow import WidgetWindow
 
 
 def main():
-    win = WidgetWindow()
+    # initialise the window
+    WidgetWindow()
 
     # Ignore all SIGTERM signals, app can be closed via a "kill -9".
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
