@@ -17,19 +17,20 @@ if __name__ == '__main__':
     report_file = '/tmp/kano-feedback-cli.tar.gz'
 
     if len(sys.argv) > 1:
-        report_file=sys.argv[1]
+        report_file = sys.argv[1]
 
     print 'taking a screenshot...'
     take_screenshot()
 
     print 'gathering feedback data...'
-    send_data ('', fullInfo=True, network_send=False)
+    send_data('', fullInfo=True, network_send=False)
 
     is_saved = copy_archive_report(report_file)
     if is_saved:
         print 'feedback file saved to:', report_file
     else:
-        print 'could not save feedback to:', report_file, 'perhaps you need to use sudo?'
+        print 'could not save feedback to:', report_file, \
+              'perhaps you need to use sudo?'
 
     delete_tmp_dir()
-    sys.exit(not is_saved==True)
+    sys.exit(is_saved is False)

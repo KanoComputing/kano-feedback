@@ -10,6 +10,7 @@
 
 from kano_feedback.MainWindow import *
 
+
 class FeedbackWindow(MainWindow):
     CLOSE_FEEDBACK = 0
     KEEP_OPEN = 1
@@ -17,6 +18,9 @@ class FeedbackWindow(MainWindow):
     WIDTH = 400
 
     def __init__(self, bug_report=False):
+        '''
+        Initialises the window, creating a report or contact window
+        '''
         MainWindow.__init__(self, subject='Kano Desktop Feedback Widget')
         self.bug_report = bug_report
         if self.bug_report:
@@ -25,7 +29,10 @@ class FeedbackWindow(MainWindow):
             self.contact_window()
 
     def contact_window(self):
-
+        '''
+        Contact Us window
+        Contains text view and a Send button
+        '''
         # delete the directory containing all the info we'll send, and recreate
         delete_tmp_dir()
         create_tmp_dir()
@@ -36,15 +43,18 @@ class FeedbackWindow(MainWindow):
         specific_provider = Gtk.CssProvider()
         specific_provider.load_from_path(Media.media_dir() + 'css/style.css')
         style_context = Gtk.StyleContext()
-        style_context.add_provider_for_screen(screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        style_context.add_provider_for_screen(screen, specific_provider,
+                                              Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
-        # Make sure this window has no icon in the task bar so it plays nice with kdesk-blur
+        # Make sure this window has no icon in the task bar
+        # so it plays nice with kdesk-blur
         self.set_property('skip-taskbar-hint', True)
 
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title="Contact Us", window_width=self.WIDTH, has_buttons=False)
+        self._top_bar = TopBar(title="Contact Us", window_width=self.WIDTH,
+                               has_buttons=False)
         self._top_bar.set_close_callback(Gtk.main_quit)
         self.set_decorated(True)
         self.set_titlebar(self._top_bar)
@@ -57,11 +67,13 @@ class FeedbackWindow(MainWindow):
 
         self._textbuffer = self._text.get_buffer()
         self._textbuffer.set_text("Type your feedback here!")
-        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
+        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text",
+                                                                 self.clear_buffer)
 
         scrolledwindow = ScrolledWindow()
         scrolledwindow.set_vexpand(True)
-        scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scrolledwindow.set_policy(Gtk.PolicyType.NEVER,
+                                  Gtk.PolicyType.AUTOMATIC)
         scrolledwindow.apply_styling_to_widget()
         scrolledwindow.add(self._text)
         scrolledwindow.set_margin_left(2)
@@ -69,7 +81,8 @@ class FeedbackWindow(MainWindow):
         scrolledwindow.set_margin_top(2)
         scrolledwindow.set_margin_bottom(2)
 
-        # Very hacky way to get a border: create a grey event box which is a little bigger than the widget below
+        # Very hacky way to get a border: create a grey event box
+        # which is a little bigger than the widget below
         border = Gtk.EventBox()
         border.get_style_context().add_class("grey")
         border.add(scrolledwindow)
@@ -103,20 +116,25 @@ class FeedbackWindow(MainWindow):
             pass
 
     def report_window(self):
+        '''
+        Report window
+        Contains 2 text views and Take Screenshot, Add Image and Send buttons
+        '''
         ApplicationWindow.__init__(self, 'Report a Problem', self.WIDTH, 0.35)
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
         specific_provider.load_from_path(Media.media_dir() + 'css/style.css')
         style_context = Gtk.StyleContext()
-        style_context.add_provider_for_screen(screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        style_context.add_provider_for_screen(screen, specific_provider,
+                                              Gtk.STYLE_PROVIDER_PRIORITY_USER)
 
         self.set_icon_name("feedback")
-
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title="Report a Problem", window_width=self.WIDTH, has_buttons=False)
+        self._top_bar = TopBar(title="Report a Problem",
+                               window_width=self.WIDTH, has_buttons=False)
         self._top_bar.set_close_callback(Gtk.main_quit)
         self.set_decorated(True)
         self.set_titlebar(self._top_bar)
@@ -138,7 +156,8 @@ class FeedbackWindow(MainWindow):
         self._textbuffer = self._text.get_buffer()
         self._textbuffer.set_text("Type your problem here!")
 
-        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text", self.clear_buffer)
+        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text",
+                                                                 self.clear_buffer)
 
         scrolledwindow = ScrolledWindow()
         scrolledwindow.set_vexpand(True)
@@ -150,7 +169,8 @@ class FeedbackWindow(MainWindow):
         scrolledwindow.set_margin_top(2)
         scrolledwindow.set_margin_bottom(2)
 
-        # Very hacky way to get a border: create a grey event box which is a little bigger than the widget below
+        # Very hacky way to get a border: create a grey event box
+        # which is a little bigger than the widget below
         border = Gtk.EventBox()
         border.get_style_context().add_class("grey")
         border.add(scrolledwindow)
@@ -163,7 +183,8 @@ class FeedbackWindow(MainWindow):
         # Create take screenshot button
         self._screenshot_button = KanoButton("TAKE SCREENSHOT", "blue")
         self._screenshot_button.set_sensitive(True)
-        self._screenshot_button.connect("button_press_event", self.screenshot_clicked)
+        self._screenshot_button.connect("button_press_event",
+                                        self.screenshot_clicked)
 
         # Create attach screenshot button
         self._attach_button = KanoButton("ADD IMAGE", "blue")
@@ -206,16 +227,27 @@ class FeedbackWindow(MainWindow):
             pass
 
     def screenshot_clicked(self, button=None, event=None):
+        '''
+        Takes a screenshot while minimising the window
+        '''
+        # minimise the window
         self.iconify()
         take_screenshot()
         self.include_screenshot()
+        # restore the window
         self.deiconify()
 
     def attach_clicked(self, button=None, event=None):
+        '''
+        Opens the File Chooser Dialog.
+        If image selected then copy it to the feedback folder
+        '''
         screenshot = None
         # Open file manager
-        dialog = Gtk.FileChooserDialog("Please choose a file", self, Gtk.FileChooserAction.OPEN,
-                                       (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+        dialog = Gtk.FileChooserDialog("Please choose a file", self,
+                                       Gtk.FileChooserAction.OPEN,
+                                       (Gtk.STOCK_CANCEL,
+                                        Gtk.ResponseType.CANCEL,
                                         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
         self.add_filters(dialog)
@@ -231,6 +263,10 @@ class FeedbackWindow(MainWindow):
             self.include_screenshot()
 
     def add_filters(self, dialog):
+        '''
+        Add image type filters
+        Used for the File Chooser Dialog
+        '''
         # Image filter
         filter_images = Gtk.FileFilter()
         filter_images.set_name("Images")
@@ -250,9 +286,11 @@ class FeedbackWindow(MainWindow):
         filter_any.add_pattern("*")
         dialog.add_filter(filter_any)
 
-    # this is the box containing the filename of the screenshot,
-    # and the option to display it or remove it
     def include_screenshot(self):
+        '''
+        This is the box containing the filename of the screenshot,
+        and the option to display it or remove it
+        '''
         if not hasattr(self, "screenshot"):
             self.screenshot = Gtk.EventBox()
             self.screenshot.get_style_context().add_class("kano_button")
@@ -262,7 +300,8 @@ class FeedbackWindow(MainWindow):
             attach_cursor_events(remove_screenshot)
             remove_icon = Gtk.Image.new_from_file("/usr/share/kano-feedback/media/icons/close.png")
             remove_screenshot.add(remove_icon)
-            remove_screenshot.connect("button-release-event", self.remove_screenshot)
+            remove_screenshot.connect("button-release-event",
+                                      self.remove_screenshot)
             remove_screenshot.get_style_context().add_class("blue_background")
 
             show_screenshot = Gtk.Button()
@@ -287,22 +326,36 @@ class FeedbackWindow(MainWindow):
         self.screenshot_box.pack_start(self.screenshot, False, False, 0)
 
     def remove_screenshot(self, widget, event):
+        '''
+        Remove screenshot button action
+        '''
         delete_screenshot()
         self.screenshot_box.remove(self.screenshot)
         self.pack_screenshot_buttons()
         self.show_all()
 
     def show_screenshot(self, widget, event):
+        '''
+        Creates and displays a dialog with the screenshot image
+        '''
         height = Gdk.Screen().get_default().get_height()
         width = Gdk.Screen().get_default().get_width()
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(SCREENSHOT_PATH, width * 0.5, height * 0.5)
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(SCREENSHOT_PATH,
+                                                        width * 0.5,
+                                                        height * 0.5)
         image = Gtk.Image.new_from_pixbuf(pixbuf)
 
         dialog = KanoDialog("Screenshot", widget=image)
         dialog.run()
 
     def pack_screenshot_buttons(self):
-        self.screenshot_box.pack_start(self._screenshot_button, False, False, 0)
-        self.screenshot_box.set_child_non_homogeneous(self._screenshot_button, True)
+        '''
+        Pack the screenshot buttons into a box
+        '''
+        self.screenshot_box.pack_start(self._screenshot_button,
+                                       False, False, 0)
+        self.screenshot_box.set_child_non_homogeneous(self._screenshot_button,
+                                                      True)
         self.screenshot_box.pack_start(self._attach_button, False, False, 0)
-        self.screenshot_box.set_child_non_homogeneous(self._attach_button, True)
+        self.screenshot_box.set_child_non_homogeneous(self._attach_button,
+                                                      True)

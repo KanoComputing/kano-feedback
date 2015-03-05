@@ -40,12 +40,15 @@ SCREENSHOT_PATH = TMP_DIR + SCREENSHOT_NAME
 ARCHIVE_NAME = 'bug_report.tar.gz'
 
 
-def send_data(text, fullInfo, subject="", network_send=True):
+def send_data(text, full_info, subject="", network_send=True):
+    '''
+    Sends the data to our servers through a post request
+    '''
     files = {}
-
-    if fullInfo:
+    # packs all the information into 'files'
+    if full_info:
         files['report'] = get_metadata_archive()
-
+    # This is the actual info: subject, text, email, username
     payload = {
         "text": text,
         "email": get_email(),
@@ -58,15 +61,16 @@ def send_data(text, fullInfo, subject="", network_send=True):
         return True, None
 
     # send the bug report and remove all the created files
-    success, error, data = request_wrapper('post', '/feedback', data=payload, files=files)
+    success, error, data = request_wrapper('post', '/feedback',
+                                           data=payload, files=files)
     delete_tmp_dir()
 
     if not success:
         return False, error
-    if fullInfo:
+    if full_info:
         # kano-profile stat collection
-        increment_app_state_variable_with_dialog('kano-feedback', 'bugs_submitted', 1)
-
+        increment_app_state_variable_with_dialog('kano-feedback',
+                                                 'bugs_submitted', 1)
         # logs were sent, clean up
         logging.cleanup()
 
@@ -74,20 +78,32 @@ def send_data(text, fullInfo, subject="", network_send=True):
 
 
 def delete_tmp_dir():
+    '''
+    Deletes TMP_DIR directory
+    '''
     delete_dir(TMP_DIR)
 
 
 def create_tmp_dir():
+    '''
+    Creates TMP_DIR directory
+    '''
     ensure_dir(TMP_DIR)
 
 
 def delete_screenshot():
+    '''
+    Deletes the SCREENSHOT_PATH file
+    '''
     delete_file(SCREENSHOT_PATH)
 
 
 def get_metadata_archive():
+    '''
+    It creates a file (ARCHIVE_NAME) with all the information
+    Returns the file
+    '''
     ensure_dir(TMP_DIR)
-
     file_list = [
         {'name': 'kanux_version.txt', 'contents': get_version()},
         {'name': 'process.txt', 'contents': get_processes()},
@@ -108,61 +124,74 @@ def get_metadata_archive():
         {'name': 'cpu-info.txt', 'contents': get_cpu_info()},
         {'name': 'lsof.txt', 'contents': get_lsof()}
     ]
-
+    # Include the screenshot if it exists
     if os.path.isfile(SCREENSHOT_PATH):
         file_list.append({
                          'name': SCREENSHOT_NAME,
                          'contents': read_file_contents(SCREENSHOT_PATH)
                          })
-
     # create files for each non empty metadata info
     for file in file_list:
         if file['contents']:
             write_file_contents(TMP_DIR + file['name'], file['contents'])
-
     # Collect all coredumps, for applications that terminated unexpectedly
     for f in os.listdir('/var/tmp/'):
         if f.startswith('core-'):
             file_list.append({
-                    'name': f,
-                    'contents': read_file_contents(os.path.join('/var/tmp', f))
-                    })
-
-    # archive all the metadata files - need to change dir to avoid tar subdirectories
+                'name': f,
+                'contents': read_file_contents(os.path.join('/var/tmp', f))
+            })
+    # archive all the metadata files
+    # need to change dir to avoid tar subdirectories
     current_directory = os.getcwd()
     os.chdir(TMP_DIR)
     run_cmd("tar -zcvf {} *".format(ARCHIVE_NAME))
-
     # open the file and return it
     archive = open(ARCHIVE_NAME, 'rb')
-
     # restore the current working directory
     os.chdir(current_directory)
+
     return archive
 
 
 def get_version():
-    cmd = "ls -l /etc/kanux_version | awk '{ print $6 \" \" $7 \" \" $8 }' && cat /etc/kanux_version"
+    '''
+    Return a string with the current version of the OS.
+    Uses the command kanux_version
+    '''
+    cmd = "ls -l /etc/kanux_version | \
+           awk '{ print $6 \" \" $7 \" \" $8 }' && cat /etc/kanux_version"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_processes():
+    '''
+    Returns a string with the current processes running in the system
+    '''
     cmd = "ps -aux"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_packages():
+    '''
+    Returns a string with the list of packages installed in the system
+    '''
     cmd = "dpkg-query -l | awk '{ print $2 \"-\" $3 }'"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_dmesg():
+    '''
+    Returns a string with dmesg and uptime info
+    '''
     cmd_dmesg = "dmesg"
     cmd_uptime = "uptime"
-
     d, _, _ = run_cmd(cmd_dmesg)
     t, _, _ = run_cmd(cmd_uptime)
     t = 'system uptime: %s' % t
@@ -171,47 +200,74 @@ def get_dmesg():
 
 
 def get_syslog():
+    '''
+    Returns the last 100 lines of syslog messages
+    '''
     cmd = "tail -v -n 100 /var/log/messages"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_wpalog():
+    '''
+    Returns the last 300 lines of the wpa log
+    '''
     cmd = "tail -n 300 /var/log/kano_wpa.log"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_wlaniface():
+    '''
+    Retruns a string with wlan info
+    '''
     cmd = "/sbin/iwconfig wlan0"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_xorg_log():
+    '''
+    Returns a string with the Xorg log
+    '''
     cmd = "cat /var/log/Xorg.0.log"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_cpu_info():
+    '''
+    Returns a string with the cpuid and the board model
+    '''
     cmd = "/usr/bin/rpi-info"
     o, _, _ = run_cmd(cmd)
     o += 'Model B+ : %s' % (is_model_b_plus())
+
     return o
 
 
 def get_lsof():
+    '''
+    Get lsof information (list of open files)
+    '''
     cmd = "sudo /usr/bin/lsof"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_app_logs_raw():
+    '''
+    Extract kano logs in raw format:
+    "LOGFILE: component" (one line per component)
+    followed by entries in the form:
+    "2014-09-30T10:18:54.532015 kano-updater info: Return value: 0"
+    '''
     logs = logging.read_logs()
-
-    # Extract kano logs in raw format. "LOGFILE: component", one line per component,
-    # followed by entries in the form: "2014-09-30T10:18:54.532015 kano-updater info: Return value: 0"
     output = ""
     for f, data in logs.iteritems():
         app_name = os.path.basename(f).split(".")[0]
@@ -224,46 +280,71 @@ def get_app_logs_raw():
 
 
 def get_app_logs_json():
+    '''
+    Return a JSON stream with the kano logs
+    '''
     # Fetch the kano logs
-    kano_logs=logging.read_logs()
+    kano_logs = logging.read_logs()
 
     # Transform them into a sorted, indented json stream
-    kano_logs_json=json.dumps(kano_logs, sort_keys=True, indent=4, separators=(',', ': '))
+    kano_logs_json = json.dumps(kano_logs, sort_keys=True, indent=4,
+                                separators=(',', ': '))
     return kano_logs_json
 
 
 def get_kwifi_cache():
-    # We do not collect sensitive private information - Keypass is sent as "obfuscated" literal
+    '''
+    Send wifi cache data
+    NOTE: We do not collect sensitive private information.
+    Keypass is sent as "obfuscated" literal.
+    '''
     cmd = "cat /etc/kwifiprompt-cache.conf | sed 's/\"enckey\":.*/\"enckey\": \"obfuscated\"/'"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_usb_devices():
-    # Gives us 2 short lists of usb devices, first one with deviceIDs and manufacturer strings
-    # Second one in hierarchy mode along with matching kernel drivers controlling each device
-    # So we will know for a wireless dongle which kernel driver linux decides to load. Same for HIDs.
+    '''
+    Gives us 2 short lists of usb devices:
+    1) deviceIDs and manufacturer strings
+    2) Hierarchy mode along with matching kernel drivers controlling each device
+    We can know for wireless dongles and HIDs which kernel driver is loaded.
+    '''
     cmd = "lsusb && lsusb -t"
     o, _, _ = run_cmd(cmd)
+
     return o
 
 
 def get_networks_info():
+    '''
+    Returns a string with ifconfig info
+    '''
     cmd = "/sbin/ifconfig"
     o, _, _ = run_cmd(cmd)
+
     return o
 
+
 def get_wifi_info():
+    '''
+    Returns a string with wifi specific info
+    '''
     # Get username here
     world_username = "Kano World username: {}\n\n".format(get_mixed_username())
     kwifi_cache = "**kwifi_cache**\n {}\n\n".format(get_kwifi_cache())
     wlaniface = "**wlaniface**\n {}\n\n".format(get_wlaniface())
     ifconfig = "**ifconfig**\n {}\n\n".format(get_networks_info())
     wpalog = "**wpalog**\n {}\n\n".format(get_wpalog())
+
     return world_username + kwifi_cache + wlaniface + ifconfig + wpalog
 
 
 def get_hdmi_info():
+    '''
+    Returns a string with Display info
+    '''
     # Current resolution
     cmd = "tvservice -s"
     o, _, _ = run_cmd(cmd)
@@ -273,32 +354,45 @@ def get_hdmi_info():
     cmd = "tvservice -d {} && edidparser {}".format(file_path, file_path)
     edid, _, _ = run_cmd(cmd)
     delete_file(file_path)
+
     return res + edid
 
 
 def take_screenshot():
+    '''
+    Takes a screenshot and saves it into SCREENSHOT_PATH
+    '''
     ensure_dir(TMP_DIR)
     cmd = "kano-screenshot -w 1024 -p " + SCREENSHOT_PATH
     _, _, rc = run_cmd(cmd)
 
 
 def copy_screenshot(filename):
+    '''
+    Copies screenshot 'filename' into SCREENSHOT_PATH
+    '''
     ensure_dir(TMP_DIR)
     if os.path.isfile(filename):
         run_cmd("cp %s %s" % (filename, SCREENSHOT_PATH))
 
 
 def copy_archive_report(target_archive):
+    '''
+    Copies source archive (TMP_DIR/ARCHIVE_NAME) into target_archive
+    '''
     ensure_dir(TMP_DIR)
     source_archive = os.path.join(TMP_DIR, ARCHIVE_NAME)
     if os.path.isfile(source_archive):
-        _,_,rc = run_cmd("cp %s %s" % (source_archive, target_archive))
-        return (rc==0)
+        _, _, rc = run_cmd("cp %s %s" % (source_archive, target_archive))
+        return (rc == 0)
     else:
         return False
 
 
 def sanitise_input(text):
+    '''
+    Cleans a string(text) from double quotes
+    '''
     # Replace double quotation mark for singles
     text = text.replace('"', "'")
     # Fix upload error when data field begins with " or '
@@ -308,6 +402,10 @@ def sanitise_input(text):
 
 
 def try_login():
+    '''
+    Returns login status.
+    If user is not logged in the first time, the logger will be launched
+    '''
     # Check if user is registered
     if not is_registered():
         _, _, rc = run_cmd('kano-login 3')
@@ -316,6 +414,10 @@ def try_login():
 
 
 def try_connect():
+    '''
+    Returns internet status.
+    If connection fails the first time, the WiFi config will be launched
+    '''
     if is_internet():
         return True
 
@@ -325,7 +427,11 @@ def try_connect():
 
 
 def send_form(title, body, question_id):
-
+    '''
+    This function is used by the Feedback widget.
+    The information (title, username, body, email and question id) is sent to a
+    Google form.
+    '''
     if not try_connect() or not try_login():
         KanoDialog('Unable to send',
                    'Please check that you have internet and ' +
@@ -333,16 +439,17 @@ def send_form(title, body, question_id):
         return False
 
     # Send Google Form
-    dataToSend = {
-        'entry.55383705': title,                 # Question entry
-        'entry.226915453': get_mixed_username(), # User entry
-        'entry.2017124825': body,                # Reply entry
-        'entry.31617144': get_email(),           # Email entry
-        'entry.2038035421': question_id          # Question ID
+    data_to_send = {
+        'entry.55383705': title,                  # Question entry
+        'entry.226915453': get_mixed_username(),  # User entry
+        'entry.2017124825': body,                 # Reply entry
+        'entry.31617144': get_email(),            # Email entry
+        'entry.2038035421': question_id           # Question ID
     }
     # Send data
-    form = 'https://docs.google.com/a/kano.me/forms/d/1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
-    req = requests.post(form, data=dataToSend)
+    form = 'https://docs.google.com/a/kano.me/forms/d/\
+        1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
+    req = requests.post(form, data=data_to_send)
 
     if not req.ok:
         logger.error('Error while sending feedback: {}'.format(req.reason))

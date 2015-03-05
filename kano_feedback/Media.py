@@ -11,6 +11,9 @@ import os
 
 
 def media_dir():
+    '''
+    Creates the directory for the media (screenshot)
+    '''
     # setting up directories
     dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 

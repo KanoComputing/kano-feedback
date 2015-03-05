@@ -2,26 +2,24 @@
 
 # WidgetWindow.py
 #
-# Copyright (C) 2014 Kano Computing Ltd.
+# Copyright (C) 2015 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
 #
 # The MainWindow for the Desktop Feedback Widget
 #
 
-import json
 from gi.repository import Gtk, Gdk, GObject
 
-from kano_feedback.Media import media_dir
 from kano.gtk3.application_window import ApplicationWindow
 from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.buttons import OrangeButton
 from kano.gtk3.apply_styles import apply_styling_to_screen, \
     apply_styling_to_widget
 from DataSender import send_form
-
 from kano_profile.tracker import add_runtime_to_app
-
 from kano_feedback.WidgetQuestions import WidgetPrompts
+from kano_feedback.Media import media_dir
+
 
 class WidgetWindow(ApplicationWindow):
     CLOSE_FEEDBACK = 0
@@ -33,7 +31,7 @@ class WidgetWindow(ApplicationWindow):
     SUBJECT = 'Kano Desktop Feedback Widget'
 
     def __init__(self):
-        ApplicationWindow.__init__(self, 'Report a Problem', self.WIDTH,
+        ApplicationWindow.__init__(self, 'widget', self.WIDTH,
                                    self.HEIGHT_COMPACT)
 
         self.wprompts = WidgetPrompts()
@@ -48,17 +46,22 @@ class WidgetWindow(ApplicationWindow):
         self.position_widget()
 
     def hide_until_more_questions(self):
-        # Hide the widget and set a timer to get new questions
-        delay=15*60*1000
+        '''
+        Hide the widget and set a timer to get new questions
+        '''
+        delay = 15 * 60 * 1000
         self.hide()
         GObject.timeout_add(delay, self.timer_fetch_questions)
+
         return
 
     def timer_fetch_questions(self):
-        # This function will periodically call the Questions API
-        # Until we get questions for the user, then show the widget again
+        '''
+        This function will periodically call the Questions API
+        Until we get questions for the user, then show the widget again
+        '''
         self.wprompts.load_prompts()
-        nextp=self.wprompts.get_current_prompt()
+        nextp = self.wprompts.get_current_prompt()
         if nextp:
             self.set_keep_below(True)
             self.show()
@@ -71,15 +74,19 @@ class WidgetWindow(ApplicationWindow):
         else:
             return True
 
-    def position_widget(window):
-        # Position the widget window at the top center of the screen
+    def position_widget(self):
+        '''
+        Position the widget window at the top center of the screen
+        '''
         screen = Gdk.Screen.get_default()
-        widget_x = (screen.get_width() - window.WIDTH) / 2
+        widget_x = (screen.get_width() - self.WIDTH) / 2
         widget_y = 20
-        window.move(widget_x, widget_y)
+        self.move(widget_x, widget_y)
 
     def _initialise_window(self):
-
+        '''
+        Inititlaises the gtk window
+        '''
         self.last_click = 0
 
         self.app_name_opened = 'feedback-widget-opened'
@@ -202,6 +209,9 @@ class WidgetWindow(ApplicationWindow):
         self.connect("button-press-event", self._toggle)
 
     def _shrink(self, widget=None, event=None):
+        '''
+        Hides the text box
+        '''
         self._x_button.hide()
         self._scrolledwindow.hide()
         self._gray_box.hide()
@@ -209,6 +219,9 @@ class WidgetWindow(ApplicationWindow):
         self._expanded = False
 
     def _expand(self, widget=None, event=None):
+        '''
+        Shows the text box
+        '''
         self._x_button.show()
         self._scrolledwindow.show()
         self._gray_box.show()
@@ -220,6 +233,9 @@ class WidgetWindow(ApplicationWindow):
         add_runtime_to_app(self.app_name_opened, 0)
 
     def _toggle(self, widget=None, event=None):
+        '''
+        Toggles between shrink-expand
+        '''
         if self._expanded:
             self._shrink()
         else:
@@ -255,7 +271,7 @@ class WidgetWindow(ApplicationWindow):
                 # hide the widget until they arrive over the API
                 self.hide_until_more_questions()
         else:
-            # TODO: could not send, save it locally so we can send it when back online
+            # TODO: could not send, save it so we can send it when back online
             pass
 
         self.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.ARROW))
