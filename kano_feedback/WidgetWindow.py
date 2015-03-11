@@ -278,13 +278,10 @@ class WidgetWindow(ApplicationWindow):
         self.unblur()
 
     def _text_changed(self, text_buffer):
-        enable_send=False
         buff_text = self._get_text_from_textbuffer(text_buffer)
 
-        if len(buff_text) > 10 and len(buff_text[:10].split()) == 3:
-            # enable send only if the answer starts with 3 words summing 10 characters
-            enable_send=True
-
+        # Only allow answers containing non-space text
+        enable_send = len(buff_text.strip('\t\n ')) > 0
         self._send.set_sensitive(enable_send)
 
     def _get_text_from_textbuffer(self, text_buffer):
