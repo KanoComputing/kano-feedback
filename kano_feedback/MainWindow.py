@@ -21,6 +21,7 @@ from kano_world.functions import is_registered
 from kano.network import is_internet
 from kano.gtk3.kano_dialog import KanoDialog
 # implicit imports
+from kano.gtk3.cursor import attach_cursor_events
 from kano.gtk3.top_bar import TopBar
 from DataSender import (send_data, take_screenshot, copy_screenshot, delete_tmp_dir,
                         create_tmp_dir, SCREENSHOT_NAME, SCREENSHOT_PATH, delete_screenshot)
