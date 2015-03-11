@@ -279,7 +279,10 @@ class WidgetWindow(ApplicationWindow):
 
     def _text_changed(self, text_buffer):
         buff_text = self._get_text_from_textbuffer(text_buffer)
-        self._send.set_sensitive(len(buff_text) > 0)
+
+        # Only allow answers containing non-space text
+        enable_send = len(buff_text.strip('\t\n ')) > 0
+        self._send.set_sensitive(enable_send)
 
     def _get_text_from_textbuffer(self, text_buffer):
         startiter, enditer = text_buffer.get_bounds()
