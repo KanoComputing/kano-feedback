@@ -425,16 +425,21 @@ def try_connect():
     return is_internet()
 
 
-def send_form(title, body, question_id):
+def send_form(title, body, question_id, interactive=True):
     '''
     This function is used by the Feedback widget.
     The information (title, username, body, email and question id) is sent to a
     Google form.
     '''
-    if not try_connect() or not try_login():
-        KanoDialog('Unable to send',
-                   'Please check that you have internet and ' +
-                   'are logged into Kano World.').run()
+
+    msgok_title='Thank You'
+    msgok_body='Your feedback is very important to us.'
+
+    if interactive and not try_connect() or not try_login():
+        # The answer will be saved as offline, act as if it was sent correctly
+        thank_you = KanoDialog(mskok_title, msgok_body)
+        thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+        thank_you.run()
         return False
 
     # Send Google Form
@@ -449,6 +454,10 @@ def send_form(title, body, question_id):
     form = 'https://docs.google.com/a/kano.me/forms/d/\
         1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
     req = requests.post(form, data=data_to_send)
+
+    # No further retries or prompts in non interactive mode
+    if not interactive:
+        return ( req.ok != None )
 
     if not req.ok:
         logger.error('Error while sending feedback: {}'.format(req.reason))
@@ -475,8 +484,7 @@ def send_form(title, body, question_id):
 
         return False
 
-    thank_you = KanoDialog('Thank You',
-                           'Your feedback is very important to us.')
+    thank_you = KanoDialog(mskok_title, msgok_body)
     thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
     thank_you.run()
 

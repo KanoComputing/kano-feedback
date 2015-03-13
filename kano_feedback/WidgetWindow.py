@@ -257,22 +257,37 @@ class WidgetWindow(ApplicationWindow):
         while Gtk.events_pending():
             Gtk.main_iteration()
 
-        text = self._get_text_from_textbuffer(self._text.get_buffer())
-        text_id = self.wprompts.get_current_prompt_id()
-        if send_form(self.wprompts.get_current_prompt(), text, text_id):
-            self.wprompts.mark_current_prompt_and_rotate()
-            nextp = self.wprompts.get_current_prompt()
-            if nextp:
-                self._prompt.set_text(nextp)
-                self._text.get_buffer().set_text('')
-                self._shrink()
-            else:
-                # There are no more questions available,
-                # hide the widget until they arrive over the API
-                self.hide_until_more_questions()
+        # Collect the question parameters
+        prompt = self.wprompts.get_current_prompt()
+        answer = self._get_text_from_textbuffer(self._text.get_buffer())
+        qid = self.wprompts.get_current_prompt_id()
+
+        if send_form(title=prompt, body=answer, question_id=qid):
+            # Connection is ok, the answer has been sent
+            self.wprompts.mark_prompt(prompt, answer, qid, offline=False, rotate=True)
+
+            # Also send any pending answers we may have in the cache
+            for offline in self.wprompts.get_offline_answers():
+                sent_ok = send_form(title=offline[0], body=offline[1], \
+                                        question_id=offline[2], interactive=False)
+                if sent_ok:
+                    self.wprompts.mark_prompt(prompt=offline[0], answer=offline[1], \
+                                                  qid=offline[2], offline=False, rotate=False)
         else:
-            # TODO: could not send, save it so we can send it when back online
-            pass
+            # Could not get connection, or user doesn't want to at this time
+            # Save the answer as offline to send it later
+            self.wprompts.mark_prompt(prompt, answer, qid, offline=True, rotate=True)
+
+        # Get next available question on the queue
+        nextp = self.wprompts.get_current_prompt()
+        if nextp:
+            self._prompt.set_text(nextp)
+            self._text.get_buffer().set_text('')
+            self._shrink()
+        else:
+            # There are no more questions available,
+            # hide the widget until they arrive over the API
+            self.hide_until_more_questions()
 
         self.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.ARROW))
         self.unblur()
