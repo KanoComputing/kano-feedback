@@ -29,8 +29,9 @@ class WidgetPrompts:
         # The default prompt is used in the unlikely event
         # there are no more questions to be answered
         self.kano_questions_api = 'http://api.kano.me/questions'
-        self.cached_response_file = os.path.join(os.path.expanduser('~'),
-                                                 '.feedback-widget-sent.csv')
+        self.cache_file = os.path.join(os.path.expanduser('~'),
+                                       '.feedback-widget-sent.csv')
+
         self.prompts = None
         self.current_prompt = None
         self.current_prompt_idx = -1
@@ -55,20 +56,41 @@ class WidgetPrompts:
         '''
         return self.prompts[self.current_prompt_idx]['id']
 
-    def mark_current_prompt_and_rotate(self):
+    def mark_prompt(self, prompt, answer, qid, offline=False, rotate=False):
         '''
-        The current prompt has been responded,
-        flag it accordingly so we do not use it again
+        This function is used to cover these 3 use cases:
+
+        1. question has been answered and sent now
+        2. question is answered and saved offline
+        3. offline answer has been sent and marked as "sent"
+
+        See get_offline_answers for details on how to send offline answers when back online
         '''
-        self._cache_mark_responded(self.current_prompt)
 
-        # add the question to the tracker
-        track_data("feedback_widget_response_sent", {"question": self.current_prompt,
-                                                     "question_id": self.get_current_prompt_id()})
+        self._cache_mark_responded(prompt, answer, qid, offline)
 
-        # And moves to the next available one
-        self.current_prompt = self._get_next_prompt()
+        # If the question has been answered and sent to us, add it to the tracker
+        if not offline:
+            track_data("feedback_widget_response_sent", {"question": prompt,
+                                                         "question_id": qid})
+
+        # And we jump to the next available question
+        if rotate:
+            self.current_prompt = self._get_next_prompt()
+
         return self.current_prompt
+
+    def get_offline_answers(self):
+        '''
+        This function will return a list of all offline answers
+        Each answer contains in this order: The original question, the answer, the question ID.
+
+           for offline in get_offline_answers():
+              prompt=offline[0]
+              answer=offline[1]
+              qid=offline[2]
+        '''
+        return self._cache_get_all(offline=True)
 
     def _load_remote_prompts(self):
         '''
@@ -117,31 +139,80 @@ class WidgetPrompts:
 
         return next_prompt
 
-    def _cache_mark_responded(self, prompt, postpone=False):
+    def _cache_mark_responded(self, prompt, answer, qid, offline=False):
         '''
-        Will mark a question as being answered. If postpone is True
-        A false will be set meaning it will be sent next time we are online
+        Will mark a question as being answered and sent, or marked offline.
+        If offline is True, it will be saved along with the answer and question ID,
+        to be sent at a later stage.
         '''
-        try:
-            # A cached CSV file to remember what has been responded
-            with open(self.cached_response_file, 'ab') as f:
-                writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
-                writer.writerow([prompt, 'yes'])
-            return True
-        except:
-            return False
+        found=False
+        if not offline:
+            # answers that have been sent are marked without answer or question ID
+            answer='yes'
+            qid=None
+
+        # Replace the cached response if it's offline
+        cached = self._cache_get_all()
+        for row in cached:
+            if row[0] == prompt:
+                row[1]=answer
+                row[2]=qid
+                found=True
+
+        if not found:
+            # Or add it if it's not saved
+            cached.append ( [prompt, answer, qid] )
+
+        cached = self._cache_save_all(cached)
 
     def _cache_is_prompt_responded(self, prompt):
         '''
         Find out if a question has been responded
         '''
+        cached = self._cache_get_all()
+        for row in cached:
+            if row[0] == prompt:
+                return True
+
+        return False
+
+    def _cache_get_all(self, offline=False):
+        '''
+        Loads the complete cache of prompts and answers, answered and postponed
+        '''
+        cached_prompts=[]
         try:
-            with open(self.cached_response_file) as csvfile:
+            with open(self.cache_file) as csvfile:
                 reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 for row in reader:
-                    if prompt == row[0]:
-                        # This question has already been answered,
-                        # search for next one
-                        return True
+                    if row[0]: row[0] = row[0].decode('utf-8')
+                    if row[1]: row[1] = row[1].decode('utf-8')
+                    if row[2]: row[2] = row[2].decode('utf-8')
+
+                    if offline:
+                        if row[1] != 'yes':
+                            # this is an offline answer
+                            cached_prompts.append([row[0], row[1], row[2]])
+                    else:
+                        cached_prompts.append([row[0], row[1], row[2]])
+        except:
+            pass
+
+        return cached_prompts
+
+    def _cache_save_all(self, rows):
+        '''
+        Saves the cache back to disk.
+        '''
+        try:
+            with open(self.cache_file, 'w') as csvfile:
+                writer = csv.writer(csvfile, quoting=csv.QUOTE_NONNUMERIC)
+                for row in rows:
+                    if row[0]: row[0] = row[0].encode('utf-8')
+                    if row[1]: row[1] = row[1].encode('utf-8')
+                    if row[2]: row[2] = row[2].encode('utf-8')
+                    writer.writerow([row[0], row[1], row[2]])
         except:
             return False
+
+        return True
