@@ -432,9 +432,14 @@ def send_form(title, body, question_id, interactive=True):
     Google form.
     '''
 
+    msgok_title='Thank You'
+    msgok_body='Your feedback is very important to us.'
+
     if interactive and not try_connect() or not try_login():
-        KanoDialog('Your answer has been saved locally.',
-                   'It will be sent as soon as you are back online - Thanks!').run()
+        # The answer will be saved as offline, act as if it was sent correctly
+        thank_you = KanoDialog(mskok_title, msgok_body)
+        thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+        thank_you.run()
         return False
 
     # Send Google Form
@@ -479,8 +484,7 @@ def send_form(title, body, question_id, interactive=True):
 
         return False
 
-    thank_you = KanoDialog('Thank You',
-                           'Your feedback is very important to us.')
+    thank_you = KanoDialog(mskok_title, msgok_body)
     thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
     thank_you.run()
 
