@@ -44,6 +44,9 @@ class WidgetWindow(ApplicationWindow):
             return
 
         self.position_widget()
+        # Catch the window state event to avoid minimising and losing
+        # the window
+        self.connect("window-state-event", self._unminimise_if_minimised)
 
     def hide_until_more_questions(self):
         '''
@@ -302,3 +305,9 @@ class WidgetWindow(ApplicationWindow):
     def _get_text_from_textbuffer(self, text_buffer):
         startiter, enditer = text_buffer.get_bounds()
         return text_buffer.get_text(startiter, enditer, True)
+
+    def _unminimise_if_minimised(self, window, event):
+        # Check if we are attempting to minimise the window
+        # if so, try to unminimise it
+        if event.changed_mask & Gdk.WindowState.ICONIFIED:
+            window.deiconify()
