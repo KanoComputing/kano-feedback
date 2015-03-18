@@ -16,7 +16,7 @@ from kano.gtk3.buttons import OrangeButton
 from kano.gtk3.apply_styles import apply_styling_to_screen, \
     apply_styling_to_widget
 from DataSender import send_form
-from kano_profile.tracker import add_runtime_to_app
+from kano_profile.tracker import track_action
 from kano_feedback.WidgetQuestions import WidgetPrompts
 from kano_feedback.Media import media_dir
 
@@ -93,8 +93,6 @@ class WidgetWindow(ApplicationWindow):
         self.last_click = 0
 
         self.app_name_opened = 'feedback-widget-opened'
-        self.app_name_submitted = 'feedback-widget-submitted'
-
         self.typeahead = None
         self.help_tip_message = 'Type your feedback here!'
 
@@ -233,7 +231,7 @@ class WidgetWindow(ApplicationWindow):
         self.set_focus(self._text)
 
         # Add metrics to kano tracker
-        add_runtime_to_app(self.app_name_opened, 0)
+        track_action(self.app_name_opened)
 
     def _toggle(self, widget=None, event=None):
         '''
