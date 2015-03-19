@@ -13,6 +13,7 @@ import os
 import json
 import csv
 import requests
+import time
 from kano.network import is_internet
 from kano_profile.tracker import track_data
 
@@ -40,9 +41,8 @@ class WidgetPrompts:
         '''
         Try to get the questions from Kano Network
         '''
-        if is_internet():
-            if self._load_remote_prompts():
-                self.current_prompt = self._get_next_prompt()
+        if self._load_remote_prompts():
+            self.current_prompt = self._get_next_prompt()
 
     def get_current_prompt(self):
         '''
@@ -92,23 +92,32 @@ class WidgetPrompts:
         '''
         return self._cache_get_all(offline=True)
 
-    def _load_remote_prompts(self):
+    def _load_remote_prompts(self, num_retries=5):
         '''
-        Get the prompts/questions through a request
+        Get the prompts/questions through a request,
+        retrying <num_retries> if network is not up.
         '''
-        try:
-            # Contact Kano questions API
-            questions = requests.get(self.kano_questions_api).text
-            preloaded = json.loads(questions)
-            prompts = sorted(preloaded['questions'], key=lambda k: k['date_created'])
-            if len(prompts):
-                self.prompts = prompts
-                return True
-            else:
-                self.prompts = None
-                return False
-        except:
-            return False
+        for retry in range(0,num_retries):
+            try:
+                if is_internet():
+                    # Contact Kano questions API
+                    questions = requests.get(self.kano_questions_api).text
+                    preloaded = json.loads(questions)
+                    prompts = sorted(preloaded['questions'], key=lambda k: k['date_created'])
+                    if len(prompts):
+                        self.prompts = prompts
+                        return True
+                    else:
+                        self.prompts = None
+                        return False
+            except:
+                pass
+
+
+            time.sleep (1)
+
+        return False
+
 
     def _get_next_prompt(self):
         '''
