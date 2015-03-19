@@ -92,7 +92,7 @@ class WidgetPrompts:
         '''
         return self._cache_get_all(offline=True)
 
-    def _load_remote_prompts(self, num_retries=5):
+    def _load_remote_prompts(self, num_retries=10):
         '''
         Get the prompts/questions through a request,
         retrying <num_retries> if network is not up.
@@ -114,7 +114,7 @@ class WidgetPrompts:
                 pass
 
 
-            time.sleep (1)
+            time.sleep (2)
 
         return False
 
