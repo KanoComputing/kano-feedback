@@ -451,8 +451,7 @@ def send_form(title, body, question_id, interactive=True):
         'entry.2038035421': question_id           # Question ID
     }
     # Send data
-    form = 'https://docs.google.com/a/kano.me/forms/d/\
-        1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
+    form = 'https://docs.google.com/a/kano.me/forms/d/1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
     req = requests.post(form, data=data_to_send)
 
     # No further retries or prompts in non interactive mode
