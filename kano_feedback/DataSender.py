@@ -437,7 +437,7 @@ def send_form(title, body, question_id, interactive=True):
 
     if interactive and not try_connect() or not try_login():
         # The answer will be saved as offline, act as if it was sent correctly
-        thank_you = KanoDialog(mskok_title, msgok_body)
+        thank_you = KanoDialog(msgok_title, msgok_body)
         thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         thank_you.run()
         return False
@@ -484,7 +484,7 @@ def send_form(title, body, question_id, interactive=True):
 
         return False
 
-    thank_you = KanoDialog(mskok_title, msgok_body)
+    thank_you = KanoDialog(msgok_title, msgok_body)
     thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
     thank_you.run()
 
