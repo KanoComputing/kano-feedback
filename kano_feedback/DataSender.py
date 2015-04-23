@@ -432,8 +432,8 @@ def send_form(title, body, question_id, interactive=True):
     Google form.
     '''
 
-    msgok_title='Thank You'
-    msgok_body='Your feedback is very important to us.'
+    msgok_title='Thanks so much'
+    msgok_body='We will be in touch really soon!'
 
     if interactive and not try_connect() or not try_login():
         # The answer will be saved as offline, act as if it was sent correctly
