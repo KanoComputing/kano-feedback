@@ -82,11 +82,11 @@ def play_video_btn(_button):
     video_folder = '/usr/share/kano-media/videos'
 
     if is_running('minecraft'):
-        video_file = 'minecraft.mkv'
+        video_file = 'minecraft.mp4'
     elif is_running('pong'):
-        video_file = 'pong.mkv'
+        video_file = 'pong.mp4'
     else:
-        video_file = 'os_intro.mkv'
+        video_file = 'os_intro.mp4'
 
     video_path = os.path.join(video_folder, video_file)
     play_video(None, None, video_path, True)
