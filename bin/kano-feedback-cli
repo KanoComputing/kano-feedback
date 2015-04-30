@@ -23,7 +23,7 @@ if __name__ == '__main__':
     take_screenshot()
 
     print 'gathering feedback data...'
-    send_data('', fullInfo=True, network_send=False)
+    send_data('', full_info=True, network_send=False)
 
     is_saved = copy_archive_report(report_file)
     if is_saved:
