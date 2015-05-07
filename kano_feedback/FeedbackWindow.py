@@ -9,6 +9,7 @@
 #
 
 from kano_feedback.MainWindow import *
+from gi.repository import GdkPixbuf
 
 
 class FeedbackWindow(MainWindow):
