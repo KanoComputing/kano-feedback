@@ -126,12 +126,17 @@ class WidgetWindow(ApplicationWindow):
         grid.attach(qmark_box, 0, 0, 1, 1)
 
         self._prompt = prompt = Gtk.Label(self.wprompts.get_current_prompt(),
-                                          hexpand=True)
+                                          hexpand=False)
         prompt.get_style_context().add_class('prompt')
-        prompt.set_justify(Gtk.Justification.FILL)
-        prompt.set_max_width_chars(40)
+        prompt.set_justify(Gtk.Justification.LEFT)
+        prompt.set_alignment(0.1, 0.5)
+        prompt.set_size_request(410,-1)
+        prompt.set_line_wrap(True)
 
-        grid.attach(prompt, 1, 0, 2, 1)
+        prompt_container = Gtk.Table(1, 1, False)
+        prompt_container.attach(prompt, 0, 1, 0, 1, Gtk.AttachOptions.SHRINK | Gtk.AttachOptions.FILL)
+
+        grid.attach(prompt_container, 1, 0, 2, 1)
 
         self._x_button = x_button = Gtk.Button('x')
         x_button.set_size_request(20, 20)
