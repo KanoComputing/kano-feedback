@@ -33,6 +33,7 @@ if os.environ.has_key('DISPLAY'):
 
 from kano_world.functions import is_registered
 from kano.network import is_internet
+from kano_content.api import ContentManager
 
 TMP_DIR = os.path.join(expanduser('~'), '.kano-feedback/')
 SCREENSHOT_NAME = 'screenshot.png'
@@ -122,7 +123,8 @@ def get_metadata_archive():
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()},
         {'name': 'xorg-log.txt', 'contents': get_xorg_log()},
         {'name': 'cpu-info.txt', 'contents': get_cpu_info()},
-        {'name': 'lsof.txt', 'contents': get_lsof()}
+        {'name': 'lsof.txt', 'contents': get_lsof()},
+        {'name': 'content-objects.txt', 'contents': get_co_list()}
     ]
     # Include the screenshot if it exists
     if os.path.isfile(SCREENSHOT_PATH):
@@ -356,6 +358,15 @@ def get_hdmi_info():
 
     return res + edid
 
+
+def get_co_list():
+    '''
+    Returns a list of content object IDs currently on the system.
+    '''
+    cm = ContentManager.from_local()
+    objects = cm.list_local_objects(active_only=False, inactive_only=False)
+    return str(objects)
+    
 
 def take_screenshot():
     '''
