@@ -363,9 +363,12 @@ def get_co_list():
     '''
     Returns a list of content object IDs currently on the system.
     '''
-    cm = ContentManager.from_local()
-    objects = cm.list_local_objects(active_only=False, inactive_only=False)
-    return str(objects)
+    try:
+        cm = ContentManager.from_local()
+        objects = cm.list_local_objects(active_only=False, inactive_only=False)
+        return str(objects)
+    except:
+        return "Couldn't get a list of content objects."
     
 
 def take_screenshot():
