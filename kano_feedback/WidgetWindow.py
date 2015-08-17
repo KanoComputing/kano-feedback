@@ -15,8 +15,8 @@ from kano.gtk3.scrolled_window import ScrolledWindow
 from kano.gtk3.buttons import OrangeButton
 from kano.gtk3.apply_styles import apply_styling_to_screen, \
     apply_styling_to_widget
-from DataSender import send_form
 from kano_profile.tracker import track_action
+from kano_feedback.DataSender import send_question_response
 from kano_feedback.WidgetQuestions import WidgetPrompts
 from kano_feedback.Media import media_dir
 
@@ -268,14 +268,15 @@ class WidgetWindow(ApplicationWindow):
         answer = self._get_text_from_textbuffer(self._text.get_buffer())
         qid = self.wprompts.get_current_prompt_id()
 
-        if send_form(title=prompt, body=answer, question_id=qid):
+        if send_question_response(question_id=qid, answer=answer):
             # Connection is ok, the answer has been sent
             self.wprompts.mark_prompt(prompt, answer, qid, offline=False, rotate=True)
 
             # Also send any pending answers we may have in the cache
             for offline in self.wprompts.get_offline_answers():
-                sent_ok = send_form(title=offline[0], body=offline[1],
-                                    question_id=offline[2], interactive=False)
+                sent_ok = send_question_response(
+                    question_id=offline[2], answer=offline[1], interactive=False
+                )
                 if sent_ok:
                     self.wprompts.mark_prompt(prompt=offline[0], answer=offline[1],
                                               qid=offline[2], offline=False, rotate=False)

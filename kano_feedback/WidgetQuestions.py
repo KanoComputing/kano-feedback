@@ -10,12 +10,12 @@
 #
 
 import os
-import json
 import csv
-import requests
 import time
 from kano.network import is_internet
 from kano_profile.tracker import track_data
+from kano_world.connection import request_wrapper
+from kano.logging import logger
 
 
 class WidgetPrompts:
@@ -29,7 +29,6 @@ class WidgetPrompts:
     def __init__(self):
         # The default prompt is used in the unlikely event
         # there are no more questions to be answered
-        self.kano_questions_api = 'http://api.kano.me/questions'
         self.cache_file = os.path.join(os.path.expanduser('~'),
                                        '.feedback-widget-sent.csv')
 
@@ -97,24 +96,35 @@ class WidgetPrompts:
         Get the prompts/questions through a request,
         retrying <num_retries> if network is not up.
         '''
-        for retry in range(0,num_retries):
+        for attempt in xrange(0, num_retries):
+            if attempt != 0:
+                time.sleep(2)
+
+            if not is_internet():
+                continue
+
             try:
-                if is_internet():
-                    # Contact Kano questions API
-                    questions = requests.get(self.kano_questions_api).text
-                    preloaded = json.loads(questions)
-                    prompts = sorted(preloaded['questions'], key=lambda k: k['date_created'])
-                    if len(prompts):
-                        self.prompts = prompts
-                        return True
-                    else:
-                        self.prompts = None
-                        return False
-            except:
-                pass
+                # Contact Kano questions API
+                success, error, res = request_wrapper('get', '/questions')
 
+                if not success:
+                    logger.warn('Error loading prompts from API (try {}): {}'
+                                .format(attempt, error))
+                    continue
 
-            time.sleep (2)
+                prompts = sorted(res['questions'],
+                                 key=lambda k: k['date_created'])
+
+                if not len(prompts):
+                    return False
+
+                self.prompts = prompts
+
+                return True
+
+            except Exception as exception:
+                logger.error('Error loading prompts (try {}): {}'
+                             .format(attempt, exception))
 
         return False
 

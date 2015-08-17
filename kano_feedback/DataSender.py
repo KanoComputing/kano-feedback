@@ -12,7 +12,6 @@ import os
 from os.path import expanduser
 import datetime
 import json
-import requests
 
 # Do not Import Gtk if we are not bound to an X Display
 if os.environ.has_key('DISPLAY'):
@@ -439,51 +438,50 @@ def try_connect():
     return is_internet()
 
 
-def send_form(title, body, question_id, interactive=True):
+def send_question_response(question_id, answer, interactive=True):
     '''
     This function is used by the Feedback widget.
-    The information (title, username, body, email and question id) is sent to a
-    Google form.
+    The information (question_id, answer, username and email) is sent to an API
+    endpoint.
     '''
 
-    msgok_title='Thanks so much'
-    msgok_body='We will be in touch really soon!'
+    ok_msg_title = 'Thank you'
+    ok_msg_body = 'We will use your feedback to improve your experience'
 
     if interactive and not try_connect() or not try_login():
         # The answer will be saved as offline, act as if it was sent correctly
-        thank_you = KanoDialog(msgok_title, msgok_body)
+        thank_you = KanoDialog(ok_msg_title, ok_msg_body)
         thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
         thank_you.run()
+
         return False
 
-    # Send Google Form
-    data_to_send = {
-        'entry.55383705': title,                  # Question entry
-        'entry.226915453': get_mixed_username(),  # User entry
-        'entry.2017124825': body,                 # Reply entry
-        'entry.31617144': get_email(),            # Email entry
-        'entry.2038035421': question_id           # Question ID
+
+    payload = {
+        'question_id': question_id,
+        'answer': answer,
+        'email': get_email(),
+        'username': get_mixed_username()
     }
+
     # Send data
-    form = 'https://docs.google.com/a/kano.me/forms/d/1FH-6IKeuc9t6pp4lPhncG1yz29lYuLGpFv88RRaUBgU/formResponse'
-    req = requests.post(form, data=data_to_send)
+    success, error, dummy = request_wrapper('post', '/questions/responses',
+                                            data=payload)
 
-    # No further retries or prompts in non interactive mode
-    if not interactive:
-        return ( req.ok != None )
+    if not success:
+        logger.error('Error while sending feedback: {}'.format(error))
 
-    if not req.ok:
-        logger.error('Error while sending feedback: {}'.format(req.reason))
         retry = KanoDialog(
-            'Unable to send',
-            'Error while sending your feedback. Do you want to retry?',
+            title_text='Unable to send',
+            description_text=('Error while sending your feedback. ' \
+                              'Do you want to retry?'),
             button_dict={
-                'CLOSE FEEDBACK':
+                'Close feedback'.upper():
                     {
                         'return_value': False,
                         'color': 'red'
                     },
-                'RETRY':
+                'Retry'.upper():
                     {
                         'return_value': True,
                         'color': 'green'
@@ -493,11 +491,14 @@ def send_form(title, body, question_id, interactive=True):
 
         if retry.run():
             # Try again until they say no
-            send_form(title, body, question_id)
+            return send_question_response(question_id=question_id,
+                                          answer=answer,
+                                          interactive=interactive)
 
         return False
 
-    thank_you = KanoDialog(msgok_title, msgok_body)
+
+    thank_you = KanoDialog(ok_msg_title, ok_msg_body)
     thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
     thank_you.run()
 
