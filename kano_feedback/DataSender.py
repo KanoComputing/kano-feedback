@@ -458,10 +458,15 @@ def send_question_response(question_id, answer, interactive=True):
 
 
     payload = {
-        'question_id': question_id,
-        'answer': answer,
         'email': get_email(),
-        'username': get_mixed_username()
+        'username': get_mixed_username(),
+        'answers': [
+            {
+                'question_id': question_id,
+                'text': answer,
+                'tags': ['os', 'feedback-widget']
+            }
+        ]
     }
 
     # Send data
