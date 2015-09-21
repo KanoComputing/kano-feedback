@@ -20,7 +20,7 @@ if os.environ.has_key('DISPLAY'):
 import kano.logging as logging
 from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file, \
     read_file_contents
-from kano_world.connection import request_wrapper
+from kano_world.connection import request_wrapper, content_type_json
 from kano_world.functions import get_email, get_mixed_username
 from kano_profile.badges import increment_app_state_variable_with_dialog
 from kano.logging import logger
@@ -456,7 +456,6 @@ def send_question_response(question_id, answer, interactive=True):
 
         return False
 
-
     payload = {
         'email': get_email(),
         'username': get_mixed_username(),
@@ -471,7 +470,8 @@ def send_question_response(question_id, answer, interactive=True):
 
     # Send data
     success, error, dummy = request_wrapper('post', '/questions/responses',
-                                            data=payload)
+                                            data=json.dumps(payload),
+                                            headers=content_type_json)
 
     if not success:
         logger.error('Error while sending feedback: {}'.format(error))
