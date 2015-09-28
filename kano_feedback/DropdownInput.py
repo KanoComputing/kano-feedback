@@ -36,5 +36,11 @@ class DropdownInput(Gtk.Alignment):
     def _emit_popup(self, widget):
         self.emit('popup')
 
-    def focusable_widget(self):
+    def get_focusable_widget(self):
+        '''
+        :returns: tuple (bool, widget)
+                  The first argument is whether there is a widget
+                  that should be focused on, the second is the
+                  widget in question
+        '''
         return (True, self._combo)

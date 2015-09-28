@@ -26,9 +26,6 @@ class TextInput(Gtk.Alignment):
 
         self.add(self._textview)
 
-    def focusable_widget(self):
-        return (True, self._textview)
-
     def _get_text_from_textbuffer(self, text_buffer):
         startiter, enditer = text_buffer.get_bounds()
         return text_buffer.get_text(startiter, enditer, True)
@@ -50,3 +47,12 @@ class TextInput(Gtk.Alignment):
     def get_selected_text(self):
         textbuffer = self._textview.get_buffer()
         return self._get_text_from_textbuffer(textbuffer)
+
+    def get_focusable_widget(self):
+        '''
+        :returns: tuple (bool, widget)
+                  The first argument is whether there is a widget
+                  that should be focused on, the second is the
+                  widget in question
+        '''
+        return (True, self._textview)

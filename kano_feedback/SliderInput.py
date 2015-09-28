@@ -47,5 +47,11 @@ class SliderInput(Gtk.Box):
     def get_selected_text(self):
         return str(self._scale.get_value())
 
-    def focusable_widget(self):
+    def get_focusable_widget(self):
+        '''
+        :returns: tuple (bool, widget)
+                  The first argument is whether there is a widget
+                  that should be focused on, the second is the
+                  widget in question
+        '''
         return (True, self._scale)

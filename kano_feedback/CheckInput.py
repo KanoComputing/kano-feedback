@@ -68,5 +68,11 @@ class CheckInput(Gtk.Box):
                 if not button.get_active():
                     button.set_sensitive(True)
 
-    def focusable_widget(self):
+    def get_focusable_widget(self):
+        '''
+        :returns: tuple (bool, widget)
+                  The first argument is whether there is a widget
+                  that should be focused on, the second is the
+                  widget in question
+        '''
         return (False, None)

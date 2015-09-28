@@ -331,7 +331,7 @@ class WidgetWindow(ApplicationWindow):
         self._send.show()
         self._expanded = True
 
-        (focusable, focus_widget) = self._input_widget.focusable_widget()
+        (focusable, focus_widget) = self._input_widget.get_focusable_widget()
         if focusable:
             self.set_focus(focus_widget)
 
