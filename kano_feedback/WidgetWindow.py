@@ -3,7 +3,7 @@
 # WidgetWindow.py
 #
 # Copyright (C) 2015 Kano Computing Ltd.
-# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # The MainWindow for the Desktop Feedback Widget
 #
@@ -19,6 +19,11 @@ from DataSender import send_form
 from kano_profile.tracker import track_action
 from kano_feedback.WidgetQuestions import WidgetPrompts
 from kano_feedback.Media import media_dir
+from kano_feedback.SliderInput import SliderInput
+from kano_feedback.RadioInput import RadioInput
+from kano_feedback.CheckInput import CheckInput
+from kano_feedback.DropdownInput import DropdownInput
+from kano_feedback.TextInput import TextInput
 
 
 class WidgetWindow(ApplicationWindow):
@@ -72,7 +77,11 @@ class WidgetWindow(ApplicationWindow):
             self._shrink()
 
             self._prompt.set_text(nextp)
-            self._text.get_buffer().set_text('')
+
+            # Only change the textbuffer if type is correct
+            if self.wprompts.get_current_prompt_type() == "text":
+                self._input_widget.get_buffer().set_text('')
+
             return False
         else:
             return True
@@ -130,7 +139,7 @@ class WidgetWindow(ApplicationWindow):
         prompt.get_style_context().add_class('prompt')
         prompt.set_justify(Gtk.Justification.LEFT)
         prompt.set_alignment(0.1, 0.5)
-        prompt.set_size_request(410,-1)
+        prompt.set_size_request(410, -1)
         prompt.set_line_wrap(True)
 
         prompt_container = Gtk.Table(1, 1, False)
@@ -165,19 +174,9 @@ class WidgetWindow(ApplicationWindow):
 
         grid.attach(gray_box_centering, 0, 1, 1, 2)
 
-        self._text = Gtk.TextView()
-        self._text.get_style_context().add_class('active')
-        self._text.set_hexpand(False)
-        self._text.set_vexpand(False)
-        self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
-
-        self._text.get_buffer().connect('changed', self._text_changed)
-
-        text_align = Gtk.Alignment(xalign=0, yalign=0, xscale=1, yscale=1)
-        text_align.add(self._text)
+        # Create the scrolled window before deciding what to pack inside
 
         self._scrolledwindow = ScrolledWindow()
-        self._scrolledwindow.add(text_align)
         self._scrolledwindow.set_hexpand(True)
         self._scrolledwindow.set_vexpand(True)
         self._scrolledwindow.set_margin_left(10)
@@ -186,6 +185,8 @@ class WidgetWindow(ApplicationWindow):
         self._scrolledwindow.set_margin_bottom(10)
         self._scrolledwindow.set_policy(Gtk.PolicyType.AUTOMATIC,
                                         Gtk.PolicyType.AUTOMATIC)
+
+        self._create_input_widget()
 
         sw_ebox = Gtk.EventBox()
         sw_ebox.get_style_context().add_class('scrolled_win')
@@ -209,20 +210,116 @@ class WidgetWindow(ApplicationWindow):
         self.set_main_widget(grid)
         self.show_all()
 
+        self._dont_shrink = False
         self._shrink()
 
         self.connect("focus-out-event", self._shrink)
         self.connect("button-press-event", self._toggle)
 
+    def _create_input_widget(self):
+        # Unpack the contents of the scrolled window and replace with
+        # another widget
+        for child in self._scrolledwindow.get_children():
+            self._scrolledwindow.remove(child)
+
+            if self._input_widget:
+                self._input_widget.destroy()
+
+        # This needs to change depending on the type of the question.
+        # If the type of the question is "text" or "textInput", then pack this,
+        # otherwise pack other options.
+        prompt_type = self.wprompts.get_current_prompt_type()
+
+        if prompt_type:
+
+            if prompt_type == "textInput":
+                self._input_widget = self._create_text_input()
+
+            elif prompt_type == "slider":
+                start = self.wprompts.get_slider_start_value()
+                end = self.wprompts.get_slider_end_value()
+                self._input_widget = self._create_slider_input(start, end)
+
+            elif prompt_type == "radio":
+                radiobutton_labels = self.wprompts.get_current_choices()
+                radiobutton_labels = map(str, radiobutton_labels)
+                self._input_widget = self._create_radiobutton_input(radiobutton_labels)
+
+            elif prompt_type == "checkbox":
+                checkbox_labels = self.wprompts.get_current_choices()
+                checkbox_labels = map(str, checkbox_labels)
+                maximum = self.wprompts.get_checkbox_max_selected()
+                minimum = self.wprompts.get_checkbox_min_selected()
+                self._input_widget = self._create_checkbutton_input(
+                    checkbox_labels, maximum, minimum
+                )
+
+            elif prompt_type == "dropdown":
+                dropdown_labels = self.wprompts.get_current_choices()
+                dropdown_labels = map(str, dropdown_labels)
+                self._input_widget = self._create_dropdown_input(dropdown_labels)
+
+            else:
+                self._input_widget = self._create_text_input()
+        else:
+            self._input_widget = self._create_text_input()
+
+        self._scrolledwindow.add(self._input_widget)
+
+        # Force the widget to be realised
+        self.show_all()
+
+    def _set_anti_shrink_flag(self, widget, value):
+        self._dont_shrink = value
+
+    def _create_text_input(self):
+        widget = TextInput()
+        widget.connect("text-changed", self._set_send_sensitive)
+        widget.connect("text-not-changed", self._set_send_insensitive)
+        return widget
+
+    def _create_slider_input(self, start, end):
+        widget = SliderInput(start, end)
+        widget.connect("slider-changed", self._set_send_sensitive)
+        return widget
+
+    def _create_radiobutton_input(self, values):
+        widget = RadioInput(values)
+        widget.connect("radio-changed", self._set_send_sensitive)
+        return widget
+
+    def _create_checkbutton_input(self, values, maximum, minimum):
+        widget = CheckInput(values, maximum, minimum)
+        widget.connect('min-not-selected', self._set_send_insensitive)
+        widget.connect('min-selected', self._set_send_sensitive)
+        return widget
+
+    def _create_dropdown_input(self, values):
+        widget = DropdownInput(values)
+        widget.connect("dropdown-changed", self._set_send_sensitive)
+        widget.connect("popup", self._set_anti_shrink_flag, True)
+        widget.connect("dropdown-changed", self._set_anti_shrink_flag, False)
+        return widget
+
+    def _set_send_sensitive(self, widget=None):
+        self._send.set_sensitive(True)
+
+    def _set_send_insensitive(self, widget=None):
+        self._send.set_sensitive(False)
+
+    def _get_user_input(self):
+        return self._input_widget.get_selected_text()
+
     def _shrink(self, widget=None, event=None):
         '''
-        Hides the text box
+        Hides the widget
         '''
-        self._x_button.hide()
-        self._scrolledwindow.hide()
-        self._gray_box.hide()
-        self._send.hide()
-        self._expanded = False
+        if not self._dont_shrink:
+            self._x_button.hide()
+            self._scrolledwindow.hide()
+            self._gray_box.hide()
+            self._send.hide()
+            self._expanded = False
 
     def _expand(self, widget=None, event=None):
         '''
@@ -233,7 +330,10 @@ class WidgetWindow(ApplicationWindow):
         self._gray_box.show()
         self._send.show()
         self._expanded = True
-        self.set_focus(self._text)
+
+        (focusable, focus_widget) = self._input_widget.focusable_widget()
+        if focusable:
+            self.set_focus(focus_widget)
 
         # Add metrics to kano tracker
         track_action(self.app_name_opened)
@@ -247,12 +347,6 @@ class WidgetWindow(ApplicationWindow):
         else:
             self._expand()
 
-    def _textview_focus_in(self, widget, event):
-        self._text.get_style_context().add_class('active')
-
-    def _textview_focus_out(self, widget, event):
-        self._text.get_style_context().remove_class('active')
-
     def _set_cursor_to_hand_cb(self, widget, data=None):
         widget.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.HAND1))
 
@@ -263,9 +357,15 @@ class WidgetWindow(ApplicationWindow):
         while Gtk.events_pending():
             Gtk.main_iteration()
 
-        # Collect the question parameters
         prompt = self.wprompts.get_current_prompt()
-        answer = self._get_text_from_textbuffer(self._text.get_buffer())
+        answer = self._get_user_input()
+
+        # Don't send! Show an error?
+        # Otherwise this shows as greyed out and with a spinner indefinitely
+        if not answer:
+            print "Not sending, no answer present"
+            return
+
         qid = self.wprompts.get_current_prompt_id()
 
         if send_form(title=prompt, body=answer, question_id=qid):
@@ -287,8 +387,13 @@ class WidgetWindow(ApplicationWindow):
         # Get next available question on the queue
         nextp = self.wprompts.get_current_prompt()
         if nextp:
+            self._create_input_widget()
             self._prompt.set_text(nextp)
-            self._text.get_buffer().set_text('')
+            # This isn't needed anymore because the replace the text widget by default
+            # self._input_widget.get_buffer().set_text('')
+
+            # Disable send button
+            self._send.set_sensitive(False)
             self._shrink()
         else:
             # There are no more questions available,
@@ -297,17 +402,6 @@ class WidgetWindow(ApplicationWindow):
 
         self.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.ARROW))
         self.unblur()
-
-    def _text_changed(self, text_buffer):
-        buff_text = self._get_text_from_textbuffer(text_buffer)
-
-        # Only allow answers containing non-space text
-        enable_send = len(buff_text.strip('\t\n ')) > 0
-        self._send.set_sensitive(enable_send)
-
-    def _get_text_from_textbuffer(self, text_buffer):
-        startiter, enditer = text_buffer.get_bounds()
-        return text_buffer.get_text(startiter, enditer, True)
 
     def _unminimise_if_minimised(self, window, event):
         # Check if we are attempting to minimise the window

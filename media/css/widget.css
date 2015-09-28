@@ -70,3 +70,20 @@ GtkTextView.active {
     color: @active_writing;
     font: Bariol 13;
 }
+
+GtkCheckButton GtkLabel:insensitive {
+    background: transparent;
+}
+
+GtkScale {
+    background: #dddddd;
+    border-radius: 3px;
+}
+
+GtkScale.slider:insensitive {
+    background: #bbbbbb;
+}
+
+GtkScale.slider {
+    background: @kano_green;
+}

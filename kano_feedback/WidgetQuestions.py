@@ -16,6 +16,7 @@ import requests
 import time
 from kano.network import is_internet
 from kano_profile.tracker import track_data
+from kano.logging import logger
 
 
 class WidgetPrompts:
@@ -55,6 +56,38 @@ class WidgetPrompts:
         Returns the id of the current prompt
         '''
         return self.prompts[self.current_prompt_idx]['id']
+
+    def get_current_prompt_type(self):
+        '''
+        Returns the type of the prompt
+        '''
+        if 'type' in self.prompts[self.current_prompt_idx]:
+            return self.prompts[self.current_prompt_idx]['type']
+        else:
+            return "textInput"
+
+    def get_current_choices(self):
+        '''
+        If there are slider options, return them.
+        '''
+        if 'choices' in self.prompts[self.current_prompt_idx]:
+            return self.prompts[self.current_prompt_idx]['choices']
+
+    def get_checkbox_max_selected(self):
+        if 'max_selected' in self.prompts[self.current_prompt_idx]:
+            return self.prompts[self.current_prompt_idx]['max_selected']
+
+    def get_checkbox_min_selected(self):
+        if 'min_selected' in self.prompts[self.current_prompt_idx]:
+            return self.prompts[self.current_prompt_idx]['min_selected']
+
+    def get_slider_start_value(self):
+        if 'start' in self.prompts[self.current_prompt_idx]:
+            return self.prompts[self.current_prompt_idx]['start']
+
+    def get_slider_end_value(self):
+        if 'end' in self.prompts[self.current_prompt_idx]:
+            return self.prompts[self.current_prompt_idx]['end']
 
     def mark_prompt(self, prompt, answer, qid, offline=False, rotate=False):
         '''
@@ -97,12 +130,13 @@ class WidgetPrompts:
         Get the prompts/questions through a request,
         retrying <num_retries> if network is not up.
         '''
-        for retry in range(0,num_retries):
+        for retry in range(0, num_retries):
             try:
                 if is_internet():
                     # Contact Kano questions API
                     questions = requests.get(self.kano_questions_api).text
                     preloaded = json.loads(questions)
+
                     prompts = sorted(preloaded['questions'], key=lambda k: k['date_created'])
                     if len(prompts):
                         self.prompts = prompts
@@ -110,24 +144,22 @@ class WidgetPrompts:
                     else:
                         self.prompts = None
                         return False
-            except:
-                pass
+            except Exception as e:
+                logger.debug("Exception in _load_remote_prompts: {}".format(str(e)))
 
-
-            time.sleep (2)
+            time.sleep(2)
 
         return False
-
 
     def _get_next_prompt(self):
         '''
         Jump to the next available question that has not been answered yet
         '''
+
         next_prompt = None
         iterations = 0
         try:
             while iterations < len(self.prompts):
-
                 # Jump to the next prompt in the circular queue
                 self.current_prompt_idx += 1
                 if self.current_prompt_idx == len(self.prompts):
@@ -143,8 +175,8 @@ class WidgetPrompts:
 
             # No more questions to answer
             next_prompt = None
-        except:
-            pass
+        except Exception as e:
+            logger.debug("Exception in _get_next_prompt: {}".format(str(e)))
 
         return next_prompt
 
@@ -154,23 +186,24 @@ class WidgetPrompts:
         If offline is True, it will be saved along with the answer and question ID,
         to be sent at a later stage.
         '''
-        found=False
+
+        found = False
         if not offline:
             # answers that have been sent are marked without answer or question ID
-            answer='yes'
-            qid=None
+            answer = 'yes'
+            qid = None
 
         # Replace the cached response if it's offline
         cached = self._cache_get_all()
         for row in cached:
             if row[0] == prompt:
-                row[1]=answer
-                row[2]=qid
-                found=True
+                row[1] = answer
+                row[2] = qid
+                found = True
 
         if not found:
             # Or add it if it's not saved
-            cached.append ( [prompt, answer, qid] )
+            cached.append([prompt, answer, qid])
 
         cached = self._cache_save_all(cached)
 
@@ -189,7 +222,7 @@ class WidgetPrompts:
         '''
         Loads the complete cache of prompts and answers, answered and postponed
         '''
-        cached_prompts=[]
+        cached_prompts = []
         try:
             with open(self.cache_file) as csvfile:
                 reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
@@ -204,8 +237,8 @@ class WidgetPrompts:
                             cached_prompts.append([row[0], row[1], row[2]])
                     else:
                         cached_prompts.append([row[0], row[1], row[2]])
-        except:
-            pass
+        except Exception as e:
+            logger.debug("Exception in _cache_get_all: {}".format(str(e)))
 
         return cached_prompts
 
@@ -221,7 +254,8 @@ class WidgetPrompts:
                     if row[1]: row[1] = row[1].encode('utf-8')
                     if row[2]: row[2] = row[2].encode('utf-8')
                     writer.writerow([row[0], row[1], row[2]])
-        except:
+        except Exception as e:
+            logger.debug("Exception in _cache_save_all: {}".format(str(e)))
             return False
 
         return True
