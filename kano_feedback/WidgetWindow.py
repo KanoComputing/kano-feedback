@@ -24,6 +24,7 @@ from kano_feedback.RadioInput import RadioInput
 from kano_feedback.CheckInput import CheckInput
 from kano_feedback.DropdownInput import DropdownInput
 from kano_feedback.TextInput import TextInput
+from kano.logging import logger
 
 
 class WidgetWindow(ApplicationWindow):
@@ -161,7 +162,7 @@ class WidgetWindow(ApplicationWindow):
                                        xscale=0, yscale=0)
         x_button_align.add(x_button_ebox)
 
-        grid.attach(x_button_align, 2, 0, 1, 1)
+        grid.attach(x_button_align, 3, 0, 1, 1)
 
         self._gray_box = gray_box = Gtk.EventBox()
         gray_box.get_style_context().add_class('gray_box')
@@ -174,25 +175,11 @@ class WidgetWindow(ApplicationWindow):
 
         grid.attach(gray_box_centering, 0, 1, 1, 2)
 
-        # Create the scrolled window before deciding what to pack inside
+        self._ebox = Gtk.EventBox()
+        self._ebox.get_style_context().add_class('scrolled_win')
+        grid.attach(self._ebox, 1, 1, 2, 1)
 
-        self._scrolledwindow = ScrolledWindow()
-        self._scrolledwindow.set_hexpand(True)
-        self._scrolledwindow.set_vexpand(True)
-        self._scrolledwindow.set_margin_left(10)
-        self._scrolledwindow.set_margin_right(10)
-        self._scrolledwindow.set_margin_top(10)
-        self._scrolledwindow.set_margin_bottom(10)
-        self._scrolledwindow.set_policy(Gtk.PolicyType.AUTOMATIC,
-                                        Gtk.PolicyType.AUTOMATIC)
-
-        self._create_input_widget()
-
-        sw_ebox = Gtk.EventBox()
-        sw_ebox.get_style_context().add_class('scrolled_win')
-        sw_ebox.add(self._scrolledwindow)
-
-        grid.attach(sw_ebox, 1, 1, 2, 1)
+        self._pack_input_widget()
 
         self._send = send = OrangeButton('SEND')
         apply_styling_to_widget(send.label, media_dir() + 'css/widget.css')
@@ -205,7 +192,7 @@ class WidgetWindow(ApplicationWindow):
         send_align = Gtk.Alignment(xalign=1, yalign=0.5, xscale=0, yscale=0)
         send_align.add(send)
 
-        grid.attach(send_align, 2, 2, 1, 1)
+        grid.attach(send_align, 3, 2, 1, 1)
 
         self.set_main_widget(grid)
         self.show_all()
@@ -216,11 +203,12 @@ class WidgetWindow(ApplicationWindow):
         self.connect("focus-out-event", self._shrink)
         self.connect("button-press-event", self._toggle)
 
-    def _create_input_widget(self):
+    def _pack_input_widget(self):
         # Unpack the contents of the scrolled window and replace with
         # another widget
-        for child in self._scrolledwindow.get_children():
-            self._scrolledwindow.remove(child)
+        # for child in self._scrolledwindow.get_children():
+        for child in self._ebox.get_children():
+            self._ebox.remove(child)
 
             if self._input_widget:
                 self._input_widget.destroy()
@@ -264,7 +252,11 @@ class WidgetWindow(ApplicationWindow):
         else:
             self._input_widget = self._create_text_input()
 
-        self._scrolledwindow.add(self._input_widget)
+        self._input_widget.set_margin_left(10)
+        self._input_widget.set_margin_right(10)
+        self._input_widget.set_margin_top(10)
+        self._input_widget.set_margin_bottom(10)
+        self._ebox.add(self._input_widget)
 
         # Force the widget to be realised
         self.show_all()
@@ -273,28 +265,33 @@ class WidgetWindow(ApplicationWindow):
         self._dont_shrink = value
 
     def _create_text_input(self):
+        logger.debug("text input being created")
         widget = TextInput()
         widget.connect("text-changed", self._set_send_sensitive)
         widget.connect("text-not-changed", self._set_send_insensitive)
         return widget
 
     def _create_slider_input(self, start, end):
+        logger.debug("slider being created with start {} and end {}".format(start, end))
         widget = SliderInput(start, end)
         widget.connect("slider-changed", self._set_send_sensitive)
         return widget
 
     def _create_radiobutton_input(self, values):
+        logger.debug("radiobuttons being created with values {}".format(values))
         widget = RadioInput(values)
         widget.connect("radio-changed", self._set_send_sensitive)
         return widget
 
     def _create_checkbutton_input(self, values, maximum, minimum):
+        logger.debug("checkbuttons being created with values {}, minimum {}, maximum".format(values, minimum, maximum))
         widget = CheckInput(values, maximum, minimum)
         widget.connect('min-not-selected', self._set_send_insensitive)
         widget.connect('min-selected', self._set_send_sensitive)
         return widget
 
     def _create_dropdown_input(self, values):
+        logger.debug("dropdown being created with values {}".format(values))
         widget = DropdownInput(values)
         widget.connect("dropdown-changed", self._set_send_sensitive)
         widget.connect("popup", self._set_anti_shrink_flag, True)
@@ -316,7 +313,7 @@ class WidgetWindow(ApplicationWindow):
         '''
         if not self._dont_shrink:
             self._x_button.hide()
-            self._scrolledwindow.hide()
+            self._ebox.hide()
             self._gray_box.hide()
             self._send.hide()
             self._expanded = False
@@ -326,7 +323,7 @@ class WidgetWindow(ApplicationWindow):
         Shows the text box
         '''
         self._x_button.show()
-        self._scrolledwindow.show()
+        self._ebox.show()
         self._gray_box.show()
         self._send.show()
         self._expanded = True
@@ -388,10 +385,9 @@ class WidgetWindow(ApplicationWindow):
         # Get next available question on the queue
         nextp = self.wprompts.get_current_prompt()
         if nextp:
-            self._create_input_widget()
+            self._pack_input_widget()
             self._prompt.set_text(nextp)
             # This isn't needed anymore because the replace the text widget by default
-            # self._input_widget.get_buffer().set_text('')
 
             # Disable send button
             self._send.set_sensitive(False)

@@ -7,9 +7,10 @@
 #
 
 from gi.repository import Gtk, GObject
+from kano.gtk3.scrolled_window import ScrolledWindow
 
 
-class TextInput(Gtk.Alignment):
+class TextInput(ScrolledWindow):
     __gsignals__ = {
         'text-changed': (GObject.SIGNAL_RUN_FIRST, None, ()),
         'text-not-changed': (GObject.SIGNAL_RUN_FIRST, None, ())
@@ -17,6 +18,12 @@ class TextInput(Gtk.Alignment):
 
     def __init__(self):
         super(TextInput, self).__init__()
+
+        self.set_hexpand(True)
+        self.set_vexpand(True)
+        self.set_policy(Gtk.PolicyType.AUTOMATIC,
+                        Gtk.PolicyType.AUTOMATIC)
+
         self._textview = Gtk.TextView()
         self._textview.get_style_context().add_class('active')
         self._textview.set_hexpand(False)

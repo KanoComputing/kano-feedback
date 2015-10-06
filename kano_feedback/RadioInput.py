@@ -15,7 +15,7 @@ class RadioInput(Gtk.Box):
     }
 
     def __init__(self, values):
-        super(RadioInput, self).__init__()
+        super(RadioInput, self).__init__(orientation=Gtk.Orientation.VERTICAL)
         buttons = []
 
         # First value is treated differently

@@ -17,7 +17,7 @@ class CheckInput(Gtk.Box):
     }
 
     def __init__(self, values, maximum, minimum):
-        super(CheckInput, self).__init__()
+        super(CheckInput, self).__init__(orientation=Gtk.Orientation.VERTICAL)
         self._maximum = maximum
         self._minimum = minimum
         self._buttons = []
