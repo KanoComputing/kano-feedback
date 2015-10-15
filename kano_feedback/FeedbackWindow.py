@@ -293,6 +293,10 @@ class FeedbackWindow(MainWindow):
         and the option to display it or remove it
         '''
         if not hasattr(self, "screenshot"):
+
+            # We pack the buttons into an event box with styling
+            # so that we can have a container with a border radius
+            # without having ugly gaps between the buttons.
             self.screenshot = Gtk.EventBox()
             self.screenshot.get_style_context().add_class("kano_button")
             self.screenshot.get_style_context().add_class("blue_background")
