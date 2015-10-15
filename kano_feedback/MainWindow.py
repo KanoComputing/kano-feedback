@@ -55,8 +55,10 @@ class MainWindow(ApplicationWindow):
 
             if self.bug_report:
                 title = "Important"
-                description = "Your feedback will include debugging information.\
-                               \nDo you want to continue?"
+                description = (
+                    "Your feedback will include debugging information.\n"
+                    "Do you want to continue?"
+                )
                 kdialog = KanoDialog(
                     title, description,
                     {
