@@ -23,7 +23,8 @@ class SliderInput(Gtk.Box):
         # Make the selected value the halfway point
         value = int((start + end) / 2)
 
-        self._scale = Gtk.HScale(
+        self._scale = Gtk.Scale(
+            orientation=Gtk.Orientation.HORIZONTAL,
             adjustment=Gtk.Adjustment(
                 value=value,
                 lower=start,
@@ -34,6 +35,7 @@ class SliderInput(Gtk.Box):
             )
         )
         self._scale.set_digits(0)
+        self._scale.get_style_context().add_class('prompt')
         self._scale.connect('value-changed', self._emit_value_changed)
 
         slider_align = Gtk.Alignment(xalign=0, yalign=0, xscale=1, yscale=1)
