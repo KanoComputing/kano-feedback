@@ -48,10 +48,6 @@
     font-weight: bold;
 }
 
-.scrolled_win {
-    border: 1px solid red;
-}
-
 .small_orange_button GtkLabel:insensitive {
     color: @inactive_writing;
     background: transparent;
