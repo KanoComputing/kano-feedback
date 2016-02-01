@@ -36,6 +36,7 @@ class WidgetPrompts:
         self.current_prompt = None
         self.current_prompt_idx = -1
 
+
     def load_prompts(self):
         '''
         Try to get the questions from Kano Network
@@ -53,39 +54,61 @@ class WidgetPrompts:
         '''
         Returns the id of the current prompt
         '''
-        return self.prompts[self.current_prompt_idx]['id']
+        try:
+            return self.prompts[self.current_prompt_idx]['id']
+        except:
+            return ''
+
 
     def get_current_prompt_type(self):
         '''
         Returns the type of the prompt
         '''
-        if 'type' in self.prompts[self.current_prompt_idx]:
-            return self.prompts[self.current_prompt_idx]['type']
-        else:
-            return "textInput"
+        try:
+            if 'type' in self.prompts[self.current_prompt_idx]:
+                return self.prompts[self.current_prompt_idx]['type']
+            else:
+                return "textInput"
+        except:
+            return ''
 
     def get_current_choices(self):
         '''
         If there are slider options, return them.
         '''
-        if 'choices' in self.prompts[self.current_prompt_idx]:
-            return self.prompts[self.current_prompt_idx]['choices']
+        try:
+            if 'choices' in self.prompts[self.current_prompt_idx]:
+                return self.prompts[self.current_prompt_idx]['choices']
+        except:
+            return ['none']
 
     def get_checkbox_max_selected(self):
-        if 'max_selected' in self.prompts[self.current_prompt_idx]:
-            return self.prompts[self.current_prompt_idx]['max_selected']
+        try:
+            if 'max_selected' in self.prompts[self.current_prompt_idx]:
+                return self.prompts[self.current_prompt_idx]['max_selected']
+        except:
+            return 0
 
     def get_checkbox_min_selected(self):
-        if 'min_selected' in self.prompts[self.current_prompt_idx]:
-            return self.prompts[self.current_prompt_idx]['min_selected']
+        try:
+            if 'min_selected' in self.prompts[self.current_prompt_idx]:
+                return self.prompts[self.current_prompt_idx]['min_selected']
+        except:
+            return 0
 
     def get_slider_start_value(self):
-        if 'start' in self.prompts[self.current_prompt_idx]:
-            return self.prompts[self.current_prompt_idx]['start']
+        try:
+            if 'start' in self.prompts[self.current_prompt_idx]:
+                return self.prompts[self.current_prompt_idx]['start']
+        except:
+            return 0
 
     def get_slider_end_value(self):
-        if 'end' in self.prompts[self.current_prompt_idx]:
-            return self.prompts[self.current_prompt_idx]['end']
+        try:
+            if 'end' in self.prompts[self.current_prompt_idx]:
+                return self.prompts[self.current_prompt_idx]['end']
+        except:
+            return 0
 
     def mark_prompt(self, prompt, answer, qid, offline=False, rotate=False):
         '''
