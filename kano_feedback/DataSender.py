@@ -24,7 +24,7 @@ from kano_world.connection import request_wrapper, content_type_json
 from kano_world.functions import get_email, get_mixed_username
 from kano_profile.badges import increment_app_state_variable_with_dialog
 from kano.logging import logger
-from kano.utils import is_model_b_plus
+from kano.utils import get_rpi_model
 
 # Do not Import Gtk if we are not bound to an X Display
 if os.environ.has_key('DISPLAY'):
@@ -245,7 +245,7 @@ def get_cpu_info():
     '''
     cmd = "/usr/bin/rpi-info"
     o, _, _ = run_cmd(cmd)
-    o += 'Model B+ : %s' % (is_model_b_plus())
+    o += '\nModel: {}'.format(get_rpi_model())
 
     return o
 
@@ -368,7 +368,7 @@ def get_co_list():
         return str(objects)
     except:
         return "Couldn't get a list of content objects."
-    
+
 
 def take_screenshot():
     '''
