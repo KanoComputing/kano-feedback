@@ -26,9 +26,8 @@ def main():
     # initialise the window
     WidgetWindow()
 
-    # Protect against all SIGTERM signals
+    # Protect against SIGTERM signals, to close it use "kill -9"
     if len(sys.argv) > 1 and sys.argv[1] == '--no-kill':
-        # app can be closed via a "kill -9".
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
 
     Gtk.main()
