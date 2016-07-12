@@ -473,8 +473,12 @@ def send_question_response(question_id, answer, interactive=True):
                                             data=json.dumps(payload),
                                             headers=content_type_json)
 
+    # Retry on error only if in GUI mode
     if not success:
         logger.error('Error while sending feedback: {}'.format(error))
+
+        if not interactive:
+            return False
 
         retry = KanoDialog(
             title_text='Unable to send',
@@ -503,8 +507,9 @@ def send_question_response(question_id, answer, interactive=True):
         return False
 
 
-    thank_you = KanoDialog(ok_msg_title, ok_msg_body)
-    thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
-    thank_you.run()
+    if interactive:
+        thank_you = KanoDialog(ok_msg_title, ok_msg_body)
+        thank_you.dialog.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+        thank_you.run()
 
     return True
