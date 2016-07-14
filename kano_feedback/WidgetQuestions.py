@@ -188,6 +188,9 @@ class WidgetPrompts:
         Jump to the next available question that has not been answered yet
         '''
 
+        # Question IDs being migrated to the Dashboard will go in this list
+        disabled_qids = [ "5787ac06e98ae8816fb86b15" ]
+
         next_prompt = None
         iterations = 0
         try:
@@ -198,9 +201,13 @@ class WidgetPrompts:
                     self.current_prompt_idx = 0
 
                 next_prompt = self.prompts[self.current_prompt_idx]['text']
+                next_prompt_id = self.prompts[self.current_prompt_idx]['id']
 
-                # prompt has not been answered yet, take it!
-                if not self._cache_is_prompt_responded(next_prompt):
+                # prompt has not been answered yet, take it,
+                # unless it is in the "disabled" list.
+                if not self._cache_is_prompt_responded(next_prompt) and \
+                   next_prompt_id not in disabled_qids:
+
                     return next_prompt
 
                 iterations += 1
