@@ -12,13 +12,17 @@
 """Kano Feedback Widget CLI
 
 Usage:
-  kano-feedback-widget-cli <qid> <response>
+  kano-feedback-widget-cli [--dry-run] [--debug] --question=<response>...
 
 Options:
-  -h --help     Show this screen.
+  --question=<response>    String in the form "qid:response", multiple questions accepted
+  --dry-run                Do not actually send it to the network (success is assumed)
+  --debug                  Display progress and payload information
+  -h --help                Show this screen.
 
 """
 
+import os
 import sys
 from docopt import docopt
 
@@ -26,10 +30,18 @@ if __name__ == '__main__':
 
     # collect command line arguments
     args = docopt(__doc__, version="Kano Feedback")
-    question_id=args['<qid>']
-    response=args['<response>']
 
+    # Momentarily unbind from the X Server so that no heavyweight Gtk runtime is loaded
+    del os.environ['DISPLAY']
     from kano_feedback.DataSender import send_question_response
-    is_sent=send_question_response(question_id, response, interactive=False)
+
+    if args['--debug']:
+        print 'Sending response to the server...'
+
+    is_sent=send_question_response(args['--question'], interactive=False,
+                                   debug=args['--debug'], dry_run=args['--dry-run'])
+
+    if args['--debug']:
+        print 'Result: {}'.format(is_sent)
 
     sys.exit(not is_sent)
