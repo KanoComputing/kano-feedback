@@ -1,0 +1,6 @@
+../kano_feedback/DataSender.py
+../kano_feedback/FeedbackWindow.py
+../kano_feedback/MainWindow.py
+../kano_feedback/WidgetWindow.py
+../lxpanel-plugin/kano_feedback.c
+

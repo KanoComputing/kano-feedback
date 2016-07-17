@@ -4,12 +4,12 @@ Section: misc
 Priority: optional
 Standards-Version: 3.9.4
 Build-Depends: debhelper (>= 9), build-essential, pkg-config, libgtk2.0-dev,
-               lxpanel, libfm-dev, libkdesk-dev
+               lxpanel, libfm-dev, libkdesk-dev, gettext
 
 Package: kano-feedback
 Architecture: any
 Depends: ${misc:Depends}, curl, kano-toolset (>= 2.4.0-1), kano-profile,
     kano-video, kano-video-files (>=1.1-2), feh, libkdesk-dev, lsof,
-    kano-content
+    kano-content, kano-i18n
 Description: A tool for feedback gathering
  A tool to allow Kanux users to provide feedback

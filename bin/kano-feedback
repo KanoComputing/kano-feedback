@@ -16,6 +16,13 @@ if __name__ == '__main__' and __package__ is None:
     dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     if dir_path != '/usr':
         sys.path.insert(0, dir_path)
+        locale_path = os.path.join(dir_path, 'locale')
+    else:
+        locale_path = None
+
+import kano_i18n.init
+kano_i18n.init.install('kano-toolset', locale_path)
+
 
 from kano_feedback.FeedbackWindow import FeedbackWindow
 
