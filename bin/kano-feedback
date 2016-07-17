@@ -21,7 +21,7 @@ if __name__ == '__main__' and __package__ is None:
         locale_path = None
 
 import kano_i18n.init
-kano_i18n.init.install('kano-toolset', locale_path)
+kano_i18n.init.install('kano-feedback', locale_path)
 
 
 from kano_feedback.FeedbackWindow import FeedbackWindow

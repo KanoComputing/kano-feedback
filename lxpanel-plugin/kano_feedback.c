@@ -51,8 +51,8 @@ static GtkWidget *plugin_constructor(LXPanel *panel, config_setting_t *settings)
     /* initialize i18n */
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    bindtextdomain("kano-toolset","/usr/share/locale");
-    textdomain("kano-toolset");
+    bindtextdomain("kano-feedback","/usr/share/locale");
+    textdomain("kano-feedback");
 
     /* allocate our private structure instance */
     kano_feedback_plugin_t *plugin = g_new0(kano_feedback_plugin_t, 1);
