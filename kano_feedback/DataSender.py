@@ -444,9 +444,7 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
     This function is used by the Feedback widget to network-send the responses.
     The information (question_id, answer, username and email) is sent to a Kano API endpoint.
 
-    the answers argument is a list of strings with answers to questions, in the following format:
-
-     12345:"answer to question id 12345"
+    answers is a list of tuples each having a Question ID and an Answer literal.
 
     The answers will be all packed into a payload object and sent in one single network transaction.
     '''
@@ -465,12 +463,12 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
     payload = {
         'email': get_email(),
         'username': get_mixed_username(),
-        'answers': []
+        'answers': [
+            { 'question_id': answer[0],
+              'text': answer[1],
+              'tags': tags } for answer in answers
+        ]
     }
-
-    for q in answers:
-        answer_block = { 'question_id': q.split(':')[0], 'text': q.split(':')[1], 'tags': tags }
-        payload['answers'].append (answer_block)
 
     if debug:
         print 'PAYLOAD construction:'
