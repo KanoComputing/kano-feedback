@@ -189,7 +189,8 @@ class WidgetPrompts:
         '''
 
         # Question IDs being migrated to the Dashboard will go in this list
-        disabled_qids = [ "5787ac06e98ae8816fb86b15" ]
+        # Disabling "How would you rate Kano from 0 to 10" and "What did you like..."
+        disabled_qids = [ "5787ac06e98ae8816fb86b15", "578cbf79b1eafe4c58c76932" ]
 
         next_prompt = None
         iterations = 0
