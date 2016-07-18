@@ -367,15 +367,14 @@ class WidgetWindow(ApplicationWindow):
 
         qid = self.wprompts.get_current_prompt_id()
 
-        answer='{}:{}'.format(qid, answer)
-        if send_question_response([answer])
+        # Network send to feedback API
+        if send_question_response((qid, answer))
             # Connection is ok, the answer has been sent
             self.wprompts.mark_prompt(prompt, answer, qid, offline=False, rotate=True)
 
             # Also send any pending answers we may have in the cache
             for offline in self.wprompts.get_offline_answers():
-                answer='{}:{}'.format(offline[2], offline[1])
-                sent_ok = send_question_response([answer], interactive=False)
+                sent_ok = send_question_response((offline[2], offline[1]), interactive=False)
                 if sent_ok:
                     self.wprompts.mark_prompt(prompt=offline[0], answer=offline[1],
                                               qid=offline[2], offline=False, rotate=False)
