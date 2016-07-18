@@ -41,7 +41,7 @@ if __name__ == '__main__':
     if args['--debug']:
         print 'Sending response to the server...'
 
-    is_sent=send_question_response((question_ids, answers), interactive=False,
+    is_sent=send_question_response(zip(question_ids, answers), interactive=False,
                                    debug=args['--debug'], dry_run=args['--dry-run'])
 
     if args['--debug']:
