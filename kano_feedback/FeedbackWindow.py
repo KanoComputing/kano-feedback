@@ -94,7 +94,7 @@ class FeedbackWindow(MainWindow):
         border.set_margin_bottom(20)
 
         # Create send button
-        self._send_button = KanoButton("SEND")
+        self._send_button = KanoButton(_("SEND"))
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
         self._send_button.pack_and_align()

@@ -22,7 +22,7 @@
 #include <kdesk-hourglass.h>
 
 #include <libintl.h>
-#define _(str) gettext(str)
+#include <locale.h>
 
 #define WIDGET_ICON "/usr/share/kano-feedback/media/icons/feedback-widget.png"
 #define CONTACT_ICON "/usr/share/kano-feedback/media/icons/Icon-Contact.png"
@@ -49,8 +49,7 @@ static void menu_pos(GtkMenu *menu, gint *x, gint *y, gboolean *push_in,
 static GtkWidget *plugin_constructor(LXPanel *panel, config_setting_t *settings)
 {
     /* initialize i18n */
-    setlocale(LC_MESSAGES,"");
-    setlocale(LC_CTYPE,"");
+    setlocale(LC_ALL, "");
     bindtextdomain("kano-feedback","/usr/share/locale");
     textdomain("kano-feedback");
 
@@ -154,7 +153,7 @@ static gboolean show_menu(GtkWidget *widget, GdkEventButton *event)
         return FALSE;
 
     /* Create the menu items */
-    header_item = gtk_menu_item_new_with_label("Help");
+    header_item = gtk_menu_item_new_with_label(_("Help"));
     gtk_widget_set_sensitive(header_item, FALSE);
     gtk_menu_append(GTK_MENU(menu), header_item);
     gtk_widget_show(header_item);

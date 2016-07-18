@@ -12,3 +12,6 @@ icon/feedback.png /usr/share/icons/Kano/66x66/apps/
 icon/kano-help.png /usr/share/icons/Kano/88x88/apps/
 
 lxpanel-plugin/kano_feedback.so usr/lib/arm-linux-gnueabihf/lxpanel/plugins/
+
+locale/* usr/share/locale/
+
