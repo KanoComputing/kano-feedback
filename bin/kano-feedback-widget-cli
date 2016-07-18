@@ -15,7 +15,6 @@ Usage:
   kano-feedback-widget-cli [--dry-run] [--debug] (<question_id> <response>)...
 
 Options:
-  --question=<response>    String in the form "qid:response", multiple questions accepted
   --dry-run                Do not actually send it to the network (success is assumed)
   --debug                  Display progress and payload information
   -h --help                Show this screen.
