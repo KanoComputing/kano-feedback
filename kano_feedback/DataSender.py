@@ -510,7 +510,7 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
 
         if retry.run():
             # Try again until they say no
-            return send_question_response((question_id, answer), interactive=interactive)
+            return send_question_response([(question_id, answer)], interactive=interactive)
 
         return False
 
