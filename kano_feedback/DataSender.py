@@ -438,11 +438,15 @@ def try_connect():
     return is_internet()
 
 
-def send_question_response(question_id, answer, interactive=True):
+def send_question_response(answers, interactive=True, tags=['os', 'feedback-widget'],
+                           debug=False, dry_run=False):
     '''
-    This function is used by the Feedback widget.
-    The information (question_id, answer, username and email) is sent to an API
-    endpoint.
+    This function is used by the Feedback widget to network-send the responses.
+    The information (question_id, answer, username and email) is sent to a Kano API endpoint.
+
+    answers is a list of tuples each having a Question ID and an Answer literal.
+
+    The answers will be all packed into a payload object and sent in one single network transaction.
     '''
 
     ok_msg_title = 'Thank you'
@@ -460,15 +464,21 @@ def send_question_response(question_id, answer, interactive=True):
         'email': get_email(),
         'username': get_mixed_username(),
         'answers': [
-            {
-                'question_id': question_id,
-                'text': answer,
-                'tags': ['os', 'feedback-widget']
-            }
+            { 'question_id': answer[0],
+              'text': answer[1],
+              'tags': tags } for answer in answers
         ]
     }
 
-    # Send data
+    if debug:
+        print 'PAYLOAD construction:'
+        print json.dumps(payload, sort_keys=True,
+                         indent=4, separators=(',', ': '))
+
+    # Send the answers unless we are testing the API
+    if dry_run:
+        return True
+
     success, error, dummy = request_wrapper('post', '/questions/responses',
                                             data=json.dumps(payload),
                                             headers=content_type_json)
@@ -500,9 +510,7 @@ def send_question_response(question_id, answer, interactive=True):
 
         if retry.run():
             # Try again until they say no
-            return send_question_response(question_id=question_id,
-                                          answer=answer,
-                                          interactive=interactive)
+            return send_question_response([(question_id, answer)], interactive=interactive)
 
         return False
 
