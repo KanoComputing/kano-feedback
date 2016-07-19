@@ -368,7 +368,7 @@ class WidgetWindow(ApplicationWindow):
         qid = self.wprompts.get_current_prompt_id()
 
         # Network send to feedback API
-        if send_question_response([(qid, answer)])
+        if send_question_response([(qid, answer)]):
             # Connection is ok, the answer has been sent
             self.wprompts.mark_prompt(prompt, answer, qid, offline=False, rotate=True)
 
