@@ -12,10 +12,11 @@
 """Kano Feedback Widget CLI
 
 Usage:
-  kano-feedback-widget-cli [--dry-run] [--debug] (<question_id> <response>)...
+  kano-feedback-widget-cli [--dry-run] [--print-success] [--debug] (<question_id> <response>)...
 
 Options:
   --dry-run                Do not actually send it to the network (success is assumed)
+  --print-success          Print OK or FAIL on termination
   --debug                  Display progress and payload information
   -h --help                Show this screen.
 
@@ -45,5 +46,11 @@ if __name__ == '__main__':
 
     if args['--debug']:
         print 'Result: {}'.format(is_sent)
+
+    if args['--print-success']:
+        if is_sent:
+            print 'OK'
+        else:
+            print 'FAIL'
 
     sys.exit(not is_sent)
