@@ -1,0 +1,155 @@
+# Japanese translations for kano-feedback package
+# kano-feedback パッケージに対する英訳.
+# Copyright (C) 2016 Kano Computing Ltd.
+# This file is distributed under the same license as the kano-feedback package.
+# Choppin Antoine <antoine@japonophile.com>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kano-feedback\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-07-18 17:04+0900\n"
+"PO-Revision-Date: 2016-07-17 10:41+0900\n"
+"Last-Translator: Choppin Antoine <antoine@japonophile.com>\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ../kano_feedback/DataSender.py:448
+msgid "Thank you"
+msgstr "ありがとうございます"
+
+#: ../kano_feedback/DataSender.py:449
+msgid "We will use your feedback to improve your experience"
+msgstr "いただいたフィードバックを活かして、改善していきます"
+
+#: ../kano_feedback/DataSender.py:484
+msgid "Unable to send"
+msgstr "送信に失敗しました"
+
+#: ../kano_feedback/DataSender.py:485
+msgid "Error while sending your feedback. Do you want to retry?"
+msgstr "フィードバックを送信できませんでした。再送してみますか？"
+
+#: ../kano_feedback/DataSender.py:488
+msgid "Close feedback"
+msgstr "フィードバックを閉じる"
+
+#: ../kano_feedback/DataSender.py:493
+msgid "Retry"
+msgstr "再試"
+
+#: ../kano_feedback/FeedbackWindow.py:25 ../kano_feedback/WidgetWindow.py:37
+msgid "Kano Desktop Feedback Widget"
+msgstr "Kanoデスクトップフィードバックウィジェット"
+
+#: ../kano_feedback/FeedbackWindow.py:41 ../kano_feedback/FeedbackWindow.py:57
+#: ../lxpanel-plugin/kano_feedback.c:162
+msgid "Contact Us"
+msgstr "お問い合わせ"
+
+#: ../kano_feedback/FeedbackWindow.py:70 ../kano_feedback/WidgetWindow.py:107
+msgid "Type your feedback here!"
+msgstr "ご意見をここに書いてください！"
+
+#: ../kano_feedback/FeedbackWindow.py:97 ../kano_feedback/FeedbackWindow.py:196
+#: ../kano_feedback/WidgetWindow.py:186
+msgid "SEND"
+msgstr "送信"
+
+#: ../kano_feedback/FeedbackWindow.py:124
+#: ../kano_feedback/FeedbackWindow.py:137 ../lxpanel-plugin/kano_feedback.c:174
+msgid "Report a Problem"
+msgstr "問題を報告する"
+
+#: ../kano_feedback/FeedbackWindow.py:144
+msgid "Add subject (optional)"
+msgstr "件名を入力（任意）"
+
+#: ../kano_feedback/FeedbackWindow.py:158
+msgid "Type your problem here!"
+msgstr "問題をここに書いてください！"
+
+#: ../kano_feedback/FeedbackWindow.py:185
+msgid "TAKE SCREENSHOT"
+msgstr "スクリーンショットを撮る"
+
+#: ../kano_feedback/FeedbackWindow.py:191
+msgid "ADD IMAGE"
+msgstr "画像を添付する"
+
+#: ../kano_feedback/FeedbackWindow.py:248
+msgid "Please choose a file"
+msgstr "ファイルをお選びください"
+
+#: ../kano_feedback/FeedbackWindow.py:273
+msgid "Images"
+msgstr "画像"
+
+#: ../kano_feedback/FeedbackWindow.py:286
+msgid "Any files"
+msgstr "全てのファイル"
+
+#: ../kano_feedback/FeedbackWindow.py:353
+msgid "Screenshot"
+msgstr "スクリーンショット"
+
+#: ../kano_feedback/MainWindow.py:57
+msgid "Important"
+msgstr "重要"
+
+#: ../kano_feedback/MainWindow.py:59
+msgid ""
+"Your feedback will include debugging information.\n"
+"Do you want to continue?"
+msgstr ""
+"送信されるフィードバックにデバッグ情報が含まれます。\n"
+"続けますか？"
+
+#: ../kano_feedback/MainWindow.py:65
+msgid "CANCEL"
+msgstr "取り消し"
+
+#: ../kano_feedback/MainWindow.py:69 ../kano_feedback/MainWindow.py:89
+#: ../kano_feedback/MainWindow.py:94 ../kano_feedback/MainWindow.py:102
+msgid "OK"
+msgstr "了解"
+
+#: ../kano_feedback/MainWindow.py:92
+msgid "No internet connection"
+msgstr "インスタントに接続していません"
+
+#: ../kano_feedback/MainWindow.py:93
+msgid "Configure your connection"
+msgstr "接続を設定してください"
+
+#: ../kano_feedback/MainWindow.py:98 ../kano_feedback/MainWindow.py:108
+msgid "Info"
+msgstr "報告"
+
+#: ../kano_feedback/MainWindow.py:99
+msgid "Feedback sent correctly"
+msgstr "フィードバックは無事に送信されました"
+
+#: ../kano_feedback/MainWindow.py:109
+msgid "Something went wrong, error: {}"
+msgstr "エラーが発生しました： {}"
+
+#: ../kano_feedback/MainWindow.py:112
+msgid "CLOSE FEEDBACK"
+msgstr "フィードバックを閉じる"
+
+#: ../kano_feedback/MainWindow.py:117
+msgid "TRY AGAIN"
+msgstr "やり直し"
+
+#: ../lxpanel-plugin/kano_feedback.c:156
+msgid "Help"
+msgstr "ヘルプ"
+
+#: ../lxpanel-plugin/kano_feedback.c:168
+msgid "Help Center"
+msgstr "ヘルプセンター"

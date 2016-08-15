@@ -21,6 +21,9 @@
 
 #include <kdesk-hourglass.h>
 
+#include <libintl.h>
+#include <locale.h>
+
 #define WIDGET_ICON "/usr/share/kano-feedback/media/icons/feedback-widget.png"
 #define CONTACT_ICON "/usr/share/kano-feedback/media/icons/Icon-Contact.png"
 #define SCREENSHOT_ICON "/usr/share/kano-feedback/media/icons/Icon-Report.png"
@@ -45,6 +48,11 @@ static void menu_pos(GtkMenu *menu, gint *x, gint *y, gboolean *push_in,
 
 static GtkWidget *plugin_constructor(LXPanel *panel, config_setting_t *settings)
 {
+    /* initialize i18n */
+    setlocale(LC_ALL, "");
+    bindtextdomain("kano-feedback","/usr/share/locale");
+    textdomain("kano-feedback");
+
     /* allocate our private structure instance */
     kano_feedback_plugin_t *plugin = g_new0(kano_feedback_plugin_t, 1);
     plugin->panel = panel;
@@ -145,25 +153,25 @@ static gboolean show_menu(GtkWidget *widget, GdkEventButton *event)
         return FALSE;
 
     /* Create the menu items */
-    header_item = gtk_menu_item_new_with_label("Help");
+    header_item = gtk_menu_item_new_with_label(_("Help"));
     gtk_widget_set_sensitive(header_item, FALSE);
     gtk_menu_append(GTK_MENU(menu), header_item);
     gtk_widget_show(header_item);
 
     /* Contact button */
-    GtkWidget* contact_item = gtk_image_menu_item_new_with_label("Contact Us");
+    GtkWidget* contact_item = gtk_image_menu_item_new_with_label(_("Contact Us"));
     g_signal_connect(contact_item, "activate", G_CALLBACK(contact_clicked), NULL);
     gtk_menu_append(GTK_MENU(menu), contact_item);
     gtk_widget_show(contact_item);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(contact_item), get_resized_icon(CONTACT_ICON));
     /* Knowledge button */
-    GtkWidget* knowledge_item = gtk_image_menu_item_new_with_label("Help Center");
+    GtkWidget* knowledge_item = gtk_image_menu_item_new_with_label(_("Help Center"));
     g_signal_connect(knowledge_item, "activate", G_CALLBACK(knowledge_clicked), NULL);
     gtk_menu_append(GTK_MENU(menu), knowledge_item);
     gtk_widget_show(knowledge_item);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(knowledge_item), get_resized_icon(KNOWLEDGE_ICON));
     /* Screenshot button */
-    GtkWidget* screenshot_item = gtk_image_menu_item_new_with_label("Report a Problem");
+    GtkWidget* screenshot_item = gtk_image_menu_item_new_with_label(_("Report a Problem"));
     g_signal_connect(screenshot_item, "activate", G_CALLBACK(screenshot_clicked), NULL);
     gtk_menu_append(GTK_MENU(menu), screenshot_item);
     gtk_widget_show(screenshot_item);

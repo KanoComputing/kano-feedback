@@ -22,7 +22,7 @@ class FeedbackWindow(MainWindow):
         '''
         Initialises the window, creating a report or contact window
         '''
-        MainWindow.__init__(self, subject='Kano Desktop Feedback Widget')
+        MainWindow.__init__(self, subject=_('Kano Desktop Feedback Widget'))
         self.bug_report = bug_report
         if self.bug_report:
             self.report_window()
@@ -38,7 +38,7 @@ class FeedbackWindow(MainWindow):
         delete_tmp_dir()
         create_tmp_dir()
 
-        ApplicationWindow.__init__(self, 'Contact Us', self.WIDTH, 0.35)
+        ApplicationWindow.__init__(self, _('Contact Us'), self.WIDTH, 0.35)
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
@@ -54,7 +54,7 @@ class FeedbackWindow(MainWindow):
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title="Contact Us", window_width=self.WIDTH,
+        self._top_bar = TopBar(title=_("Contact Us"), window_width=self.WIDTH,
                                has_buttons=False)
         self._top_bar.set_close_callback(Gtk.main_quit)
         self.set_decorated(True)
@@ -67,7 +67,7 @@ class FeedbackWindow(MainWindow):
         self._text.set_size_request(self.WIDTH, -1)
 
         self._textbuffer = self._text.get_buffer()
-        self._textbuffer.set_text("Type your feedback here!")
+        self._textbuffer.set_text(_("Type your feedback here!"))
         self._clear_buffer_handler_id = self._textbuffer.connect("insert-text",
                                                                  self.clear_buffer)
 
@@ -94,7 +94,7 @@ class FeedbackWindow(MainWindow):
         border.set_margin_bottom(20)
 
         # Create send button
-        self._send_button = KanoButton("SEND")
+        self._send_button = KanoButton(_("SEND"))
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
         self._send_button.pack_and_align()
@@ -121,7 +121,7 @@ class FeedbackWindow(MainWindow):
         Report window
         Contains 2 text views and Take Screenshot, Add Image and Send buttons
         '''
-        ApplicationWindow.__init__(self, 'Report a Problem', self.WIDTH, 0.35)
+        ApplicationWindow.__init__(self, _('Report a Problem'), self.WIDTH, 0.35)
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
@@ -134,14 +134,14 @@ class FeedbackWindow(MainWindow):
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title="Report a Problem",
+        self._top_bar = TopBar(title=_("Report a Problem"),
                                window_width=self.WIDTH, has_buttons=False)
         self._top_bar.set_close_callback(Gtk.main_quit)
         self.set_decorated(True)
         self.set_titlebar(self._top_bar)
 
         self.entry = Gtk.Entry()
-        self.entry.props.placeholder_text = "Add subject (optional)"
+        self.entry.props.placeholder_text = _("Add subject (optional)")
         self.entry.set_margin_left(20)
         self.entry.set_margin_right(20)
         self.entry.set_margin_top(20)
@@ -155,7 +155,7 @@ class FeedbackWindow(MainWindow):
         self._text.set_size_request(self.WIDTH, -1)
 
         self._textbuffer = self._text.get_buffer()
-        self._textbuffer.set_text("Type your problem here!")
+        self._textbuffer.set_text(_("Type your problem here!"))
 
         self._clear_buffer_handler_id = self._textbuffer.connect("insert-text",
                                                                  self.clear_buffer)
@@ -182,18 +182,18 @@ class FeedbackWindow(MainWindow):
         border.set_margin_bottom(20)
 
         # Create take screenshot button
-        self._screenshot_button = KanoButton("TAKE SCREENSHOT", "blue")
+        self._screenshot_button = KanoButton(_("TAKE SCREENSHOT"), "blue")
         self._screenshot_button.set_sensitive(True)
         self._screenshot_button.connect("button_press_event",
                                         self.screenshot_clicked)
 
         # Create attach screenshot button
-        self._attach_button = KanoButton("ADD IMAGE", "blue")
+        self._attach_button = KanoButton(_("ADD IMAGE"), "blue")
         self._attach_button.set_sensitive(True)
         self._attach_button.connect("button_press_event", self.attach_clicked)
 
         # Create send button
-        self._send_button = KanoButton("SEND")
+        self._send_button = KanoButton(_("SEND"))
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
         self._send_button.pack_and_align()
@@ -245,7 +245,7 @@ class FeedbackWindow(MainWindow):
         '''
         screenshot = None
         # Open file manager
-        dialog = Gtk.FileChooserDialog("Please choose a file", self,
+        dialog = Gtk.FileChooserDialog(_("Please choose a file"), self,
                                        Gtk.FileChooserAction.OPEN,
                                        (Gtk.STOCK_CANCEL,
                                         Gtk.ResponseType.CANCEL,
@@ -270,7 +270,7 @@ class FeedbackWindow(MainWindow):
         '''
         # Image filter
         filter_images = Gtk.FileFilter()
-        filter_images.set_name("Images")
+        filter_images.set_name(_("Images"))
         filter_images.add_mime_type("image/png")
         filter_images.add_mime_type("image/jpeg")
         filter_images.add_mime_type("image/gif")
@@ -283,7 +283,7 @@ class FeedbackWindow(MainWindow):
 
         # Any file filter
         filter_any = Gtk.FileFilter()
-        filter_any.set_name("Any files")
+        filter_any.set_name(_("Any files"))
         filter_any.add_pattern("*")
         dialog.add_filter(filter_any)
 
@@ -350,7 +350,7 @@ class FeedbackWindow(MainWindow):
                                                         height * 0.5)
         image = Gtk.Image.new_from_pixbuf(pixbuf)
 
-        dialog = KanoDialog("Screenshot", widget=image)
+        dialog = KanoDialog(_("Screenshot"), widget=image)
         dialog.run()
 
     def pack_screenshot_buttons(self):

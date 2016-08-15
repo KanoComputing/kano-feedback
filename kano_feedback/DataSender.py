@@ -449,8 +449,8 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
     The answers will be all packed into a payload object and sent in one single network transaction.
     '''
 
-    ok_msg_title = 'Thank you'
-    ok_msg_body = 'We will use your feedback to improve your experience'
+    ok_msg_title = _('Thank you')
+    ok_msg_body = _('We will use your feedback to improve your experience')
 
     if interactive and not try_connect() or not try_login():
         # The answer will be saved as offline, act as if it was sent correctly
@@ -491,16 +491,16 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
             return False
 
         retry = KanoDialog(
-            title_text='Unable to send',
-            description_text=('Error while sending your feedback. ' \
-                              'Do you want to retry?'),
+            title_text=_('Unable to send'),
+            description_text=(_('Error while sending your feedback. ' \
+                                'Do you want to retry?')),
             button_dict={
-                'Close feedback'.upper():
+                _('Close feedback').upper():
                     {
                         'return_value': False,
                         'color': 'red'
                     },
-                'Retry'.upper():
+                _('Retry').upper():
                     {
                         'return_value': True,
                         'color': 'green'

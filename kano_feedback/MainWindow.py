@@ -54,19 +54,19 @@ class MainWindow(ApplicationWindow):
                 return
 
             if self.bug_report:
-                title = "Important"
+                title = _("Important")
                 description = (
-                    "Your feedback will include debugging information.\n"
-                    "Do you want to continue?"
+                    _("Your feedback will include debugging information.\n" +\
+                      "Do you want to continue?")
                 )
                 kdialog = KanoDialog(
                     title, description,
                     {
-                        "CANCEL":
+                        _("CANCEL"):
                         {
                             "return_value": 1
                         },
-                        "OK":
+                        _("OK"):
                         {
                             "return_value": 0
                         }
@@ -86,35 +86,35 @@ class MainWindow(ApplicationWindow):
             self._text.set_sensitive(False)
 
             def lengthy_process():
-                button_dict = {"OK": {"return_value": self.CLOSE_FEEDBACK}}
+                button_dict = {_("OK"): {"return_value": self.CLOSE_FEEDBACK}}
 
                 if not is_internet():
-                    title = "No internet connection"
-                    description = "Configure your connection"
-                    button_dict = {"OK": {"return_value": self.LAUNCH_WIFI}}
+                    title = _("No internet connection")
+                    description = _("Configure your connection")
+                    button_dict = {_("OK"): {"return_value": self.LAUNCH_WIFI}}
                 else:
                     success, error = self.send_user_info(body_title=body_title)
                     if success:
-                        title = "Info"
-                        description = "Feedback sent correctly"
+                        title = _("Info")
+                        description = _("Feedback sent correctly")
                         button_dict = \
                             {
-                                "OK":
+                                _("OK"):
                                 {
                                     "return_value": self.CLOSE_FEEDBACK
                                 }
                             }
                     else:
-                        title = "Info"
-                        description = "Something went wrong, error: {}".format(error)
+                        title = _("Info")
+                        description = _("Something went wrong, error: {}").format(error)
                         button_dict = \
                             {
-                                "CLOSE FEEDBACK":
+                                _("CLOSE FEEDBACK"):
                                 {
                                     "return_value": self.CLOSE_FEEDBACK,
                                     "color": "red"
                                 },
-                                "TRY AGAIN":
+                                _("TRY AGAIN"):
                                 {
                                     "return_value": self.KEEP_OPEN,
                                     "color": "green"

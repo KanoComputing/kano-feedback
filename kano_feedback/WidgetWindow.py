@@ -34,7 +34,7 @@ class WidgetWindow(ApplicationWindow):
     WIDTH = 500
     HEIGHT_COMPACT = 50
     HEIGHT_EXPANDED = 200
-    SUBJECT = 'Kano Desktop Feedback Widget'
+    SUBJECT = _('Kano Desktop Feedback Widget')
 
     def __init__(self):
         ApplicationWindow.__init__(self, 'widget', self.WIDTH,
@@ -104,7 +104,7 @@ class WidgetWindow(ApplicationWindow):
 
         self.app_name_opened = 'feedback-widget-opened'
         self.typeahead = None
-        self.help_tip_message = 'Type your feedback here!'
+        self.help_tip_message = _('Type your feedback here!')
 
         self.rotating_mode = True
         self.in_submit = False
@@ -183,7 +183,7 @@ class WidgetWindow(ApplicationWindow):
 
         self._pack_input_widget()
 
-        self._send = send = OrangeButton('SEND')
+        self._send = send = OrangeButton(_('SEND'))
         apply_styling_to_widget(send.label, media_dir() + 'css/widget.css')
         send.set_sensitive(False)
         send.connect('clicked', self._send_clicked)
