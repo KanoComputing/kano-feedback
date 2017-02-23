@@ -1,0 +1,42 @@
+# Spanish translations for kano-feedback package.
+# Copyright (C) 2017 Kano Computing Ltd.
+# This file is distributed under the same license as the kano-feedback package.
+# Automatically generated, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: kano-feedback\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-23 10:34+0000\n"
+"PO-Revision-Date: 2017-02-23 10:34+0000\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: es_AR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../lxpanel-plugin/kano_feedback.c:36 ../lxpanel-plugin/kano_feedback.c:150
+msgid "Help"
+msgstr ""
+
+#: ../lxpanel-plugin/kano_feedback.c:156
+msgid "Contact Us"
+msgstr ""
+
+#: ../lxpanel-plugin/kano_feedback.c:162
+msgid "Help Center"
+msgstr ""
+
+#: ../lxpanel-plugin/kano_feedback.c:168
+msgid "Report a Problem"
+msgstr ""
+
+#: ../lxpanel-plugin/kano_feedback.c:250
+msgid "Kano Feedback"
+msgstr ""
+
+#: ../lxpanel-plugin/kano_feedback.c:251
+msgid "Reach out to us and get help."
+msgstr ""

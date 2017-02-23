@@ -4,5 +4,6 @@
 	dh $@
 
 override_dh_auto_build:
+	cd po && make
 	cd lxpanel-plugin && make
 	dh_auto_build

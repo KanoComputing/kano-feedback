@@ -6,6 +6,8 @@
  *
  */
 
+#define GETTEXT_PACKAGE "kano-feedback"
+
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <glib/gi18n.h>
@@ -31,7 +33,7 @@
 #define HELP_CMD "/usr/bin/kano-help-launcher"
 #define SOUND_CMD "/usr/bin/aplay /usr/share/kano-media/sounds/kano_open_app.wav"
 
-#define PLUGIN_TOOLTIP "Help"
+#define PLUGIN_TOOLTIP Q_("Help")
 
 typedef struct {
     LXPanel *panel;
@@ -145,25 +147,25 @@ static gboolean show_menu(GtkWidget *widget, GdkEventButton *event)
         return FALSE;
 
     /* Create the menu items */
-    header_item = gtk_menu_item_new_with_label("Help");
+    header_item = gtk_menu_item_new_with_label(Q_("Help"));
     gtk_widget_set_sensitive(header_item, FALSE);
     gtk_menu_append(GTK_MENU(menu), header_item);
     gtk_widget_show(header_item);
 
     /* Contact button */
-    GtkWidget* contact_item = gtk_image_menu_item_new_with_label("Contact Us");
+    GtkWidget* contact_item = gtk_image_menu_item_new_with_label(Q_("Contact Us"));
     g_signal_connect(contact_item, "activate", G_CALLBACK(contact_clicked), NULL);
     gtk_menu_append(GTK_MENU(menu), contact_item);
     gtk_widget_show(contact_item);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(contact_item), get_resized_icon(CONTACT_ICON));
     /* Knowledge button */
-    GtkWidget* knowledge_item = gtk_image_menu_item_new_with_label("Help Center");
+    GtkWidget* knowledge_item = gtk_image_menu_item_new_with_label(Q_("Help Center"));
     g_signal_connect(knowledge_item, "activate", G_CALLBACK(knowledge_clicked), NULL);
     gtk_menu_append(GTK_MENU(menu), knowledge_item);
     gtk_widget_show(knowledge_item);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(knowledge_item), get_resized_icon(KNOWLEDGE_ICON));
     /* Screenshot button */
-    GtkWidget* screenshot_item = gtk_image_menu_item_new_with_label("Report a Problem");
+    GtkWidget* screenshot_item = gtk_image_menu_item_new_with_label(Q_("Report a Problem"));
     g_signal_connect(screenshot_item, "activate", G_CALLBACK(screenshot_clicked), NULL);
     gtk_menu_append(GTK_MENU(menu), screenshot_item);
     gtk_widget_show(screenshot_item);
