@@ -1,6 +1,7 @@
 bin/* usr/bin/
 kano_feedback usr/lib/python2.7/dist-packages/
 media usr/share/kano-feedback/
+locale/* usr/share/locale/
 
 sudoers.d/* /etc/sudoers.d
 
