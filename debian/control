@@ -13,3 +13,8 @@ Depends: ${misc:Depends}, curl, kano-toolset (>= 2.4.0-1), kano-profile,
     kano-content
 Description: A tool for feedback gathering
  A tool to allow Kanux users to provide feedback
+
+Package: kano-feedback-i18n-orig
+Architecture: all
+Description: Data for working on translations of kano-feedback
+Multi-Arch: foreign
