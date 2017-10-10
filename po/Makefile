@@ -16,16 +16,31 @@ clean_locales:
 clean: clean_locales
 	rm -f messages.pot
 
+define generate-pypotfiles
+grep "env python" -rl --exclude=*.py --exclude=Makefile .. > PYPOTFILES
+find .. -name *.py >> PYPOTFILES
+endef
+
 define run-xgettext
-xgettext -o messages.pot -L C --keyword=Q_ ../lxpanel-plugin/*.c \
-    --keyword=N_ --package-name=$(APPNAME) --copyright-holder=$(ORG)
+xgettext -f PYPOTFILES -L Python -kN_ --force-po --from-code=UTF-8 -o messages.pot \
+    --package-name=$(APPNAME) --copyright-holder=$(ORG)
+xgettext -o messages.pot -j -L C --keyword=Q_ --keyword=N_ ../lxpanel-plugin/*.c \
+    --package-name=$(APPNAME) --copyright-holder=$(ORG)
+endef
+
+define clean-up
+rm PYPOTFILES
 endef
 
 messages:
+	$(generate-pypotfiles)
 	$(run-xgettext)
+	$(clean-up)
 
 messages.pot:
+	$(generate-pypotfiles)
 	$(run-xgettext)
+	$(clean-up)
 
 %.po: messages.pot
 	msgmerge -N -U $*.po messages.pot

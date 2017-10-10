@@ -2,11 +2,11 @@
 
 # MainWindow.py
 #
-# Copyright (C) 2014, 2015 Kano Computing Ltd.
-# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+# Copyright (C) 2014-2017 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Base class for the Feedback windows.
-#
+
 
 import sys
 from gi.repository import Gtk, Gdk, GObject
@@ -54,19 +54,19 @@ class MainWindow(ApplicationWindow):
                 return
 
             if self.bug_report:
-                title = "Important"
-                description = (
+                title = _("Important")
+                description = _(
                     "Your feedback will include debugging information.\n"
                     "Do you want to continue?"
                 )
                 kdialog = KanoDialog(
                     title, description,
                     {
-                        "CANCEL":
+                        _("CANCEL"):
                         {
                             "return_value": 1
                         },
-                        "OK":
+                        _("OK"):
                         {
                             "return_value": 0
                         }
@@ -86,35 +86,35 @@ class MainWindow(ApplicationWindow):
             self._text.set_sensitive(False)
 
             def lengthy_process():
-                button_dict = {"OK": {"return_value": self.CLOSE_FEEDBACK}}
+                button_dict = {_("OK"): {"return_value": self.CLOSE_FEEDBACK}}
 
                 if not is_internet():
-                    title = "No internet connection"
-                    description = "Configure your connection"
-                    button_dict = {"OK": {"return_value": self.LAUNCH_WIFI}}
+                    title = _("No internet connection")
+                    description = _("Configure your connection")
+                    button_dict = {_("OK"): {"return_value": self.LAUNCH_WIFI}}
                 else:
                     success, error = self.send_user_info(body_title=body_title)
                     if success:
-                        title = "Info"
-                        description = "Feedback sent correctly"
+                        title = _("Info")
+                        description = _("Feedback sent correctly")
                         button_dict = \
                             {
-                                "OK":
+                                _("OK"):
                                 {
                                     "return_value": self.CLOSE_FEEDBACK
                                 }
                             }
                     else:
-                        title = "Info"
-                        description = "Something went wrong, error: {}".format(error)
+                        title = _("Info")
+                        description = _("Something went wrong, error: {}").format(error)
                         button_dict = \
                             {
-                                "CLOSE FEEDBACK":
+                                _("CLOSE FEEDBACK"):
                                 {
                                     "return_value": self.CLOSE_FEEDBACK,
                                     "color": "red"
                                 },
-                                "TRY AGAIN":
+                                _("TRY AGAIN"):
                                 {
                                     "return_value": self.KEEP_OPEN,
                                     "color": "green"
@@ -137,7 +137,7 @@ class MainWindow(ApplicationWindow):
                     response = kdialog.run()
 
                     if response == self.LAUNCH_WIFI:
-                        run_cmd('sudo /usr/bin/kano-settings 12')
+                        run_cmd('sudo /usr/bin/kano-settings 12', localised=True)
                         self.after_feedback_sent(completed=False)
                     elif response == self.CLOSE_FEEDBACK:
                         self.after_feedback_sent(completed=True)
@@ -234,7 +234,7 @@ class MainWindow(ApplicationWindow):
             self.set_keep_above(False)
             self.set_keep_below(True)
             self.show_all()
-            _, _, rc = run_cmd('kano-login 3')
+            _, _, rc = run_cmd('kano-login 3', localised=True)
             self.set_keep_below(False)
             self.set_keep_above(True)
             self.show_all()
