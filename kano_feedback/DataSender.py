@@ -2,11 +2,11 @@
 
 # DataSender.py
 #
-# Copyright (C) 2014 Kano Computing Ltd.
-# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+# Copyright (C) 2014-2017 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Functions related to sending feedback data
-#
+
 
 import os
 from os.path import expanduser
@@ -420,7 +420,7 @@ def try_login():
     '''
     # Check if user is registered
     if not is_registered():
-        _, _, rc = run_cmd('kano-login 3')
+        _, _, rc = run_cmd('kano-login 3', localised=True)
 
     return is_registered()
 
@@ -433,7 +433,7 @@ def try_connect():
     if is_internet():
         return True
 
-    run_cmd('sudo /usr/bin/kano-settings 12')
+    run_cmd('sudo /usr/bin/kano-settings 12', localised=True)
 
     return is_internet()
 
@@ -449,8 +449,8 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
     The answers will be all packed into a payload object and sent in one single network transaction.
     '''
 
-    ok_msg_title = 'Thank you'
-    ok_msg_body = 'We will use your feedback to improve your experience'
+    ok_msg_title = _('Thank you')
+    ok_msg_body = _('We will use your feedback to improve your experience')
 
     if interactive and not try_connect() or not try_login():
         # The answer will be saved as offline, act as if it was sent correctly
@@ -491,16 +491,15 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
             return False
 
         retry = KanoDialog(
-            title_text='Unable to send',
-            description_text=('Error while sending your feedback. ' \
-                              'Do you want to retry?'),
+            title_text=_('Unable to send'),
+            description_text=_('Error while sending your feedback. Do you want to retry?'),
             button_dict={
-                'Close feedback'.upper():
+                _('Close feedback').upper():
                     {
                         'return_value': False,
                         'color': 'red'
                     },
-                'Retry'.upper():
+                _('Retry').upper():
                     {
                         'return_value': True,
                         'color': 'green'
@@ -510,10 +509,9 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
 
         if retry.run():
             # Try again until they say no
-            return send_question_response([(question_id, answer)], interactive=interactive)
+            return send_question_response([(answer[0], answer)], interactive=interactive)
 
         return False
-
 
     if interactive:
         thank_you = KanoDialog(ok_msg_title, ok_msg_body)

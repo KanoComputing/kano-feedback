@@ -2,11 +2,11 @@
 
 # WidgetWindow.py
 #
-# Copyright (C) 2015 Kano Computing Ltd.
+# Copyright (C) 2015-2017 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # The MainWindow for the Desktop Feedback Widget
-#
+
 
 from gi.repository import Gtk, Gdk, GObject
 
@@ -104,7 +104,7 @@ class WidgetWindow(ApplicationWindow):
 
         self.app_name_opened = 'feedback-widget-opened'
         self.typeahead = None
-        self.help_tip_message = 'Type your feedback here!'
+        self.help_tip_message = _("Type your feedback here!")
 
         self.rotating_mode = True
         self.in_submit = False

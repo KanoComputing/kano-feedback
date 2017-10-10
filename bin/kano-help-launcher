@@ -2,16 +2,28 @@
 
 # kano-help-launcher
 #
-# Copyright (C) 2014 Kano Computing Ltd.
-# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+# Copyright (C) 2014-2017 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Launcher app for kano help
-#
+
 
 import os
 import sys
+
 from kano.webapp import WebApp
 from kano.network import is_internet
+
+if __name__ == '__main__' and __package__ is None:
+    DIR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    if DIR_PATH != '/usr':
+        sys.path.insert(0, DIR_PATH)
+        LOCALE_PATH = os.path.join(DIR_PATH, 'locale')
+    else:
+        LOCALE_PATH = None
+
+import kano_i18n.init
+kano_i18n.init.install('kano-feedback', LOCALE_PATH)
 
 app_name = 'kano-help-launcher'
 
@@ -19,7 +31,7 @@ app_name = 'kano-help-launcher'
 class Launcher(WebApp):
     def __init__(self):
         self._index = "https://kano.zendesk.com/hc/en-us"
-        self._title = "Kano Help"
+        self._title = _("Kano Help")
 
         self._app_icon = "kano-help"
 
