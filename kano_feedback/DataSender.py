@@ -131,10 +131,6 @@ def get_metadata_archive():
                          'name': SCREENSHOT_NAME,
                          'contents': read_file_contents(SCREENSHOT_PATH)
                          })
-    # create files for each non empty metadata info
-    for file in file_list:
-        if file['contents']:
-            write_file_contents(TMP_DIR + file['name'], file['contents'])
     # Collect all coredumps, for applications that terminated unexpectedly
     for f in os.listdir('/var/tmp/'):
         if f.startswith('core-'):
@@ -142,6 +138,10 @@ def get_metadata_archive():
                 'name': f,
                 'contents': read_file_contents(os.path.join('/var/tmp', f))
             })
+    # create files for each non empty metadata info
+    for file in file_list:
+        if file['contents']:
+            write_file_contents(TMP_DIR + file['name'], file['contents'])
     # archive all the metadata files
     # need to change dir to avoid tar subdirectories
     current_directory = os.getcwd()
@@ -201,9 +201,9 @@ def get_dmesg():
 
 def get_syslog():
     '''
-    Returns the last 100 lines of syslog messages
+    Returns the last 1000 lines of syslog messages
     '''
-    cmd = "tail -v -n 100 /var/log/messages"
+    cmd = "sudo journalctl -b | tail -n 1000"
     o, _, _ = run_cmd(cmd)
 
     return o
