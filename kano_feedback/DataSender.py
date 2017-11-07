@@ -120,6 +120,7 @@ def get_metadata_archive():
 
         {'name': 'app-logs-json.txt', 'contents': get_app_logs_json()},
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()},
+        {'name': 'edid.dat', 'contents': get_edid()},
         {'name': 'xorg-log.txt', 'contents': get_xorg_log()},
         {'name': 'cpu-info.txt', 'contents': get_cpu_info()},
         {'name': 'lsof.txt', 'contents': get_lsof()},
@@ -339,6 +340,19 @@ def get_wifi_info():
     wpalog = "**wpalog**\n {}\n\n".format(get_wpalog())
 
     return world_username + kwifi_cache + wlaniface + ifconfig + wpalog
+
+
+def get_edid():
+    file_path = TMP_DIR + 'edid.dat'
+    cmd = "tvservice -d {}".format(file_path)
+    run_cmd(cmd)
+    try:
+        dat = read_file_contents(file_path)
+        delete_file(file_path)
+        return dat
+    except:
+        return "EMPTY"
+
 
 
 def get_hdmi_info():
