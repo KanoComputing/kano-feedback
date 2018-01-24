@@ -2,7 +2,7 @@
 
 # DataSender.py
 #
-# Copyright (C) 2014-2017 Kano Computing Ltd.
+# Copyright (C) 2014-2018 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Functions related to sending feedback data
@@ -12,6 +12,7 @@ import os
 from os.path import expanduser
 import datetime
 import json
+import traceback
 
 # Do not Import Gtk if we are not bound to an X Display
 if os.environ.has_key('DISPLAY'):
@@ -121,6 +122,7 @@ def get_metadata_archive():
         {'name': 'app-logs-json.txt', 'contents': get_app_logs_json()},
         {'name': 'hdmi-info.txt', 'contents': get_hdmi_info()},
         {'name': 'edid.dat', 'contents': get_edid()},
+        {'name': 'screen-log.txt', 'contents': get_screen_log()},
         {'name': 'xorg-log.txt', 'contents': get_xorg_log()},
         {'name': 'cpu-info.txt', 'contents': get_cpu_info()},
         {'name': 'lsof.txt', 'contents': get_lsof()},
@@ -354,7 +356,6 @@ def get_edid():
         return "EMPTY"
 
 
-
 def get_hdmi_info():
     '''
     Returns a string with Display info
@@ -370,6 +371,40 @@ def get_hdmi_info():
     delete_file(file_path)
 
     return res + edid
+
+
+def get_screen_log():
+    """Get display information using kano-settings display functions.
+
+    Returns:
+        dict: An aggregate of display characteristics
+    """
+
+    try:
+        from kano_settings.system.display import get_edid, get_edid_name, get_status, \
+            list_supported_modes, get_optimal_resolution_mode, override_models
+
+        edid = get_edid()
+        model = get_edid_name(use_cached=False)
+
+        override_models(edid, model)
+
+        status = get_status()
+        supported = list_supported_modes(use_cached=False)
+        optimal = get_optimal_resolution_mode(edid, supported)
+
+        log_data = {
+            'model': model,
+            'status': status,
+            'edid': edid,
+            'supported': supported,
+            'optimal': optimal,
+        }
+        log = json.dumps(log_data, sort_keys=True, indent=4)
+    except:
+        return traceback.format_exc()
+
+    return log
 
 
 def get_co_list():
