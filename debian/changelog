@@ -1,8 +1,11 @@
 kano-feedback (3.15.0-0) unstable; urgency=low
 
   * Added screen logging information to the support logs
+  * Automated building of docs for the project
+  * Refactored kano-feedback-cli binary usage interface
+  * Added kanux_stamp to the system logs
 
- -- Team Kano <dev@kano.me>  Wed, 24 Jan 2018 17:12:00 +0100
+ -- Team Kano <dev@kano.me>  Mon, 29 Jan 2018 15:47:00 +0100
 
 kano-feedback (3.14.0-0) unstable; urgency=low
 
