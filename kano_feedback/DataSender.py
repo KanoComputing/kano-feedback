@@ -42,9 +42,22 @@ ARCHIVE_NAME = 'bug_report.tar.gz'
 
 
 def send_data(text, full_info, subject="", network_send=True):
-    '''
-    Sends the data to our servers through a post request
-    '''
+    """Sends the data to our servers through a post request.
+
+    It uses :func:`~get_metadata_archive` to gather all the logs on
+    the system.
+
+    Args:
+        text (str): The description of the email when sending the logs
+        full_info (bool): Whether to attach all logs to the payload
+        subject (str): The title of the email when sending the logs
+        network_send (bool): Whether to send the data to out server
+
+    Returns:
+        bool, error: Whether the operation was successful or there was
+        an error as returned by :func:`kano_world.functions.request_wrapper`
+    """
+
     files = {}
     # packs all the information into 'files'
     if full_info:

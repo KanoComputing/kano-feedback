@@ -2,35 +2,59 @@
 
 # kano-feedback-cli
 #
-# Copyright (C) 2014, 2015 Kano Computing Ltd.
-# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
-#
-# This tool allows for gathering kano-feedback data into a local tar compressed file
-#
+# Copyright (C) 2014-2018 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 
+"""
+kano-feedback-cli allows for gathering kano-feedback data into a
+    local tar compressed file. Requires sudo.
+
+Usage:
+    kano-feedback-cli [options]
+    kano-feedback-cli -h | --help
+
+Options:
+    -o, --output=<path>
+                    Write the logs to a specific path. Default is
+                    /tmp/kano-feedback-cli.tar.gz
+    -s, --screenshot
+                    Take a screenshot and attach it to the report.
+    -t, --title=<title>
+                    The title of the email when sending the logs.
+                    Default is "Kano OS: Feedback Report Logs"
+    -d, --description=<description>
+                    The description of the email when sending the logs.
+                    Default is an empty string.
+    -z, --send      Send the logs to the dev servers.
+    -h, --help      Show this message.
+
+Values:
+    <path>          A full path to a file.
+    <title>         The str value of the option.
+    <description>   The str value of the option.
+"""
+
+
+from os.path import abspath, join, dirname
 import sys
-from kano_feedback.DataSender import send_data, take_screenshot, \
-    copy_archive_report, delete_tmp_dir
+
+import docopt
+
+if __name__ == '__main__' and __package__ is None:
+    DIR_PATH = abspath(join(dirname(__file__), '..'))
+    if DIR_PATH != '/usr':
+        sys.path.insert(0, DIR_PATH)
+
+from kano_feedback.kano_feedback_cli import main
+from kano_feedback.return_codes import RC
+
 
 if __name__ == '__main__':
+    # Show the entire docstring when incorrect arguments are given.
+    try:
+        args = docopt.docopt(__doc__)
+    except docopt.DocoptExit:
+        print __doc__
+        sys.exit(RC.INCORRECT_ARGS)
 
-    report_file = '/tmp/kano-feedback-cli.tar.gz'
-
-    if len(sys.argv) > 1:
-        report_file = sys.argv[1]
-
-    print 'taking a screenshot...'
-    take_screenshot()
-
-    print 'gathering feedback data...'
-    send_data('', full_info=True, network_send=False)
-
-    is_saved = copy_archive_report(report_file)
-    if is_saved:
-        print 'feedback file saved to:', report_file
-    else:
-        print 'could not save feedback to:', report_file, \
-              'perhaps you need to use sudo?'
-
-    delete_tmp_dir()
-    sys.exit(is_saved is False)
+    sys.exit(main(args) or RC.SUCCESS)
