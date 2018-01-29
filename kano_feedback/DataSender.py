@@ -120,6 +120,7 @@ def get_metadata_archive():
     ensure_dir(TMP_DIR)
     file_list = [
         {'name': 'kanux_version.txt', 'contents': get_version()},
+        {'name': 'kanux_stamp.txt', 'contents': get_stamp()},
         {'name': 'process.txt', 'contents': get_processes()},
         {'name': 'packages.txt', 'contents': get_packages()},
         {'name': 'dmesg.txt', 'contents': get_dmesg()},
@@ -180,6 +181,15 @@ def get_version():
     o, _, _ = run_cmd(cmd)
 
     return o
+
+
+def get_stamp():
+    """Get the initial starting version of the OS.
+
+    Returns:
+        str: The contents of the kanux_stamp file
+    """
+    return read_file_contents('/boot/kanux_stamp') or ''
 
 
 def get_processes():
