@@ -17,6 +17,8 @@ Options:
     -o, --output=<path>
                     Write the logs to a specific path. Default is
                     /tmp/kano-feedback-cli.tar.gz
+    -f, --flag=<path>
+                    Create a file flag if the operation was successful.
     -s, --screenshot
                     Take a screenshot and attach it to the report.
     -t, --title=<title>

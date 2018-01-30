@@ -51,7 +51,7 @@ def send_data(text, full_info, subject="", network_send=True):
         text (str): The description of the email when sending the logs
         full_info (bool): Whether to attach all logs to the payload
         subject (str): The title of the email when sending the logs
-        network_send (bool): Whether to send the data to out server
+        network_send (bool): Whether to send the data to our servers
 
     Returns:
         bool, error: Whether the operation was successful or there was
