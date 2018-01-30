@@ -17,3 +17,4 @@ class RC(object):
     # kano-feedback-cli specific.
     ERROR_SEND_DATA = 10
     ERROR_COPY_ARCHIVE = 11
+    ERROR_CREATE_FLAG = 12

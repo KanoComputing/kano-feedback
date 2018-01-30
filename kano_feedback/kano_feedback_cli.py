@@ -6,6 +6,8 @@
 # The main functionality of the kano-feedback-cli binary.
 
 
+from kano.utils.file_operations import touch
+
 from kano_feedback.DataSender import send_data, take_screenshot, \
     copy_archive_report, delete_tmp_dir
 from kano_feedback.paths import Path
@@ -35,6 +37,13 @@ def main(args):
     if not successful:
         print 'Error from send_data: {}'.format(error)
         return RC.ERROR_SEND_DATA
+
+    if args['--flag']:
+        print 'Creating file flag...'
+        successful = touch(args['--flag'])
+        if not successful:
+            print 'Could not create file flag {}'.format(args['--flag'])
+            return RC.ERROR_CREATE_FLAG
 
     successful = copy_archive_report(report_file)
     delete_tmp_dir()
