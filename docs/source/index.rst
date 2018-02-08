@@ -8,9 +8,15 @@ Welcome to kano-feedback's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Wiki
 
-   readme
+   wiki/readme
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Source
+
    modules
 
 
