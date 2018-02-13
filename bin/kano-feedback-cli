@@ -27,6 +27,11 @@ Options:
     -d, --description=<description>
                     The description of the email when sending the logs.
                     Default is an empty string.
+    -c, --with-checks
+                    Run the Internet and Kano World checks beforehand. This
+                    will popup the apps to configure connections.
+    -j, --just-checks
+                    Same as --with-checks but the program will then exit.
     -z, --send      Send the logs to the dev servers.
     -h, --help      Show this message.
 
