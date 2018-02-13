@@ -13,6 +13,8 @@ class RC(object):
     SUCCESS = 0
 
     INCORRECT_ARGS = 1
+    NO_INTERNET = 2
+    NO_KANO_WORLD_ACC = 3
 
     # kano-feedback-cli specific.
     ERROR_SEND_DATA = 10

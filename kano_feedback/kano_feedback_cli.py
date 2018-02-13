@@ -10,6 +10,7 @@ from kano.utils.file_operations import touch
 
 from kano_feedback.DataSender import send_data, take_screenshot, \
     copy_archive_report, delete_tmp_dir
+from kano_feedback.utils import ensure_internet, ensure_kano_world_login
 from kano_feedback.paths import Path
 from kano_feedback.return_codes import RC
 
@@ -22,6 +23,16 @@ def main(args):
     """
 
     report_file = args['--output'] or Path.DEFAULT_REPORT_PATH
+
+    if args['--with-checks'] or args['--just-checks']:
+        if not ensure_internet():
+            return RC.NO_INTERNET
+
+        if not ensure_kano_world_login():
+            return RC.NO_KANO_WORLD_ACC
+
+        if args['--just-checks']:
+            return RC.SUCCESS
 
     if args['--screenshot']:
         print 'Taking a screenshot...'
