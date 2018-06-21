@@ -1,3 +1,9 @@
+kano-updater (4.0.0-0) unstable; urgency=low
+
+  * Fix Gtk CSS styling issues
+
+ -- Team Kano <dev@kano.me>  Mon, 21 June 2018 15:27:30 +0100
+
 kano-feedback (3.15.0-0) unstable; urgency=low
 
   * Added screen logging information to the support logs
@@ -6,7 +12,7 @@ kano-feedback (3.15.0-0) unstable; urgency=low
   * Added kanux_stamp to the system logs
   * Fix Gtk CSS styling issues
 
- -- Team Kano <dev@kano.me>  Mon, 21 June 2018 15:27:30 +0100
+ -- Team Kano <dev@kano.me>  Mon, 29 Jan 2018 15:47:00 +0100
 
 kano-feedback (3.14.0-0) unstable; urgency=low
 
