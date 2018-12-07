@@ -41,7 +41,7 @@ SCREENSHOT_PATH = TMP_DIR + SCREENSHOT_NAME
 ARCHIVE_NAME = 'bug_report.tar.gz'
 
 
-def send_data(text, full_info, subject="", network_send=True):
+def send_data(text, full_info, subject='', network_send=True, logs_path=''):
     """Sends the data to our servers through a post request.
 
     It uses :func:`~get_metadata_archive` to gather all the logs on
@@ -52,6 +52,7 @@ def send_data(text, full_info, subject="", network_send=True):
         full_info (bool): Whether to attach all logs to the payload
         subject (str): The title of the email when sending the logs
         network_send (bool): Whether to send the data to our servers
+        logs_path (str): Path to an existing logs archive to use instead
 
     Returns:
         bool, error: Whether the operation was successful or there was
@@ -61,7 +62,10 @@ def send_data(text, full_info, subject="", network_send=True):
     files = {}
     # packs all the information into 'files'
     if full_info:
-        files['report'] = get_metadata_archive()
+        if logs_path and os.path.exists(logs_path):
+            files['report'] = open(logs_path, 'rb')
+        else:
+            files['report'] = get_metadata_archive()
     # This is the actual info: subject, text, email, username
     payload = {
         "text": text,

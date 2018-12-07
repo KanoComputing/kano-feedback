@@ -15,25 +15,29 @@ Usage:
 
 Options:
     -o, --output=<path>
-                    Write the logs to a specific path. Default is
-                    /tmp/kano-feedback-cli.tar.gz
+        Write the logs to a specific path. Default is
+        /tmp/kano-feedback-cli.tar.gz
     -f, --flag=<path>
-                    Create a file flag if the operation was successful.
+        Create a file flag if the operation was successful.
     -s, --screenshot
-                    Take a screenshot and attach it to the report.
+        Take a screenshot and attach it to the report.
     -t, --title=<title>
-                    The title of the email when sending the logs.
-                    Default is "Kano OS: Feedback Report Logs"
+        The title of the email when sending the logs.
+        Default is "Kano OS: Feedback Report Logs"
     -d, --description=<description>
-                    The description of the email when sending the logs.
-                    Default is an empty string.
+        The description of the email when sending the logs.
+        Default is an empty string.
     -c, --with-checks
-                    Run the Internet and Kano World checks beforehand. This
-                    will popup the apps to configure connections.
+        Run the Internet and Kano World checks beforehand. This
+        will popup the apps to configure connections.
     -j, --just-checks
-                    Same as --with-checks but the program will then exit.
-    -z, --send      Send the logs to the dev servers.
-    -h, --help      Show this message.
+        Same as --with-checks but the program will then exit.
+    -l, --logs=<path>
+        Do not recapture the logs and use a previously captured archive.
+    -z, --send
+        Send the logs to the dev servers.
+    -h, --help
+        Show this message.
 
 Values:
     <path>          A full path to a file.

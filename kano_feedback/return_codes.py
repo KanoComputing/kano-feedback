@@ -15,6 +15,7 @@ class RC(object):
     INCORRECT_ARGS = 1
     NO_INTERNET = 2
     NO_KANO_WORLD_ACC = 3
+    CANNOT_CREATE_FLAG = 4  # read-only fs?
 
     # kano-feedback-cli specific.
     ERROR_SEND_DATA = 10

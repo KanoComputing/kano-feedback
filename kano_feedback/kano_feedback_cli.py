@@ -6,6 +6,8 @@
 # The main functionality of the kano-feedback-cli binary.
 
 
+import os
+
 from kano.utils.file_operations import touch
 
 from kano_feedback.DataSender import send_data, take_screenshot, \
@@ -15,12 +17,27 @@ from kano_feedback.paths import Path
 from kano_feedback.return_codes import RC
 
 
+def _check_can_create_file_flag(flag_path):
+    """TODO"""
+    success = False
+    try:
+        if touch(flag_path):
+            os.remove(flag_path)
+            success = True
+    except:
+        pass
+    return success
+
+
 def main(args):
     """The main functionality of the kano-feedback-cli binary.
 
     Returns:
         int: Exit code as documented in :class:`.return_codes.RC`
     """
+
+    if args['--flag'] and not _check_can_create_file_flag(args['--flag']):
+        return RC.CANNOT_CREATE_FLAG
 
     report_file = args['--output'] or Path.DEFAULT_REPORT_PATH
 
@@ -43,7 +60,8 @@ def main(args):
         args['--description'] or '',
         True,
         subject=args['--title'] or 'Kano OS: Feedback Report Logs',
-        network_send=args['--send']
+        network_send=args['--send'],
+        logs_path=args['--logs']
     )
     if not successful:
         print 'Error from send_data: {}'.format(error)
