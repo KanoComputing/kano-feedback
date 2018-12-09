@@ -1,6 +1,7 @@
 kano-feedback (3.16.1-0) unstable; urgency=low
 
   * Backport: Add pstree output to the logs
+  * Backport: Fix Debian package logs to show install state
 
  -- Team Kano <dev@kano.me>  Mon, 10 Dec 2018 16:34:00 +0100
 
