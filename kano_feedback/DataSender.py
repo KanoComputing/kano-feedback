@@ -217,7 +217,7 @@ def get_packages():
     '''
     Returns a string with the list of packages installed in the system
     '''
-    cmd = "dpkg-query -l | awk '{ print $2 \"-\" $3 }'"
+    cmd = "dpkg-query -l"
     o, _, _ = run_cmd(cmd)
 
     return o
