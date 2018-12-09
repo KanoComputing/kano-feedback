@@ -15,7 +15,7 @@ import json
 import traceback
 
 # Do not Import Gtk if we are not bound to an X Display
-if os.environ.has_key('DISPLAY'):
+if 'DISPLAY' in os.environ:
     from gi.repository import Gtk
 
 import kano.logging as logging
@@ -28,7 +28,7 @@ from kano.logging import logger
 from kano.utils import get_rpi_model
 
 # Do not Import Gtk if we are not bound to an X Display
-if os.environ.has_key('DISPLAY'):
+if 'DISPLAY' in os.environ:
     from kano.gtk3.kano_dialog import KanoDialog
 
 from kano_world.functions import is_registered
@@ -536,8 +536,10 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
     The answers will be all packed into a payload object and sent in one single network transaction.
     '''
 
-    ok_msg_title = _('Thank you')
-    ok_msg_body = _('We will use your feedback to improve your experience')
+    ok_msg_title = _('Thank you')  # noqa: F821
+    ok_msg_body = _(  # noqa: F821
+        'We will use your feedback to improve your experience'
+    )
 
     if interactive and not try_connect() or not try_login():
         # The answer will be saved as offline, act as if it was sent correctly
@@ -551,9 +553,11 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
         'email': get_email(),
         'username': get_mixed_username(),
         'answers': [
-            { 'question_id': answer[0],
-              'text': answer[1],
-              'tags': tags } for answer in answers
+            {
+                'question_id': answer[0],
+                'text': answer[1],
+                'tags': tags
+            } for answer in answers
         ]
     }
 
@@ -578,19 +582,19 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
             return False
 
         retry = KanoDialog(
-            title_text=_('Unable to send'),
-            description_text=_('Error while sending your feedback. Do you want to retry?'),
+            title_text=_('Unable to send'),  # noqa: F821
+            description_text=_(  # noqa: F821
+                'Error while sending your feedback. Do you want to retry?'
+            ),
             button_dict={
-                _('Close feedback').upper():
-                    {
-                        'return_value': False,
-                        'color': 'red'
-                    },
-                _('Retry').upper():
-                    {
-                        'return_value': True,
-                        'color': 'green'
-                    }
+                _('Close feedback').upper(): {  # noqa: F821
+                    'return_value': False,
+                    'color': 'red'
+                },
+                _('Retry').upper(): {  # noqa: F821
+                    'return_value': True,
+                    'color': 'green'
+                }
             }
         )
 
