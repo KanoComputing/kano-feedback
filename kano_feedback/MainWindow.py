@@ -2,7 +2,7 @@
 
 # MainWindow.py
 #
-# Copyright (C) 2014-2017 Kano Computing Ltd.
+# Copyright (C) 2014-2018 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Base class for the Feedback windows.
@@ -20,14 +20,7 @@ from kano.utils import run_cmd
 from kano_world.functions import is_registered
 from kano.network import is_internet
 from kano.gtk3.kano_dialog import KanoDialog
-# implicit imports
-from kano.gtk3.cursor import attach_cursor_events
-from kano.gtk3.top_bar import TopBar
-from DataSender import (send_data, take_screenshot, copy_screenshot, delete_tmp_dir,
-                        create_tmp_dir, SCREENSHOT_NAME, SCREENSHOT_PATH, delete_screenshot)
-from kano.gtk3.buttons import KanoButton
-from kano.gtk3.scrolled_window import ScrolledWindow
-from kano_feedback import Media
+from DataSender import send_data
 
 
 class MainWindow(ApplicationWindow):
@@ -54,19 +47,19 @@ class MainWindow(ApplicationWindow):
                 return
 
             if self.bug_report:
-                title = _("Important")
-                description = _(
+                title = _("Important")  # noqa: F821
+                description = _(  # noqa: F821
                     "Your feedback will include debugging information.\n"
                     "Do you want to continue?"
                 )
                 kdialog = KanoDialog(
                     title, description,
                     {
-                        _("CANCEL"):
+                        _("CANCEL"):  # noqa: F821
                         {
                             "return_value": 1
                         },
-                        _("OK"):
+                        _("OK"):  # noqa: F821
                         {
                             "return_value": 0
                         }
@@ -86,40 +79,47 @@ class MainWindow(ApplicationWindow):
             self._text.set_sensitive(False)
 
             def lengthy_process():
-                button_dict = {_("OK"): {"return_value": self.CLOSE_FEEDBACK}}
+                button_dict = {
+                    _("OK"): {  # noqa: F821
+                        "return_value": self.CLOSE_FEEDBACK
+                    }
+                }
 
                 if not is_internet():
-                    title = _("No internet connection")
-                    description = _("Configure your connection")
-                    button_dict = {_("OK"): {"return_value": self.LAUNCH_WIFI}}
+                    title = _("No internet connection")  # noqa: F821
+                    description = _("Configure your connection")  # noqa: F821
+                    button_dict = {
+                        _("OK"): {  # noqa: F821
+                            "return_value": self.LAUNCH_WIFI
+                        }
+                    }
                 else:
                     success, error = self.send_user_info(body_title=body_title)
                     if success:
-                        title = _("Info")
-                        description = _("Feedback sent correctly")
-                        button_dict = \
-                            {
-                                _("OK"):
-                                {
-                                    "return_value": self.CLOSE_FEEDBACK
-                                }
+                        title = _("Info")  # noqa: F821
+                        description = _(  # noqa: F821
+                            "Feedback sent correctly"
+                        )
+                        button_dict = {
+                            _("OK"): {  # noqa: F821
+                                "return_value": self.CLOSE_FEEDBACK
                             }
+                        }
                     else:
-                        title = _("Info")
-                        description = _("Something went wrong, error: {}").format(error)
-                        button_dict = \
-                            {
-                                _("CLOSE FEEDBACK"):
-                                {
-                                    "return_value": self.CLOSE_FEEDBACK,
-                                    "color": "red"
-                                },
-                                _("TRY AGAIN"):
-                                {
-                                    "return_value": self.KEEP_OPEN,
-                                    "color": "green"
-                                }
+                        title = _("Info")  # noqa: F821
+                        description = _(  # noqa: F821
+                            "Something went wrong, error: {}"
+                        ).format(error)
+                        button_dict = {
+                            _("CLOSE FEEDBACK"): {  # noqa: F821
+                                "return_value": self.CLOSE_FEEDBACK,
+                                "color": "red"
+                            },
+                            _("TRY AGAIN"): {  # noqa: F821
+                                "return_value": self.KEEP_OPEN,
+                                "color": "green"
                             }
+                        }
 
                 def done(title, description, button_dict):
                     self.set_cursor_to_normal()
@@ -137,7 +137,10 @@ class MainWindow(ApplicationWindow):
                     response = kdialog.run()
 
                     if response == self.LAUNCH_WIFI:
-                        run_cmd('sudo /usr/bin/kano-settings 12', localised=True)
+                        run_cmd(
+                            'sudo /usr/bin/kano-settings 12',
+                            localised=True
+                        )
                         self.after_feedback_sent(completed=False)
                     elif response == self.CLOSE_FEEDBACK:
                         self.after_feedback_sent(completed=True)
