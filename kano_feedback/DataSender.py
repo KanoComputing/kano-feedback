@@ -145,6 +145,8 @@ def get_metadata_archive():
         {'name': 'cpu-info.txt', 'contents': get_cpu_info()},
         {'name': 'lsof.txt', 'contents': get_lsof()},
         {'name': 'content-objects.txt', 'contents': get_co_list()},
+        {'name': 'disk-space.txt', 'contents': get_disk_space()},
+        {'name': 'lsblk.txt', 'contents': get_lsblk()},
         {'name': 'sources-list.txt', 'contents': get_sources_list()},
     ]
     # Include the screenshot if it exists
@@ -457,6 +459,20 @@ def get_co_list():
         return str(objects)
     except:
         return "Couldn't get a list of content objects."
+
+
+def get_disk_space():
+    cmd = "df -h"
+    o, _, _ = run_cmd(cmd)
+
+    return o
+
+
+def get_lsblk():
+    cmd = "lsblk"
+    o, _, _ = run_cmd(cmd)
+
+    return o
 
 
 def get_sources_list():
