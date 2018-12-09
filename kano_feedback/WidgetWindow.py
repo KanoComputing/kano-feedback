@@ -104,7 +104,7 @@ class WidgetWindow(ApplicationWindow):
 
         self.app_name_opened = 'feedback-widget-opened'
         self.typeahead = None
-        self.help_tip_message = _("Type your feedback here!")
+        self.help_tip_message = _("Type your feedback here!")  # noqa: F821
 
         self.rotating_mode = True
         self.in_submit = False

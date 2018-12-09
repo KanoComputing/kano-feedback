@@ -5,6 +5,7 @@
 #
 # Standard interface to work with the project.
 
+REPO:= kano-feedback
 
 .PHONY: clean docs
 
@@ -14,3 +15,10 @@ clean:
 
 docs:
 	cd docs && make all
+
+#
+# Add test targets
+#
+include pythontest.mk
+check: pythontest
+test: check

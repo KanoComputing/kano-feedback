@@ -2,14 +2,23 @@
 
 # FeedbackWindow.py
 #
-# Copyright (C) 2014-2017 Kano Computing Ltd.
+# Copyright (C) 2014-2018 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # The main window to send feedback to Kano
 
 
-from kano_feedback.MainWindow import *
-from gi.repository import GdkPixbuf
+from kano_feedback.MainWindow import MainWindow, ApplicationWindow
+from kano_feedback import Media
+from kano_feedback.DataSender import take_screenshot, copy_screenshot, \
+    delete_tmp_dir, create_tmp_dir, SCREENSHOT_NAME, SCREENSHOT_PATH, \
+    delete_screenshot
+from kano.gtk3.scrolled_window import ScrolledWindow
+from kano.gtk3.top_bar import TopBar
+from kano.gtk3.buttons import KanoButton
+from kano.gtk3.kano_dialog import KanoDialog
+from kano.gtk3.cursor import attach_cursor_events
+from gi.repository import Gtk, Gdk, GdkPixbuf
 
 
 class FeedbackWindow(MainWindow):
@@ -38,7 +47,12 @@ class FeedbackWindow(MainWindow):
         delete_tmp_dir()
         create_tmp_dir()
 
-        ApplicationWindow.__init__(self, _('Contact Us'), self.WIDTH, 0.35)
+        ApplicationWindow.__init__(
+            self,
+            _('Contact Us'),  # noqa: F821
+            self.WIDTH,
+            0.35
+        )
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
@@ -54,8 +68,11 @@ class FeedbackWindow(MainWindow):
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title=_("Contact Us"), window_width=self.WIDTH,
-                               has_buttons=False)
+        self._top_bar = TopBar(
+            title=_("Contact Us"),  # noqa: F821
+            window_width=self.WIDTH,
+            has_buttons=False
+        )
         self._top_bar.set_close_callback(Gtk.main_quit)
         self.set_decorated(True)
         self.set_titlebar(self._top_bar)
@@ -67,9 +84,12 @@ class FeedbackWindow(MainWindow):
         self._text.set_size_request(self.WIDTH, -1)
 
         self._textbuffer = self._text.get_buffer()
-        self._textbuffer.set_text(_("Type your feedback here!"))
-        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text",
-                                                                 self.clear_buffer)
+        self._textbuffer.set_text(
+            _("Type your feedback here!")  # noqa: F821
+        )
+        self._clear_buffer_handler_id = self._textbuffer.connect(
+            "insert-text", self.clear_buffer
+        )
 
         scrolledwindow = ScrolledWindow()
         scrolledwindow.set_vexpand(True)
@@ -94,7 +114,9 @@ class FeedbackWindow(MainWindow):
         border.set_margin_bottom(20)
 
         # Create send button
-        self._send_button = KanoButton(_("SEND"))
+        self._send_button = KanoButton(
+            _("SEND")  # noqa: F821
+        )
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
         self._send_button.pack_and_align()
@@ -111,8 +133,11 @@ class FeedbackWindow(MainWindow):
 
         # kano-profile stat collection
         try:
-            from kano_profile.badges import increment_app_state_variable_with_dialog
-            increment_app_state_variable_with_dialog('kano-feedback', 'starts', 1)
+            from kano_profile.badges import \
+                increment_app_state_variable_with_dialog
+            increment_app_state_variable_with_dialog(
+                'kano-feedback', 'starts', 1
+            )
         except Exception:
             pass
 
@@ -121,7 +146,12 @@ class FeedbackWindow(MainWindow):
         Report window
         Contains 2 text views and Take Screenshot, Add Image and Send buttons
         '''
-        ApplicationWindow.__init__(self, _('Report a Problem'), self.WIDTH, 0.35)
+        ApplicationWindow.__init__(
+            self,
+            _('Report a Problem'),  # noqa: F821
+            self.WIDTH,
+            0.35
+        )
 
         screen = Gdk.Screen.get_default()
         specific_provider = Gtk.CssProvider()
@@ -134,14 +164,18 @@ class FeedbackWindow(MainWindow):
         self._grid = Gtk.Grid()
 
         # Create top bar
-        self._top_bar = TopBar(title=_("Report a Problem"),
-                               window_width=self.WIDTH, has_buttons=False)
+        self._top_bar = TopBar(
+            title=_("Report a Problem"),  # noqa: F821
+            window_width=self.WIDTH,
+            has_buttons=False
+        )
         self._top_bar.set_close_callback(Gtk.main_quit)
         self.set_decorated(True)
         self.set_titlebar(self._top_bar)
 
         self.entry = Gtk.Entry()
-        self.entry.props.placeholder_text = _("Add subject (optional)")
+        self.entry.props.placeholder_text = \
+            _("Add subject (optional)")  # noqa: F821
         self.entry.set_margin_left(20)
         self.entry.set_margin_right(20)
         self.entry.set_margin_top(20)
@@ -155,14 +189,19 @@ class FeedbackWindow(MainWindow):
         self._text.set_size_request(self.WIDTH, -1)
 
         self._textbuffer = self._text.get_buffer()
-        self._textbuffer.set_text(_("Type your problem here!"))
+        self._textbuffer.set_text(
+            _("Type your problem here!")  # noqa: F821
+        )
 
-        self._clear_buffer_handler_id = self._textbuffer.connect("insert-text",
-                                                                 self.clear_buffer)
+        self._clear_buffer_handler_id = self._textbuffer.connect(
+            "insert-text", self.clear_buffer
+        )
 
         scrolledwindow = ScrolledWindow()
         scrolledwindow.set_vexpand(True)
-        scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scrolledwindow.set_policy(
+            Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
+        )
         scrolledwindow.apply_styling_to_widget()
         scrolledwindow.add(self._text)
         scrolledwindow.set_margin_left(2)
@@ -182,18 +221,26 @@ class FeedbackWindow(MainWindow):
         border.set_margin_bottom(20)
 
         # Create take screenshot button
-        self._screenshot_button = KanoButton(_("TAKE SCREENSHOT"), "blue")
+        self._screenshot_button = KanoButton(
+            _("TAKE SCREENSHOT"),  # noqa: F821
+            "blue"
+        )
         self._screenshot_button.set_sensitive(True)
         self._screenshot_button.connect("button_press_event",
                                         self.screenshot_clicked)
 
         # Create attach screenshot button
-        self._attach_button = KanoButton(_("ADD IMAGE"), "blue")
+        self._attach_button = KanoButton(
+            _("ADD IMAGE"),  # noqa: F821
+            "blue"
+        )
         self._attach_button.set_sensitive(True)
         self._attach_button.connect("button_press_event", self.attach_clicked)
 
         # Create send button
-        self._send_button = KanoButton(_("SEND"))
+        self._send_button = KanoButton(
+            _("SEND")  # noqa: F821
+        )
         self._send_button.set_sensitive(False)
         self._send_button.connect("button_press_event", self.send_feedback)
         self._send_button.pack_and_align()
@@ -223,7 +270,9 @@ class FeedbackWindow(MainWindow):
         # kano-profile stat collection
         try:
             from kano_profile.badges import increment_app_state_variable_with_dialog
-            increment_app_state_variable_with_dialog('kano-feedback', 'starts', 1)
+            increment_app_state_variable_with_dialog(
+                'kano-feedback', 'starts', 1
+            )
         except Exception:
             pass
 
@@ -245,11 +294,14 @@ class FeedbackWindow(MainWindow):
         '''
         screenshot = None
         # Open file manager
-        dialog = Gtk.FileChooserDialog(_("Please choose a file"), self,
-                                       Gtk.FileChooserAction.OPEN,
-                                       (Gtk.STOCK_CANCEL,
-                                        Gtk.ResponseType.CANCEL,
-                                        Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+        dialog = Gtk.FileChooserDialog(
+            _("Please choose a file"),  # noqa: F821
+            self,
+            Gtk.FileChooserAction.OPEN,
+            (Gtk.STOCK_CANCEL,
+            Gtk.ResponseType.CANCEL,
+            Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        )
 
         self.add_filters(dialog)
 
@@ -350,7 +402,10 @@ class FeedbackWindow(MainWindow):
                                                         height * 0.5)
         image = Gtk.Image.new_from_pixbuf(pixbuf)
 
-        dialog = KanoDialog(_("Screenshot"), widget=image)
+        dialog = KanoDialog(
+            _("Screenshot"),  # noqa: F821
+            widget=image
+        )
         dialog.run()
 
     def pack_screenshot_buttons(self):
