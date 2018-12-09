@@ -19,26 +19,22 @@ if 'DISPLAY' in os.environ:
     from gi.repository import Gtk
 
 import kano.logging as logging
-from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, delete_file, \
-    read_file_contents
+from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, \
+    delete_file, read_file_contents, get_rpi_model
 from kano_world.connection import request_wrapper, content_type_json
-from kano_world.functions import get_email, get_mixed_username
-from kano_profile.badges import increment_app_state_variable_with_dialog
 from kano.logging import logger
-from kano.utils import get_rpi_model
 
 # Do not Import Gtk if we are not bound to an X Display
 if 'DISPLAY' in os.environ:
     from kano.gtk3.kano_dialog import KanoDialog
 
-from kano_world.functions import is_registered
 from kano.network import is_internet
-from kano_content.api import ContentManager
 
 TMP_DIR = os.path.join(expanduser('~'), '.kano-feedback/')
 SCREENSHOT_NAME = 'screenshot.png'
 SCREENSHOT_PATH = TMP_DIR + SCREENSHOT_NAME
 ARCHIVE_NAME = 'bug_report.tar.gz'
+SEPARATOR = '-----------------------------------------------------------------'
 
 
 def send_data(text, full_info, subject='', network_send=True, logs_path=''):
@@ -58,6 +54,8 @@ def send_data(text, full_info, subject='', network_send=True, logs_path=''):
         bool, error: Whether the operation was successful or there was
         an error as returned by :func:`kano_world.functions.request_wrapper`
     """
+
+    from kano_world.functions import get_email, get_mixed_username
 
     files = {}
     # packs all the information into 'files'
@@ -87,6 +85,7 @@ def send_data(text, full_info, subject='', network_send=True, logs_path=''):
         return False, error
     if full_info:
         # kano-profile stat collection
+        from kano_profile.badges import increment_app_state_variable_with_dialog
         increment_app_state_variable_with_dialog('kano-feedback',
                                                  'bugs_submitted', 1)
         # logs were sent, clean up
@@ -145,7 +144,8 @@ def get_metadata_archive():
         {'name': 'xorg-log.txt', 'contents': get_xorg_log()},
         {'name': 'cpu-info.txt', 'contents': get_cpu_info()},
         {'name': 'lsof.txt', 'contents': get_lsof()},
-        {'name': 'content-objects.txt', 'contents': get_co_list()}
+        {'name': 'content-objects.txt', 'contents': get_co_list()},
+        {'name': 'sources-list.txt', 'contents': get_sources_list()},
     ]
     # Include the screenshot if it exists
     if os.path.isfile(SCREENSHOT_PATH):
@@ -372,6 +372,7 @@ def get_wifi_info():
     '''
     Returns a string with wifi specific info
     '''
+    from kano_world.functions import get_mixed_username
     # Get username here
     world_username = "Kano World username: {}\n\n".format(get_mixed_username())
     kwifi_cache = "**kwifi_cache**\n {}\n\n".format(get_kwifi_cache())
@@ -450,11 +451,40 @@ def get_co_list():
     Returns a list of content object IDs currently on the system.
     '''
     try:
+        from kano_content.api import ContentManager
         cm = ContentManager.from_local()
         objects = cm.list_local_objects(active_only=False, inactive_only=False)
         return str(objects)
     except:
         return "Couldn't get a list of content objects."
+
+
+def get_sources_list():
+    SRC_LIST_FILE = '/etc/apt/sources.list'
+    SRC_LIST_DIR = '/etc/apt/sources.list.d'
+
+    src_files = [SRC_LIST_FILE] if os.path.exists(SRC_LIST_FILE) else []
+
+    src_filenames = sorted(os.listdir(SRC_LIST_DIR)) \
+        if os.path.isdir(SRC_LIST_DIR) else []
+    src_files += [os.path.join(SRC_LIST_DIR, src) for src in src_filenames]
+
+    output = []
+
+    for src_file in src_files:
+        if not os.path.isfile(src_file):
+            continue
+
+        output.append('Source file: {}'.format(src_file))
+        output.append(SEPARATOR)
+
+        with open(src_file, 'r') as src_f:
+            output.append(src_f.read())
+
+        output.append(SEPARATOR)
+        output.append('')
+
+    return '\n'.join(output)
 
 
 def take_screenshot():
@@ -505,6 +535,7 @@ def try_login():
     Returns login status.
     If user is not logged in the first time, the logger will be launched
     '''
+    from kano_world.functions import is_registered
     # Check if user is registered
     if not is_registered():
         _, _, rc = run_cmd('kano-login 3', localised=True)
@@ -535,6 +566,8 @@ def send_question_response(answers, interactive=True, tags=['os', 'feedback-widg
 
     The answers will be all packed into a payload object and sent in one single network transaction.
     '''
+
+    from kano_world.functions import get_email, get_mixed_username
 
     ok_msg_title = _('Thank you')  # noqa: F821
     ok_msg_body = _(  # noqa: F821

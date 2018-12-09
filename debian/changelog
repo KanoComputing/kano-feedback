@@ -2,6 +2,7 @@ kano-feedback (4.2.0-0) unstable; urgency=low
 
   * Added parameter to kano-feedback-cli to send existing logs
   * Add pstree output to the logs
+  * Add apt source files to the logs
   * Fix Debian package logs to show install state
 
  -- Team Kano <dev@kano.me>  Fri, 7 Dec 2018 14:57:00 +0000
