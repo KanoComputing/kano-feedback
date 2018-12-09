@@ -122,6 +122,7 @@ def get_metadata_archive():
         {'name': 'kanux_version.txt', 'contents': get_version()},
         {'name': 'kanux_stamp.txt', 'contents': get_stamp()},
         {'name': 'process.txt', 'contents': get_processes()},
+        {'name': 'process-tree.txt', 'contents': get_process_tree()},
         {'name': 'packages.txt', 'contents': get_packages()},
         {'name': 'dmesg.txt', 'contents': get_dmesg()},
         {'name': 'syslog.txt', 'contents': get_syslog()},
@@ -197,6 +198,16 @@ def get_processes():
     Returns a string with the current processes running in the system
     '''
     cmd = "ps -aux"
+    o, _, _ = run_cmd(cmd)
+
+    return o
+
+
+def get_process_tree():
+    '''
+    Returns a string with the processes tree of the system
+    '''
+    cmd = "pstree -apl"
     o, _, _ = run_cmd(cmd)
 
     return o
