@@ -3,7 +3,7 @@
 
 # WidgetQuestions.py
 #
-# Copyright (C) 2015 Kano Computing Ltd.
+# Copyright (C) 2015-2018 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Provides a rotating list of questions pulled from Kano
@@ -36,7 +36,6 @@ class WidgetPrompts:
         self.current_prompt = None
         self.current_prompt_idx = -1
 
-
     def load_prompts(self):
         '''
         Try to get the questions from Kano Network
@@ -58,7 +57,6 @@ class WidgetPrompts:
             return self.prompts[self.current_prompt_idx]['id']
         except:
             return ''
-
 
     def get_current_prompt_type(self):
         '''
@@ -190,7 +188,10 @@ class WidgetPrompts:
 
         # Question IDs being migrated to the Dashboard will go in this list
         # Disabling "How would you rate Kano from 0 to 10" and "What did you like..."
-        disabled_qids = [ "5787ac06e98ae8816fb86b15", "578cbf79b1eafe4c58c76932" ]
+        disabled_qids = [
+            "5787ac06e98ae8816fb86b15",
+            "578cbf79b1eafe4c58c76932"
+        ]
 
         next_prompt = None
         iterations = 0
@@ -267,9 +268,12 @@ class WidgetPrompts:
             with open(self.cache_file) as csvfile:
                 reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 for row in reader:
-                    if row[0]: row[0] = row[0].decode('utf-8')
-                    if row[1]: row[1] = row[1].decode('utf-8')
-                    if row[2]: row[2] = row[2].decode('utf-8')
+                    if row[0]:
+                        row[0] = row[0].decode('utf-8')
+                    if row[1]:
+                        row[1] = row[1].decode('utf-8')
+                    if row[2]:
+                        row[2] = row[2].decode('utf-8')
 
                     if offline:
                         if row[1] != 'yes':
@@ -290,9 +294,12 @@ class WidgetPrompts:
             with open(self.cache_file, 'w') as csvfile:
                 writer = csv.writer(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 for row in rows:
-                    if row[0]: row[0] = row[0].encode('utf-8')
-                    if row[1]: row[1] = row[1].encode('utf-8')
-                    if row[2]: row[2] = row[2].encode('utf-8')
+                    if row[0]:
+                        row[0] = row[0].encode('utf-8')
+                    if row[1]:
+                        row[1] = row[1].encode('utf-8')
+                    if row[2]:
+                        row[2] = row[2].encode('utf-8')
                     writer.writerow([row[0], row[1], row[2]])
         except Exception as e:
             logger.debug("Exception in _cache_save_all: {}".format(str(e)))
