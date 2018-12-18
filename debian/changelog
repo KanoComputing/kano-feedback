@@ -20,6 +20,15 @@ kano-feedback (4.0.0-0) unstable; urgency=low
 
  -- Team Kano <dev@kano.me>  Fri, 22 June 2018 15:27:30 +0100
 
+kano-feedback (3.16.1-0) unstable; urgency=low
+
+  * Backport: Add pstree output to the logs
+  * Backport: Fix Debian package logs to show install state
+  * Backport: Add apt source files to the logs
+  * Backport: Add disk space usage to the logs
+
+ -- Team Kano <dev@kano.me>  Fri, 7 Dec 2018 14:57:00 +0000
+
 kano-feedback (3.16.0-0) unstable; urgency=low
 
   * Fix kano-toolset dependency version
