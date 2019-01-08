@@ -36,6 +36,9 @@ SCREENSHOT_PATH = TMP_DIR + SCREENSHOT_NAME
 ARCHIVE_NAME = 'bug_report.tar.gz'
 SEPARATOR = '-----------------------------------------------------------------'
 
+DPKG_LOG_PATH = '/var/log/dpkg.log'
+APT_LOG_PATH = '/var/log/apt/'
+
 
 def send_data(text, full_info, subject="", network_send=True):
     """Sends the data to our servers through a post request.
@@ -145,6 +148,8 @@ def get_metadata_archive():
         {'name': 'lsblk.txt', 'contents': get_lsblk()},
         {'name': 'sources-list.txt', 'contents': get_sources_list()},
     ]
+    file_list += get_install_logs()
+
     # Include the screenshot if it exists
     if os.path.isfile(SCREENSHOT_PATH):
         file_list.append({
@@ -497,6 +502,36 @@ def get_sources_list():
         output.append('')
 
     return '\n'.join(output)
+
+
+def get_install_logs():
+    log_list = []
+
+    log_files = [DPKG_LOG_PATH]
+    if os.path.exists(os.path.dirname(APT_LOG_PATH)):
+        log_files += [
+            os.path.join(APT_LOG_PATH, log_f)
+            for log_f in os.listdir(APT_LOG_PATH)
+        ]
+
+    for log_file in log_files:
+        if not os.path.exists(log_file):
+            continue
+
+        try:
+            with open(log_file, 'r') as log_f:
+                contents = log_f.read()
+
+            log_list.append(
+                {
+                    'name': 'install-{}'.format(os.path.basename(log_file)),
+                    'contents': contents
+                }
+            )
+        except Exception:
+            pass
+
+    return log_list
 
 
 def take_screenshot():
