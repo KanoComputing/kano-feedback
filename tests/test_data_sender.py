@@ -27,3 +27,22 @@ def test_get_sources_list(console_mode, apt_sources):
         for src in apt_sources
     ])
     assert src_list == expected
+
+
+def test_get_install_logs(console_mode, dpkg_logs, apt_logs):
+    import kano_feedback.DataSender as DataSender
+    # FIXME: Reload required to re-patch the module with the new fs
+    imp.reload(DataSender)
+
+    logs = DataSender.get_install_logs()
+
+    expected_logs = dpkg_logs + apt_logs
+    expected_output = [
+        {
+            'name': log.log_filename,
+            'contents': log.contents
+        }
+        for log in expected_logs
+    ]
+
+    assert logs == expected_output
