@@ -1,3 +1,9 @@
+kano-feedback (4.2.1-0) unstable; urgency=low
+
+  * Add apt and dpkg install logs
+
+ -- Team Kano <dev@kano.me>  Tue, 8 Jan 2019 16:25:00 +0000
+
 kano-feedback (4.2.0-0) unstable; urgency=low
 
   * Added parameter to kano-feedback-cli to send existing logs
