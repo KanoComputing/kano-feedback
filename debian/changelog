@@ -1,8 +1,9 @@
 kano-feedback (4.2.1-0) unstable; urgency=low
 
   * Add apt and dpkg install logs
+  * Improved process list log with WCHAN and a few others
 
- -- Team Kano <dev@kano.me>  Tue, 8 Jan 2019 16:25:00 +0000
+ -- Team Kano <dev@kano.me>  Fri, 11 Jan 2019 14:25:00 +0000
 
 kano-feedback (4.2.0-0) unstable; urgency=low
 
