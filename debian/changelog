@@ -1,15 +1,21 @@
+kano-feedback (3.16.2-0) unstable; urgency=low
+
+  * Backport: Improved process list log with WCHAN and a few others
+
+ -- Team Kano <dev@kano.me>  Wed, 16 Jan 2019 17:34:00 +0000
+
 kano-feedback (3.16.1-0) unstable; urgency=low
 
   * Backport: Add pstree output to the logs
   * Backport: Fix Debian package logs to show install state
   * Backport: Add apt source files to the logs
-  * Add disk space usage to the logs
+  * Backport: Add disk space usage to the logs
 
  -- Team Kano <dev@kano.me>  Mon, 10 Dec 2018 16:34:00 +0100
 
 kano-feedback (3.16.0-0) unstable; urgency=low
 
-  * Fix kano-toolset dependency version
+  * Backport: Fix kano-toolset dependency version
 
  -- Team Kano <dev@kano.me>  Wed, 5 Sep 2018 14:47:00 +0100
 
