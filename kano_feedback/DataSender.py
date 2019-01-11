@@ -199,7 +199,7 @@ def get_processes():
     '''
     Returns a string with the current processes running in the system
     '''
-    cmd = "ps -aux"
+    cmd = "ps -Ao user,pid,pcpu,pmem,vsz,rss,tty=TTY,tmout,f=FLAGS,wchan=EXTRA-WIDE-WCHAN-COLUMN,stat,start_time,time,args"
     o, _, _ = run_cmd(cmd)
 
     return o
