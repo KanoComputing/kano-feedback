@@ -1,7 +1,7 @@
 #
 # test_data_sender.py
 #
-# Copyright (C) 2018 Kano Computing Ltd.
+# Copyright (C) 2018-2019 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Tests that the data is correctly collected and sent
@@ -11,7 +11,7 @@
 import imp
 
 
-def test_get_sources_list(console_mode, apt_sources):
+def test_get_sources_list(fix_toolset, console_mode, apt_sources):
     import kano_feedback.DataSender as DataSender
     # FIXME: Reload required to re-patch the module with the new fs
     imp.reload(DataSender)
