@@ -13,3 +13,5 @@
 from tests.fixtures.apt_sources import *
 from tests.fixtures.console_mode import *
 from tests.fixtures.logs import *
+
+from tests.fixtures.patch_toolset_paths import *
