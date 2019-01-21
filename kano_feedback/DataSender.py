@@ -2,14 +2,13 @@
 
 # DataSender.py
 #
-# Copyright (C) 2014-2018 Kano Computing Ltd.
+# Copyright (C) 2014-2019 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Functions related to sending feedback data
 
 
 import os
-from os.path import expanduser
 import datetime
 import json
 import traceback
@@ -17,20 +16,17 @@ import traceback
 # Do not Import Gtk if we are not bound to an X Display
 if 'DISPLAY' in os.environ:
     from gi.repository import Gtk
-
-import kano.logging as logging
-from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, \
-    delete_file, read_file_contents, get_rpi_model
-from kano_world.connection import request_wrapper, content_type_json
-from kano.logging import logger
-
-# Do not Import Gtk if we are not bound to an X Display
-if 'DISPLAY' in os.environ:
     from kano.gtk3.kano_dialog import KanoDialog
 
+from kano_world.connection import request_wrapper, content_type_json
 from kano.network import is_internet
+import kano.logging as logging
+from kano.logging import logger
+from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, \
+    delete_file, read_file_contents, get_rpi_model
 
-TMP_DIR = os.path.join(expanduser('~'), '.kano-feedback/')
+
+TMP_DIR = os.path.join(os.path.expanduser('~'), '.kano-feedback/')
 SCREENSHOT_NAME = 'screenshot.png'
 SCREENSHOT_PATH = TMP_DIR + SCREENSHOT_NAME
 ARCHIVE_NAME = 'bug_report.tar.gz'
@@ -142,6 +138,7 @@ def get_metadata_archive():
         {'name': 'screen-log.txt', 'contents': get_screen_log()},
         {'name': 'xorg-log.txt', 'contents': get_xorg_log()},
         {'name': 'cpu-info.txt', 'contents': get_cpu_info()},
+        {'name': 'mem-stats.txt', 'contents': get_mem_stats()},
         {'name': 'lsof.txt', 'contents': get_lsof()},
         {'name': 'content-objects.txt', 'contents': get_co_list()},
         {'name': 'disk-space.txt', 'contents': get_disk_space()},
@@ -292,6 +289,32 @@ def get_cpu_info():
     o += '\nModel: {}'.format(get_rpi_model())
 
     return o
+
+
+def get_mem_stats():
+    """
+    Get information about memory usage
+    """
+    mem_stats = ''
+
+    out, _, _ = run_cmd('free --human --lohi --total')
+    mem_stats += out
+    out, _, _ = run_cmd('vcgencmd get_mem arm')
+    mem_stats += out
+    out, _, _ = run_cmd('vcgencmd get_mem gpu')
+    mem_stats += out
+    out, _, _ = run_cmd('vcgencmd get_mem reloc')
+    mem_stats += out
+    out, _, _ = run_cmd('vcgencmd get_mem reloc_total')
+    mem_stats += out
+    out, _, _ = run_cmd('vcgencmd get_mem malloc')
+    mem_stats += out
+    out, _, _ = run_cmd('vcgencmd get_mem malloc_total')
+    mem_stats += out
+    out, _, _ = run_cmd('vcgencmd mem_reloc_stats')
+    mem_stats += out
+
+    return mem_stats
 
 
 def get_lsof():

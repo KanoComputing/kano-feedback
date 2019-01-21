@@ -2,8 +2,9 @@ kano-feedback (3.16.2-0) unstable; urgency=low
 
   * Backport: Improved process list log with WCHAN and a few others
   * Backport: Add apt and dpkg install logs
+  * Backport: Add memory stats logs
 
- -- Team Kano <dev@kano.me>  Wed, 16 Jan 2019 17:34:00 +0000
+ -- Team Kano <dev@kano.me>  Mon, 21 Jan 2019 17:34:00 +0000
 
 kano-feedback (3.16.1-0) unstable; urgency=low
 
