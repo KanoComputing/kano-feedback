@@ -302,7 +302,7 @@ def get_mem_stats():
     mem_stats = ''
 
     out, _, _ = run_cmd('free --human --lohi --total')
-    mem_stats += out
+    mem_stats += out + '\n'
     out, _, _ = run_cmd('vcgencmd get_mem arm')
     mem_stats += out
     out, _, _ = run_cmd('vcgencmd get_mem gpu')
@@ -314,8 +314,12 @@ def get_mem_stats():
     out, _, _ = run_cmd('vcgencmd get_mem malloc')
     mem_stats += out
     out, _, _ = run_cmd('vcgencmd get_mem malloc_total')
-    mem_stats += out
+    mem_stats += out + '\n'
     out, _, _ = run_cmd('vcgencmd mem_reloc_stats')
+    mem_stats += out + '\n'
+    out, _, _ = run_cmd('cat /proc/meminfo')
+    mem_stats += out + '\n'
+    out, _, _ = run_cmd('ps -eo pmem,args --no-headers --sort -pmem')
     mem_stats += out
 
     return mem_stats
