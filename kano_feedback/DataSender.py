@@ -28,8 +28,9 @@ from kano.utils import run_cmd, write_file_contents, ensure_dir, delete_dir, \
 
 TMP_DIR = os.path.join(os.path.expanduser('~'), '.kano-feedback/')
 SCREENSHOT_NAME = 'screenshot.png'
-SCREENSHOT_PATH = TMP_DIR + SCREENSHOT_NAME
+SCREENSHOT_PATH = os.path.join(TMP_DIR, SCREENSHOT_NAME)
 ARCHIVE_NAME = 'bug_report.tar.gz'
+ARCHIVE_PATH = os.path.join(TMP_DIR, ARCHIVE_NAME)
 SEPARATOR = '-----------------------------------------------------------------'
 
 DPKG_LOG_PATH = '/var/log/dpkg.log'
@@ -62,7 +63,7 @@ def send_data(text, full_info, subject='', network_send=True, logs_path=''):
         if logs_path and os.path.exists(logs_path):
             files['report'] = open(logs_path, 'rb')
         else:
-            files['report'] = get_metadata_archive()
+            files['report'] = get_metadata_archive(title=subject, desc=text)
     # This is the actual info: subject, text, email, username
     payload = {
         "text": text,
@@ -114,13 +115,17 @@ def delete_screenshot():
     delete_file(SCREENSHOT_PATH)
 
 
-def get_metadata_archive():
+def get_metadata_archive(title='', desc=''):
     '''
     It creates a file (ARCHIVE_NAME) with all the information
     Returns the file
     '''
     ensure_dir(TMP_DIR)
     file_list = [
+        {
+            'name': 'metadata.json',
+            'contents': json.dumps({'title': title, 'description': desc})
+        },
         {'name': 'kanux_version.txt', 'contents': get_version()},
         {'name': 'kanux_stamp.txt', 'contents': get_stamp()},
         {'name': 'process.txt', 'contents': get_processes()},
@@ -128,8 +133,14 @@ def get_metadata_archive():
         {'name': 'packages.txt', 'contents': get_packages()},
         {'name': 'dmesg.txt', 'contents': get_dmesg()},
         {'name': 'syslog.txt', 'contents': get_syslog()},
-        {'name': 'cmdline.txt', 'contents': read_file_contents('/boot/cmdline.txt')},
-        {'name': 'config.txt', 'contents': read_file_contents('/boot/config.txt')},
+        {
+            'name': 'cmdline.txt',
+            'contents': read_file_contents('/boot/cmdline.txt')
+        },
+        {
+            'name': 'config.txt',
+            'contents': read_file_contents('/boot/config.txt')
+        },
         {'name': 'wifi-info.txt', 'contents': get_wifi_info()},
         {'name': 'usbdevices.txt', 'contents': get_usb_devices()},
 
@@ -154,9 +165,9 @@ def get_metadata_archive():
     # Include the screenshot if it exists
     if os.path.isfile(SCREENSHOT_PATH):
         file_list.append({
-                         'name': SCREENSHOT_NAME,
-                         'contents': read_file_contents(SCREENSHOT_PATH)
-                         })
+            'name': SCREENSHOT_NAME,
+            'contents': read_file_contents(SCREENSHOT_PATH)
+        })
     # Collect all coredumps, for applications that terminated unexpectedly
     for f in os.listdir('/var/tmp/'):
         if f.startswith('core-'):
@@ -167,16 +178,17 @@ def get_metadata_archive():
     # create files for each non empty metadata info
     for file in file_list:
         if file['contents']:
-            write_file_contents(TMP_DIR + file['name'], file['contents'])
+            write_file_contents(
+                os.path.join(TMP_DIR, file['name']), file['contents']
+            )
     # archive all the metadata files
-    # need to change dir to avoid tar subdirectories
-    current_directory = os.getcwd()
-    os.chdir(TMP_DIR)
-    run_cmd("tar -zcvf {} *".format(ARCHIVE_NAME))
+    import tarfile
+    with tarfile.open(ARCHIVE_PATH, mode='w') as archive:
+        for f in os.listdir(TMP_DIR):
+            archive.add(os.path.join(TMP_DIR, f), arcname=f)
+
     # open the file and return it
-    archive = open(ARCHIVE_NAME, 'rb')
-    # restore the current working directory
-    os.chdir(current_directory)
+    archive = open(ARCHIVE_PATH, 'rb')
 
     return archive
 
@@ -418,7 +430,7 @@ def get_wifi_info():
 
 
 def get_edid():
-    file_path = TMP_DIR + 'edid.dat'
+    file_path = os.path.join(TMP_DIR, 'edid.dat')
     cmd = "tvservice -d {}".format(file_path)
     run_cmd(cmd)
     try:
@@ -438,7 +450,7 @@ def get_hdmi_info():
     o, _, _ = run_cmd(cmd)
     res = 'Current resolution: {}\n\n'.format(o)
     # edid file
-    file_path = TMP_DIR + 'edid.dat'
+    file_path = os.path.join(TMP_DIR, 'edid.dat')
     cmd = "tvservice -d {} && edidparser {}".format(file_path, file_path)
     edid, _, _ = run_cmd(cmd)
     delete_file(file_path)

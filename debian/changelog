@@ -1,3 +1,9 @@
+kano-feedback (4.3.0-0) unstable; urgency=low
+
+  * Add title and description into the log archive
+
+ -- Team Kano <dev@kano.me>  Tue, 30 Apr 2019 13:44:00 +0000
+
 kano-feedback (4.2.1-0) unstable; urgency=low
 
   * Add apt and dpkg install logs
