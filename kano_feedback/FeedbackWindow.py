@@ -446,6 +446,6 @@ class FeedbackWindow(MainWindow):
         screenshots, images.
         """
         return (
-            self.kano_world_client.is_logged_in() and
-            self.kano_world_client.get_account_verified()
+            self.kano_world_client.is_logged_in()
+            and self.kano_world_client.get_account_verified()
         )

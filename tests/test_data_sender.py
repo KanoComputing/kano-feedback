@@ -69,7 +69,7 @@ def test_send_data(mocker, requests_mock, console_mode, monkeypatch, stub):
     # Fake the API, in the future we might want to actually test the data
     # sent
     post_mock = requests_mock.post(
-        'https://api.kano.me/feedback',
+        'https://worldapi.kes.kano.me/feedback',
         json={'result': 200}
     )
 
