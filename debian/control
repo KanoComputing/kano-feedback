@@ -27,7 +27,8 @@ Depends:
     kano-video-files (>=1.1-2),
     libkdesk-dev,
     lsof,
-    lxpanel
+    lxpanel,
+    python2-mercury
 Description: A tool for feedback gathering
  A tool to allow Kanux users to provide feedback
 
