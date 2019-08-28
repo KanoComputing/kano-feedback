@@ -2,23 +2,27 @@
 
 # FeedbackWindow.py
 #
-# Copyright (C) 2014-2018 Kano Computing Ltd.
+# Copyright (C) 2014-2019 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # The main window to send feedback to Kano
 
+
+from gi.repository import Gtk, Gdk, GdkPixbuf
+
+from kano.gtk3.scrolled_window import ScrolledWindow
+from kano.gtk3.top_bar import TopBar
+from kano.gtk3.buttons import KanoButton
+from kano.gtk3.kano_dialog import KanoDialog
+from kano.gtk3.cursor import attach_cursor_events
+
+from mercury import KanoWorld
 
 from kano_feedback.MainWindow import MainWindow, ApplicationWindow
 from kano_feedback import Media
 from kano_feedback.DataSender import take_screenshot, copy_screenshot, \
     delete_tmp_dir, create_tmp_dir, SCREENSHOT_NAME, SCREENSHOT_PATH, \
     delete_screenshot
-from kano.gtk3.scrolled_window import ScrolledWindow
-from kano.gtk3.top_bar import TopBar
-from kano.gtk3.buttons import KanoButton
-from kano.gtk3.kano_dialog import KanoDialog
-from kano.gtk3.cursor import attach_cursor_events
-from gi.repository import Gtk, Gdk, GdkPixbuf
 
 
 class FeedbackWindow(MainWindow):
@@ -32,6 +36,7 @@ class FeedbackWindow(MainWindow):
         Initialises the window, creating a report or contact window
         '''
         MainWindow.__init__(self, subject='Kano Desktop Feedback Widget')
+        self.kano_world_client = KanoWorld()
         self.bug_report = bug_report
         if self.bug_report:
             self.report_window()
@@ -82,19 +87,22 @@ class FeedbackWindow(MainWindow):
         self._text.set_editable(True)
         self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self._text.set_size_request(self.WIDTH, -1)
+        self._text.set_sensitive(self._pii_allowed())
 
         self._textbuffer = self._text.get_buffer()
-        self._textbuffer.set_text(
-            _("Type your feedback here!")  # noqa: F821
-        )
+        if self._pii_allowed():
+            self._textbuffer.set_text(_("Type your feedback here!"))  # noqa: F821
+        else:
+            self._textbuffer.set_text(_("Want to send us more information? Ask your parent to check their email."))  # noqa: F821
         self._clear_buffer_handler_id = self._textbuffer.connect(
             "insert-text", self.clear_buffer
         )
 
         scrolledwindow = ScrolledWindow()
         scrolledwindow.set_vexpand(True)
-        scrolledwindow.set_policy(Gtk.PolicyType.NEVER,
-                                  Gtk.PolicyType.AUTOMATIC)
+        scrolledwindow.set_policy(
+            Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC
+        )
         scrolledwindow.apply_styling_to_widget()
         scrolledwindow.add(self._text)
         scrolledwindow.set_margin_left(2)
@@ -117,7 +125,7 @@ class FeedbackWindow(MainWindow):
         self._send_button = KanoButton(
             _("SEND")  # noqa: F821
         )
-        self._send_button.set_sensitive(False)
+        self._send_button.set_sensitive(not self._pii_allowed())
         self._send_button.connect("button_press_event", self.send_feedback)
         self._send_button.pack_and_align()
         self._send_button.align.set_padding(10, 10, 0, 0)
@@ -157,8 +165,9 @@ class FeedbackWindow(MainWindow):
         specific_provider = Gtk.CssProvider()
         specific_provider.load_from_path(Media.media_dir() + 'css/style.css')
         style_context = Gtk.StyleContext()
-        style_context.add_provider_for_screen(screen, specific_provider,
-                                              Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        style_context.add_provider_for_screen(
+            screen, specific_provider, Gtk.STYLE_PROVIDER_PRIORITY_USER
+        )
 
         self.set_icon_name("feedback")
         self._grid = Gtk.Grid()
@@ -174,12 +183,15 @@ class FeedbackWindow(MainWindow):
         self.set_titlebar(self._top_bar)
 
         self.entry = Gtk.Entry()
-        self.entry.props.placeholder_text = \
-            _("Add subject (optional)")  # noqa: F821
+        if self._pii_allowed():
+            self.entry.props.placeholder_text = _("Add subject (optional)")  # noqa: F821
+        else:
+            self.entry.props.placeholder_text = _("Want to send us more information?")  # noqa: F821
         self.entry.set_margin_left(20)
         self.entry.set_margin_right(20)
         self.entry.set_margin_top(20)
         self.entry.set_margin_bottom(10)
+        self.entry.set_sensitive(self._pii_allowed())
         self._grid.attach(self.entry, 0, 0, 1, 1)
 
         # Create Text view
@@ -187,11 +199,13 @@ class FeedbackWindow(MainWindow):
         self._text.set_editable(True)
         self._text.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self._text.set_size_request(self.WIDTH, -1)
+        self._text.set_sensitive(self._pii_allowed())
 
         self._textbuffer = self._text.get_buffer()
-        self._textbuffer.set_text(
-            _("Type your problem here!")  # noqa: F821
-        )
+        if self._pii_allowed():
+            self._textbuffer.set_text(_("Type your problem here!"))  # noqa: F821
+        else:
+            self._textbuffer.set_text(_("Ask your parent to check their email."))  # noqa: F821
 
         self._clear_buffer_handler_id = self._textbuffer.connect(
             "insert-text", self.clear_buffer
@@ -225,23 +239,24 @@ class FeedbackWindow(MainWindow):
             _("TAKE SCREENSHOT"),  # noqa: F821
             "blue"
         )
-        self._screenshot_button.set_sensitive(True)
-        self._screenshot_button.connect("button_press_event",
-                                        self.screenshot_clicked)
+        self._screenshot_button.set_sensitive(self._pii_allowed())
+        self._screenshot_button.connect(
+            "button_press_event", self.screenshot_clicked
+        )
 
         # Create attach screenshot button
         self._attach_button = KanoButton(
             _("ADD IMAGE"),  # noqa: F821
             "blue"
         )
-        self._attach_button.set_sensitive(True)
+        self._attach_button.set_sensitive(self._pii_allowed())
         self._attach_button.connect("button_press_event", self.attach_clicked)
 
         # Create send button
         self._send_button = KanoButton(
             _("SEND")  # noqa: F821
         )
-        self._send_button.set_sensitive(False)
+        self._send_button.set_sensitive(not self._pii_allowed())
         self._send_button.connect("button_press_event", self.send_feedback)
         self._send_button.pack_and_align()
         self._send_button.set_margin(10, 0, 10, 0)
@@ -412,10 +427,25 @@ class FeedbackWindow(MainWindow):
         '''
         Pack the screenshot buttons into a box
         '''
-        self.screenshot_box.pack_start(self._screenshot_button,
-                                       False, False, 0)
-        self.screenshot_box.set_child_non_homogeneous(self._screenshot_button,
-                                                      True)
-        self.screenshot_box.pack_start(self._attach_button, False, False, 0)
-        self.screenshot_box.set_child_non_homogeneous(self._attach_button,
-                                                      True)
+        self.screenshot_box.pack_start(
+            self._screenshot_button, False, False, 0
+        )
+        self.screenshot_box.set_child_non_homogeneous(
+            self._screenshot_button, True
+        )
+        self.screenshot_box.pack_start(
+            self._attach_button, False, False, 0
+        )
+        self.screenshot_box.set_child_non_homogeneous(
+            self._attach_button, True
+        )
+
+    def _pii_allowed(self):
+        """
+        Helper to check whether or not users are allowed to send us text,
+        screenshots, images.
+        """
+        return (
+            self.kano_world_client.is_logged_in() and
+            self.kano_world_client.get_account_verified()
+        )
