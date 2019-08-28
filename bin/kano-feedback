@@ -2,7 +2,7 @@
 
 # kano-feedback
 #
-# Copyright (C) 2014-2018 Kano Computing Ltd.
+# Copyright (C) 2014-2019 Kano Computing Ltd.
 # License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
 # Provides a simple UI interface to quickly send feedback to Kano
@@ -41,8 +41,8 @@ def main(bug_report=False):
 
     return 0
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     # Check internet status
     if not is_internet():
         run_cmd('sudo /usr/bin/kano-settings 12')

@@ -1,3 +1,9 @@
+kano-feedback (4.3.2-0) unstable; urgency=low
+
+  * Prevent users without parental consent from sending PII in text inputs
+
+ -- Team Kano <dev@kano.me>  Wed, 28 Aug 2019 10:38:00 +0100
+
 kano-feedback (4.3.0-0) unstable; urgency=low
 
   * Add title and description into the log archive
