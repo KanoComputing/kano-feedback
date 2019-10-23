@@ -2,12 +2,12 @@
 
 # kano-feedback-coredump
 #
-# Copyright (C) 2014, 2015 Kano Computing Ltd.
-# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU General Public License v2
+# Copyright (C) 2014-2019 Kano Computing Ltd.
+# License: http://www.gnu.org/licenses/gpl-2.0.txt GNU GPL v2
 #
-# This script is called everytime a program segfaults
-# It is setup via sysctl kernel.core_pattern by using a pipe symbol
-#
+# This script is called everytime a program segfaults and runs with sudo.
+# It is setup via sysctl kernel.core_pattern by using a pipe symbol.
+
 
 procname=$1
 killsig=$2
@@ -15,21 +15,36 @@ uid=$3
 gid=$4
 unixtime=$5
 
+latest=10
 core_dump_dir="/var/tmp"
 core_dump_file="$core_dump_dir/core-$procname-$killsig-$uid-$gid-$unixtime.dump"
 
+
 function save_core_dump()
 {
-    # save the coredump coming through stdin to a gzipped file
-    cat < /dev/stdin | gzip -c - > $1.gz
+    # Path to the core.dump file to save as a .gz archive.
+    core_dump_file=$1
+
+    # Save the coredump coming through stdin to a gzipped file.
+    cat < /dev/stdin | gzip -c - > $core_dump_file.gz
 }
 
 function remove_old_dumps()
 {
-    # remove core dump files older than 5 days
-    find $core_dump_dir/* -mtime +5 -exec rm {} \;
+    # Directory where core dumps are to be trimmed from.
+    core_dump_dir=$1
+    # Number of latest core dumps to keep.
+    latest_count=$2
+
+    # Only keep the latest coredumps and delete all older ones.
+    find $core_dump_dir -maxdepth 1 -name "*.dump*" -type f -printf "%Ts\t$core_dump_dir/%P\n" | \
+        sort --numeric-sort | \
+        head --lines -$latest_count | \
+        cut --fields 2- | \
+        xargs rm -rf
 }
 
+
 save_core_dump $core_dump_file
-remove_old_dumps
+remove_old_dumps $core_dump_dir $latest
 exit 0

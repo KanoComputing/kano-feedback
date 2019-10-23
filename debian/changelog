@@ -1,3 +1,9 @@
+kano-feedback (4.3.3-0) unstable; urgency=low
+
+  * Keep only the latest 10 core dumps on the system
+
+ -- Team Kano <dev@kano.me>  Wed, 23 Oct 2019 14:38:00 +0100
+
 kano-feedback (4.3.2-0) unstable; urgency=low
 
   * Prevent users without parental consent from sending PII in text inputs
